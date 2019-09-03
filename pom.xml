@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.chenlijia1111</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.0.1-RELEASE</version>
+    <name>utils</name>
+    <description>工具类</description>
+    <url>https://github.com/chenlijia1111/utils.git</url>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <tag>master</tag>
+        <url>git@github.com:cloudnil/marathon-client.git</url>
+        <connection>scm:git:git@github.com:chenlijia1111/utils.git</connection>
+        <developerConnection>scm:git:git@github.com:chenlijia1111</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <name>chenlijia</name>
+            <email>571740367@qq.com</email>
+            <organization>chenlijia</organization>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
+
+    <!--发布版本命令  mvn clean deploy -P sonatype-oss-release -Darguments="gpg.passphrase=Clj3623211997@"-->
+    <!--公钥 C70C5FD3E9692D71F917B840500E0B66BED7560D"-->
+    <!--gpg 加密密码 Clj3623211997@"-->
+</project>
