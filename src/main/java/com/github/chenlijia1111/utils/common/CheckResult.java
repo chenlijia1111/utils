@@ -5,7 +5,7 @@ package com.github.chenlijia1111.utils.common;
  *
  * @author chenlijia
  * @version 1.0
- * @date 2019/9/3 0003 下午 1:21
+ * @since 2019/9/3 0003 下午 1:21
  **/
 public class CheckResult {
 
@@ -13,7 +13,8 @@ public class CheckResult {
      * 校验结果
      *
      * @author chenlijia
-     * @date 下午 1:22 2019/9/3 0003
+     * @since 下午 1:22 2019/9/3 0003
+     *
      **/
     private Boolean success;
 
@@ -21,7 +22,7 @@ public class CheckResult {
      * 校验内容
      *
      * @author chenlijia
-     * @date 下午 1:22 2019/9/3 0003
+     * @since 下午 1:22 2019/9/3 0003
      **/
     private String msg;
 
@@ -47,7 +48,7 @@ public class CheckResult {
      *
      * @param msg 1
      * @author chenlijia
-     * @date 下午 1:24 2019/9/3 0003
+     * @since 下午 1:24 2019/9/3 0003
      **/
     public static CheckResult success(String msg) {
         CheckResult checkResult = new CheckResult();
@@ -61,7 +62,7 @@ public class CheckResult {
      *
      * @param msg 1
      * @author chenlijia
-     * @date 下午 1:24 2019/9/3 0003
+     * @since 下午 1:24 2019/9/3 0003
      **/
     public static CheckResult failure(String msg) {
         CheckResult checkResult = new CheckResult();

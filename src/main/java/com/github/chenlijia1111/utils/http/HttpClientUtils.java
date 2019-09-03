@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 /**
  * 网络请求
  *
- * @Author chenlijia
- * @Date 2019/8/20 10:19
- * @Description TODO
- * @Version 1.0
+ * @author chenlijia
+ * @since 2019/8/20 10:19
+ * @version 1.0
  **/
 public class HttpClientUtils {
 
@@ -29,8 +28,7 @@ public class HttpClientUtils {
      * 请求参数
      *
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 10:37 2019/8/20 0020
+     * @since 上午 10:37 2019/8/20 0020
      **/
     private Map<String, Object> params;
 
@@ -39,8 +37,7 @@ public class HttpClientUtils {
      * 请求头
      *
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 10:37 2019/8/20 0020
+     * @since 上午 10:37 2019/8/20 0020
      **/
     private Map<String, String> headers;
 
@@ -50,10 +47,9 @@ public class HttpClientUtils {
     /**
      * 初始化
      *
-     * @return com.logicalthinking.jiuyou.util.HttpClientUtils
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:21 2019/8/20
+     * @description TODO
+     * @since 10:21 2019/8/20
      **/
     public static HttpClientUtils getInstance() {
         HttpClientUtils httpClientUtils = new HttpClientUtils();
@@ -68,10 +64,8 @@ public class HttpClientUtils {
      *
      * @param key   1
      * @param value 2
-     * @return com.logicalthinking.jiuyou.util.HttpClientUtils
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 10:30 2019/8/20 0020
+     * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putParams(String key, String value) {
         this.params.put(key, value);
@@ -83,10 +77,8 @@ public class HttpClientUtils {
      *
      * @param key   1
      * @param value 2
-     * @return com.logicalthinking.jiuyou.util.HttpClientUtils
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 10:30 2019/8/20 0020
+     * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putHeader(String key, String value) {
         this.headers.put(key, value);
@@ -98,10 +90,8 @@ public class HttpClientUtils {
      * 发送 get 请求
      *
      * @param url 1
-     * @return java.util.Map
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:25 2019/8/20
+     * @since 10:25 2019/8/20
      **/
     public Map doGet(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -139,10 +129,8 @@ public class HttpClientUtils {
      * 发送 post 请求
      *
      * @param url 1
-     * @return java.util.Map
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:25 2019/8/20
+     * @since 10:25 2019/8/20
      **/
     public Map doPost(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -181,10 +169,8 @@ public class HttpClientUtils {
      * 发送 json数据
      *
      * @param url 1
-     * @return java.util.Map
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:25 2019/8/20
+     * @since 10:25 2019/8/20
      **/
     public Map doPostWithJson(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -226,10 +212,8 @@ public class HttpClientUtils {
      * 发送 json数据
      *
      * @param url 1
-     * @return java.util.Map
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:25 2019/8/20
+     * @since 10:25 2019/8/20
      **/
     public Map doPutWithJson(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -271,10 +255,8 @@ public class HttpClientUtils {
      * 发送 json数据
      *
      * @param url 1
-     * @return java.util.Map
      * @author chenlijia
-     * @Description TODO
-     * @Date 10:25 2019/8/20
+     * @since 10:25 2019/8/20
      **/
     public Map doDelete(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();

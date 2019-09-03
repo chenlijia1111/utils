@@ -9,15 +9,14 @@ import java.util.Objects;
  *
  * @author chenlijia
  * @version 1.0
- * @date 2019/9/3 0003 下午 1:14
+ * @since 2019/9/3 0003 下午 1:14
  **/
 public class Lists {
 
     /**
      * @return java.util.ArrayList
      * @author chenlijia
-     * @description TODO
-     * @date 下午 1:51 2019/5/22 0022
+     * @since 下午 1:51 2019/5/22 0022
      **/
     public static <T> ArrayList<T> newArrayList() {
         return new ArrayList<>();
@@ -28,10 +27,8 @@ public class Lists {
      * 将数组转换为集合
      *
      * @param ts 1
-     * @return java.util.List<T>
      * @author chenlijia
-     * @description TODO
-     * @date 上午 11:12 2019/6/22 0022
+     * @since 上午 11:12 2019/6/22 0022
      **/
     public static <T> List<T> asList(T... ts) {
         ArrayList<T> arrayList = new ArrayList<>();
@@ -48,10 +45,8 @@ public class Lists {
      * 检测集合是否为空
      *
      * @param list 1
-     * @return boolean
      * @author chenlijia
-     * @description TODO
-     * @date 下午 4:24 2019/5/22 0022
+     * @since 下午 4:24 2019/5/22 0022
      **/
     public static boolean isEmpty(List list) {
         return list == null || list.size() == 0;
@@ -62,10 +57,8 @@ public class Lists {
      * 检测集合是否为非空
      *
      * @param list 1
-     * @return boolean
      * @author chenlijia
-     * @description TODO
-     * @date 上午 10:13 2019/6/5 0005
+     * @since 上午 10:13 2019/6/5 0005
      **/
     public static boolean isNotEmpty(List list) {
         return !isEmpty(list);

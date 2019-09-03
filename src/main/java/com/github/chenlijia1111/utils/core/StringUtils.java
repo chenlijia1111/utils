@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * 字符串工具类
  *
  * @author chenlijia
- * @date 下午 1:11 2019/9/3 0003
+ * @since 下午 1:11 2019/9/3 0003
  **/
 public class StringUtils {
 
@@ -24,7 +24,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 1:12 2019/9/3 0003
+     * @since 下午 1:12 2019/9/3 0003
      **/
     public static boolean isEmpty(String str) {
         return null == str || str.length() == 0;
@@ -36,7 +36,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 1:13 2019/9/3 0003
+     * @since 下午 1:13 2019/9/3 0003
      **/
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
@@ -48,7 +48,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 1:12 2019/9/3 0003
+     * @since 下午 1:12 2019/9/3 0003
      **/
     public static boolean isEmptyTrimWhitespace(String str) {
         if (isNotEmpty(str)) {
@@ -70,7 +70,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 1:13 2019/9/3 0003
+     * @since 下午 1:13 2019/9/3 0003
      **/
     public static boolean isNotEmptyTrimWhitespace(String str) {
         return !isEmptyTrimWhitespace(str);
@@ -82,7 +82,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 7:33 2019/9/3 0003
+     * @since 下午 7:33 2019/9/3 0003
      **/
     public static boolean isInt(String str) {
         return null != str && Pattern.matches(INT_REG, str);
@@ -93,7 +93,7 @@ public class StringUtils {
      *
      * @param str 1
      * @author chenlijia
-     * @date 下午 7:33 2019/9/3 0003
+     * @since 下午 7:33 2019/9/3 0003
      **/
     public static boolean isDouble(String str) {
         return null != str && Pattern.matches(DOUBLE_REG, str);
@@ -109,7 +109,7 @@ public class StringUtils {
      * @param strList 2
      * @return boolean
      * @author chenlijia
-     * @date 下午 7:54 2019/9/3 0003
+     * @since 下午 7:54 2019/9/3 0003
      **/
     public static boolean containsStrList(String str, List<String> strList) {
         if (null != str && str.length() > 0 && Lists.isNotEmpty(strList)) {
@@ -129,7 +129,7 @@ public class StringUtils {
      * @param spiltSymbol 用于切割的标志符号
      * @return java.util.List<java.lang.String>
      * @author chenlijia
-     * @date 下午 8:00 2019/9/3 0003
+     * @since 下午 8:00 2019/9/3 0003
      **/
     public static List<String> spiltStrToList(String str, String spiltSymbol) {
         if (null != str && null != spiltSymbol) {
@@ -140,12 +140,5 @@ public class StringUtils {
         return null;
     }
 
-
-    public static void main(String[] args) {
-        System.out.println(isDouble("1.23"));
-        System.out.println(isDouble("123"));
-        System.out.println(isDouble("asa"));
-        System.out.println(isDouble("as.a"));
-    }
 
 }

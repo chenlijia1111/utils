@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * @Author chenlijia
- * @Date 2019/4/8 0008 上午 10:23
- * @Description 属性检测
- * @Version 1.0
+ * @author chenlijia
+ * @since 2019/4/8 0008 上午 10:23
+ * @version 1.0
  **/
 public class PropertyCheckUtil {
 
@@ -20,10 +19,8 @@ public class PropertyCheckUtil {
      * 获取父类属性在内的所有属性
      *
      * @param object 1
-     * @return java.lang.reflect.Field[]
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 6:47 2019/5/21 0021
+     * @since 下午 6:47 2019/5/21 0021
      **/
     public static Field[] getAllFields(Object object) {
         Class<?> aClass = object.getClass();
@@ -35,10 +32,8 @@ public class PropertyCheckUtil {
      * 获取父类属性在内的所有属性
      *
      * @param aClass 1
-     * @return java.lang.reflect.Field[]
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 6:47 2019/5/21 0021
+     * @since 下午 6:47 2019/5/21 0021
      **/
     public static Field[] getAllFields(Class aClass) {
 
@@ -58,10 +53,8 @@ public class PropertyCheckUtil {
      * 获取属性值,递归获取父类的属性
      *
      * @param object 1
-     * @return java.lang.reflect.Field[]
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 6:47 2019/5/21 0021
+     * @since 下午 6:47 2019/5/21 0021
      **/
     public static Object getFieldValue(Object object, Class objectClass, String propertyName) {
 
@@ -91,10 +84,9 @@ public class PropertyCheckUtil {
      * @param object       1
      * @param objectClass  2
      * @param propertyName 3
-     * @return boolean
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 10:47 2019/6/29 0029
+     * @description TODO
+     * @since 上午 10:47 2019/6/29 0029
      **/
     public static boolean checkHasPropertity(Object object, Class objectClass, String propertyName) {
         if (Objects.nonNull(object) && Objects.nonNull(objectClass) && StringUtils.isNotEmpty(propertyName)) {
@@ -118,10 +110,9 @@ public class PropertyCheckUtil {
      * 防止参数为空
      *
      * @param t 1
-     * @return T
      * @author chenlijia
-     * @Description TODO
-     * @Date 上午 11:44 2019/7/13 0013
+     * @description TODO
+     * @since 上午 11:44 2019/7/13 0013
      **/
     public static <T> T transferObjectNotNull(T t) {
         if (Objects.isNull(t)) {
