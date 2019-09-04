@@ -14,7 +14,6 @@ public class CheckResult {
      *
      * @author chenlijia
      * @since 下午 1:22 2019/9/3 0003
-     *
      **/
     private Boolean success;
 
@@ -25,6 +24,13 @@ public class CheckResult {
      * @since 下午 1:22 2019/9/3 0003
      **/
     private String msg;
+
+    /**
+     * 返回的内容
+     *
+     * @since 上午 9:33 2019/9/4 0004
+     **/
+    private Object object;
 
     public Boolean getSuccess() {
         return success;
@@ -42,6 +48,13 @@ public class CheckResult {
         this.msg = msg;
     }
 
+    public Object getObject() {
+        return object;
+    }
+
+    public void setObject(Object object) {
+        this.object = object;
+    }
 
     /**
      * 校验成功

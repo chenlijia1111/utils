@@ -22,7 +22,7 @@ public @interface ExcelExportField {
      * @return java.lang.String
      * @since 下午 8:44 2019/9/3 0003
      **/
-    String value() default "";
+    String titleHeadName() default "";
 
 
     /**
@@ -31,7 +31,15 @@ public @interface ExcelExportField {
      * @return int
      * @since 下午 8:45 2019/9/3 0003
      **/
-    int cellWidth() default 20;
+    int cellWidth() default 25;
+
+    /**
+     * 排序值
+     *
+     * @return int
+     * @since 上午 10:55 2019/9/4 0004
+     **/
+    int sort();
 
 
 }

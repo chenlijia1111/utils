@@ -141,4 +141,32 @@ public class StringUtils {
     }
 
 
+    /**
+     * 数字转定长字符串
+     * <p>
+     * 效果: completeIntToFixedLengthStr(DDLS,5,1)  =>>  DDLS00001
+     *
+     * @param prefix       填充的前缀
+     * @param numberLength 希望生成的字符串的长度
+     * @param number       数字
+     * @return java.lang.String
+     * @since 下午 7:33 2019/9/4 0004
+     **/
+    public String completeIntToFixedLengthStr(String prefix, int numberLength, long number) {
+        StringBuilder stringBuilder = new StringBuilder();
+        //判断前缀 防止为null
+        prefix = prefix == null ? "" : prefix;
+        stringBuilder.append(prefix);
+
+        //不够的补0
+        String numberString = String.valueOf(number);
+        for (int i = 0; i < numberLength - numberString.length(); i++) {
+            stringBuilder.append("0");
+        }
+
+        stringBuilder.append(numberString);
+        return stringBuilder.toString();
+    }
+
+
 }
