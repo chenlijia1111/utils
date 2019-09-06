@@ -22,13 +22,26 @@ import java.util.function.Function;
 
 /**
  * 导出 excel 工具类
+ * <p>
+ * <p>
+ * 如果是使用注解进行导出 只需要设置导出名称与 导出数据即可
+ * <p>
+ * 如果是使用自定义方式进行导出 需要设置导出的头以及对应的字段名称
+ * 示例代码:
+ * LinkedHashMap<String, String> headTitle = new LinkedHashMap<>();
+ * headTitle.put("groupId", "订单编号");
+ * headTitle.put("createTime", "订单时间");
+ * 如果碰到两个表头对应同一个属性值的情况，可以通过设置转换特性的属性名以及转换方法来进行实现
+ * {@link #transferMap} 转换方法 {@link #exportTitleHeadNameMap}
+ * 当属性不存在时，会默认以对象的数据来进行转换
+ *
+ * 自定义导出暂时没有宽度的设置,后期可以加
  *
  * @author chenlijia
  * @version 1.0
  * @since 2019/9/3 0003 下午 8:41
  **/
 public class ExcelExport {
-
 
     /**
      * 工作薄对象
@@ -78,6 +91,9 @@ public class ExcelExport {
      * 导出的字段数组
      * 支持自定义导出列
      * 也支持 指定注解导出
+     * 暂时没有使用到 可以忽略
+     *
+     * @see #exportTitleHeadNameMap
      **/
     private List<String> exportFieldList;
 
@@ -87,14 +103,6 @@ public class ExcelExport {
      * 默认以当前时间为文件名称
      **/
     private String exportFileName;
-
-    /**
-     * 导出数据封装对象
-     * 将要导出的数据进行转换为该格式 直接输出
-     *
-     * @since 上午 11:07 2019/9/4 0004
-     **/
-    private List<ExcelExportCellDate> excelExportCellDateList;
 
 
     public ExcelExport setDataList(List<? extends Object> dataList) {
@@ -236,7 +244,6 @@ public class ExcelExport {
 
 
         if (dataList.size() > 0) {
-            //转换为 ExcelExportCellDate 对象
             for (int i = 0; i < dataList.size(); i++) {
                 //第一列 序号
                 Row row = sheet.createRow(i + 1);
@@ -250,9 +257,7 @@ public class ExcelExport {
                 int currentColumnIndex = 1;
                 for (String fieldName : exportTitleHeadNameMap.keySet()) {
                     try {
-                        Field field = exportClass.getDeclaredField(fieldName);
-                        field.setAccessible(true);
-                        Object fieldValue = field.get(o);
+                        Object fieldValue = PropertyCheckUtil.getFieldValue(o, exportClass, fieldName);
                         if (null != fieldValue) {
                             //判断有没有转换器
                             if (null != transferMap && transferMap.get(fieldName) != null) {
@@ -269,12 +274,26 @@ public class ExcelExport {
                             }
                         }
 
-                        currentColumnIndex++;
+
                     } catch (NoSuchFieldException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        //如果没有这个属性,那就是自定义的属性，需要单独处理
+                        //判断有没有转换器
+                        //判断有没有转换器,直接对对象进行转换操作
+                        if (null != transferMap && transferMap.get(fieldName) != null) {
+                            //有转换器
+                            Function function = transferMap.get(fieldName);
+                            Object apply = function.apply(o);
+                            Cell cell = row.createCell(currentColumnIndex);
+                            cell.setCellValue(apply.toString());
+                            cell.setCellStyle(simpleCellStyle(workbook));
+                        } else {
+                            Cell cell = row.createCell(currentColumnIndex);
+                            cell.setCellValue("");
+                            cell.setCellStyle(simpleCellStyle(workbook));
+                        }
                     }
+
+                    currentColumnIndex++;
                 }
             }
         }

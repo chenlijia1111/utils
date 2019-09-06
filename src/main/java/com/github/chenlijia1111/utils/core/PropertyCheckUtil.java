@@ -8,9 +8,13 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
+ * 属性工具类
+ * 用于递归获取 类的所有属性以及属性值
+ * 校验属性
+ *
  * @author chenlijia
- * @since 2019/4/8 0008 上午 10:23
  * @version 1.0
+ * @since 2019/4/8 0008 上午 10:23
  **/
 public class PropertyCheckUtil {
 
@@ -56,7 +60,7 @@ public class PropertyCheckUtil {
      * @author chenlijia
      * @since 下午 6:47 2019/5/21 0021
      **/
-    public static Object getFieldValue(Object object, Class objectClass, String propertyName) {
+    public static Object getFieldValue(Object object, Class objectClass, String propertyName) throws NoSuchFieldException {
 
         if (Objects.nonNull(object) && Objects.nonNull(objectClass) && StringUtils.isNotEmpty(propertyName)) {
             try {
@@ -74,7 +78,7 @@ public class PropertyCheckUtil {
                 e.printStackTrace();
             }
         }
-        return null;
+        throw new NoSuchFieldException("找不到这个属性");
     }
 
 

@@ -6,7 +6,7 @@
 
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.0.2-RELEASE</version>
+    <version>1.0.5-RELEASE</version>
     <build>
         <plugins>
             <plugin>
@@ -35,28 +35,64 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.9</version>
+            <scope>compile</scope>
         </dependency>
         <!-- json 序列化 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.9.9.3</version>
+            <scope>compile</scope>
         </dependency>
         <!-- office 处理工具 -->
         <dependency>
             <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.9</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document</artifactId>
+            <version>2.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>org.apache.poi.xwpf.converter.xhtml</artifactId>
+            <version>1.0.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--这个版本不能随便改 其他的版本方法会有变化 会导至替换的功能 api 无法使用-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>4.1.0</version>
+            <version>3.10-FINAL</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--时间工具-->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.9</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- servlet api 依赖于具体环境 必须要一起打包走 只需要调用方有这个包就行了-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- log 日志门面类  调用者搭配log-back进行使用 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
         </dependency>
 
+
     </dependencies>
-
-
-
-
-
-
-
 
 
     <parent>
@@ -100,9 +136,4 @@
         </snapshotRepository>
     </distributionManagement>
 
-
-
-    <!--发布版本命令  mvn clean deploy -P sonatype-oss-release -Darguments="gpg.passphrase=Clj3623211997@"-->
-    <!--公钥 C70C5FD3E9692D71F917B840500E0B66BED7560D"-->
-    <!--gpg 加密密码 Clj3623211997@"-->
 </project>

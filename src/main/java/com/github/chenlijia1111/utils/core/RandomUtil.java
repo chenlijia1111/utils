@@ -25,9 +25,9 @@ public class RandomUtil {
 
 
     /**
+     * 创建定长随机四位编号
      * @author chenlijia
-     * @Description 创建定长随机四位编号
-     * @Date 上午 9:48 2019/3/27 0027
+     * @since  上午 9:48 2019/3/27 0027
      * @param length 数字编号长度
      * @return java.lang.String
      **/

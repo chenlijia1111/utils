@@ -35,10 +35,8 @@ public class WordUtils {
      * @param filePath    源文件
      * @param outFilePath 输出文件
      * @param params      替换的参数
-     * @return expertise.common.pojo.Result
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 3:48 2019/5/28 0028
+     * @since  下午 3:48 2019/5/28 0028
      **/
     public static CheckResult replaceWord(String filePath, String outFilePath, Map<String, String> params) {
 
@@ -73,10 +71,8 @@ public class WordUtils {
      * @param file    源文件
      * @param outFile 输出文件
      * @param params  替换的参数
-     * @return expertise.common.pojo.Result
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 3:48 2019/5/28 0028
+     * @since  下午 3:48 2019/5/28 0028
      **/
     private static CheckResult replaceWord03(File file, File outFile, Map<String, String> params) {
 
@@ -105,10 +101,8 @@ public class WordUtils {
      * @param file    源文件
      * @param outFile 输出文件
      * @param params  替换的参数
-     * @return expertise.common.pojo.Result
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 3:48 2019/5/28 0028
+     * @since  下午 3:48 2019/5/28 0028
      **/
     private static CheckResult replaceWord07(File file, File outFile, Map<String, String> params) {
 
@@ -174,8 +168,7 @@ public class WordUtils {
      * @param params    2
      * @return void
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 3:36 2019/5/29 0029
+     * @since  下午 3:36 2019/5/29 0029
      **/
     private static void dealRuns(XWPFParagraph paragraph, Map<String, String> params) {
         List<XWPFRun> runs = paragraph.getRuns();
@@ -214,8 +207,7 @@ public class WordUtils {
      * @param file 1
      * @return java.lang.String
      * @author chenlijia
-     * @Description TODO
-     * @Date 下午 1:52 2019/6/25 0025
+     * @since  下午 1:52 2019/6/25 0025
      **/
     public static String readWord(File file) {
 
