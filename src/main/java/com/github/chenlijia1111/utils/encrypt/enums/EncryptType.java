@@ -11,7 +11,8 @@ public enum EncryptType {
     MD5("MD5"),
     SHA256("SHA-256"),
     HMAC_SHA256("HmacSHA256"),
-    RSA("RSA");
+    RSA("RSA"),
+    AES("AES");
 
     private String type;
 

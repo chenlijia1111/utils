@@ -90,6 +90,12 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
+        <!-- AES AES/CBC/PKCS7Padding 支持 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
 
 
     </dependencies>
@@ -136,4 +142,11 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <!-- 配置阿里云中央仓库下载 国内加快下载速度 -->
+    <repositories>
+        <repository>
+            <id>maven-ali</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+        </repository>
+    </repositories>
 </project>
