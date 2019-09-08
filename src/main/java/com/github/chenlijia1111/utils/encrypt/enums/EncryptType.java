@@ -8,7 +8,10 @@ package com.github.chenlijia1111.utils.encrypt.enums;
  */
 public enum EncryptType {
 
-    MD5("MD5"),SHA256("SHA-256"),HMAC_SHA256("HmacSHA256");
+    MD5("MD5"),
+    SHA256("SHA-256"),
+    HMAC_SHA256("HmacSHA256"),
+    RSA("RSA");
 
     private String type;
 
