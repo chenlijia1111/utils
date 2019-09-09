@@ -1,4 +1,4 @@
-package encrypt;
+package com.github.chenlijia1111.util.encrypt;
 
 import com.github.chenlijia1111.utils.encrypt.*;
 import org.junit.Test;

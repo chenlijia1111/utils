@@ -1,4 +1,4 @@
-package core;
+package com.github.chenlijia1111.util.core;
 
 import com.github.chenlijia1111.utils.core.NumberUtil;
 import org.junit.Test;

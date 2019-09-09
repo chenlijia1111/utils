@@ -5,7 +5,6 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.CheckResult;
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
 import com.github.chenlijia1111.utils.list.Lists;
-import com.sun.istack.internal.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

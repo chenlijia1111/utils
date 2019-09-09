@@ -2,7 +2,6 @@ package com.github.chenlijia1111.util.propertyCheck;
 
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
 import com.github.chenlijia1111.utils.core.annos.TestAnno;
-import com.sun.istack.internal.NotNull;
 
 /**
  * @author chenlijia
