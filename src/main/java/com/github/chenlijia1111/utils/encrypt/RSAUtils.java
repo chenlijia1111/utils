@@ -313,25 +313,5 @@ public class RSAUtils {
     }
 
 
-    public static void main(String[] args) {
-        RSAUtils rsaUtils = new RSAUtils();
-        RSAKey key = rsaUtils.createKey(1024);
-        System.out.println("私钥：" + key.getPrivateKey());
-        System.out.println("公钥：" + key.getPublicKey());
-
-
-        String inputStr = "我是一个中国人";
-        String s = publicEncrypt(inputStr, key.getPublicKey());
-        System.out.println("公钥加密后的内容:" + s);
-        String s1 = privateDecrypt(s, key.getPrivateKey());
-        System.out.println("私钥解密内容:" + s1);
-
-        String s2 = privateEncrypt(inputStr, key.getPrivateKey());
-        System.out.println("私钥加密内容：" + s2);
-        String s3 = publicDecrypt(s2, key.getPublicKey());
-        System.out.println("公钥解密内容:" + s3);
-
-
-    }
 
 }

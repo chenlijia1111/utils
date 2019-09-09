@@ -187,11 +187,6 @@ public class ChineseNumberUtil {
         return getChineseNumber(number.doubleValue(), unit, postfix);
     }
 
-    public static void main(String[] args) {
-        System.out.println(getChineseNumber(1994));
-        System.out.println(getChineseNumber(1994.1115));
-        System.out.println(getChineseNumber(19941115));
-    }
 
 }
 

@@ -70,13 +70,4 @@ public class SHA256EncryptUtil {
     }
 
 
-    public static void main(String[] args) {
-        System.out.println(SHA256BytesToHexString("appid=2312312&mch_id=31232131&key=31232131".getBytes()));
-
-        RSAUtils rsaUtils = new RSAUtils();
-        RSAUtils.RSAKey key = rsaUtils.createKey(512);
-        System.out.println(key.getPrivateKey());
-        System.out.println(key.getPublicKey());
-    }
-
 }

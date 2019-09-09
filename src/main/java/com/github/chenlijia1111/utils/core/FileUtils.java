@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 
+import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,6 +219,42 @@ public class FileUtils {
             start = Integer.valueOf(s);
         }
         return start;
+    }
+
+
+    /**
+     * 文件复制
+     * @since 下午 6:25 2019/9/9 0009
+     * @param inputFile 被复制文件
+     * @param outPutFile
+     * @return void
+     **/
+    public static void copyFile(File inputFile, File outPutFile) throws FileNotFoundException {
+        if (!inputFile.exists()) {
+            throw new FileNotFoundException("文件不存在");
+        }
+
+        AssertUtil.isTrue(null != outPutFile, "输出文件为空");
+
+        //判断输出文件夹是否存在
+        File parentFile = outPutFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        //开始复制
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(inputFile));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outPutFile))) {
+            int read;
+            byte[] bufferedBytes = new byte[4096];
+            while ((read = inputStream.read(bufferedBytes)) != -1) {
+                outputStream.write(bufferedBytes, 0, read);
+            }
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

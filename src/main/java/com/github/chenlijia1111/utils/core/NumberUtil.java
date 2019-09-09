@@ -40,10 +40,4 @@ public class NumberUtil {
     }
 
 
-    public static void main(String[] args) {
-
-        byte[] bytes = new byte[]{15, 2};
-        System.out.println(byteToHex(bytes));
-    }
-
 }

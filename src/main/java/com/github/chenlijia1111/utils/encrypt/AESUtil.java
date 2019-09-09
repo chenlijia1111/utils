@@ -232,15 +232,5 @@ public class AESUtil {
         return null;
     }
 
-    public static void main(String[] args) {
-
-        byte[] IVBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 8, 7, 6, 5, 4, 3};
-
-        String inputStr = "我是一个中国人";
-        String password = "abc123";
-        String encrypt = encryptWithCBC(inputStr, password, IVBytes);
-        System.out.println(encrypt);
-        System.out.println(decryptWithCBC(encrypt, password, IVBytes));
-    }
 
 }

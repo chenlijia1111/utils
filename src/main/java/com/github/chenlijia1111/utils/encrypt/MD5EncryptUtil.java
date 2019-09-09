@@ -70,8 +70,4 @@ public class MD5EncryptUtil {
     }
 
 
-    public static void main(String[] args) {
-        System.out.printf(MD5BytesToHexString("appid=2312312&mch_id=31232131&key=31232131".getBytes()));
-    }
-
 }
