@@ -1,7 +1,6 @@
 package com.github.chenlijia1111.util.core;
 
 import com.github.chenlijia1111.utils.core.IDUtil;
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import org.junit.Test;
 
 /**
@@ -12,9 +11,12 @@ public class IDTest {
 
     @Test
     public void test1(){
-        IDUtil idUtil = new IDUtil(90,13);
+        IDUtil idUtil = new IDUtil(23,13);
         for (int i = 0; i < 1 << 5; i++) {
             System.out.println(idUtil.nextId());
+            //1001  8
+            //0000 1111 1111 1111
+            //0001 0000 0000 0000
         }
     }
 }

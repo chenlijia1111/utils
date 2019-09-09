@@ -4,6 +4,16 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 
 /**
  * 雪花算法 ID 生成
+ * <p>
+ * 总共64位
+ * 1  位表示正负  这里固定取正 为0
+ * 41 位表示当前时间戳与起始时间戳的差值
+ * 5  位表示机器标识 初始化的时候固定
+ * 5  位表示数据中心 初始化的时候固定
+ * 12 位表示序列号  所以同一毫秒内，最多可以生成 1 << 12 即 4096 个id
+ * <p>
+ * 一天最多可以生成 4096 * 1000 * 60 * 60 * 24 个id
+ * 如果觉得 一毫秒 4096 个id 无法满足系统 可以调节 序列号位 13 位
  *
  * @author 陈礼佳
  * @since 2019/9/9 22:12
@@ -47,7 +57,7 @@ public class IDUtil {
      * @param dataCenterId 数据中心id
      * @param machineId    机器标识id
      */
-    private IDUtil(long dataCenterId, long machineId) {
+    public IDUtil(long dataCenterId, long machineId) {
 
         //校验参数
         AssertUtil.isTrue(dataCenterId <= MAX_DATA_CENTER_NUM && dataCenterId >= 0,
