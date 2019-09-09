@@ -83,4 +83,13 @@ public class CheckResult {
         checkResult.setMsg(msg);
         return checkResult;
     }
+
+    @Override
+    public String toString() {
+        return "CheckResult{" +
+                "success=" + success +
+                ", msg='" + msg + '\'' +
+                ", object=" + object +
+                '}';
+    }
 }

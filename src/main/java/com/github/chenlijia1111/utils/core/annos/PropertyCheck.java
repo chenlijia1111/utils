@@ -20,6 +20,7 @@ public @interface PropertyCheck {
     /**
      * 需要关注的注解
      * 凡是有这些注解的属性都需要进行验证
+     * 注解的Retention 需要是运行时的 {@link RetentionPolicy#RUNTIME} 否则不起作用
      *
      * @return java.lang.Class
      * @since 下午 1:08 2019/9/9 0009
