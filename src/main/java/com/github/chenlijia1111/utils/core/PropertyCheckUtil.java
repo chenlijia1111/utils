@@ -1,10 +1,15 @@
 package com.github.chenlijia1111.utils.core;
 
 
+import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.common.CheckResult;
+import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
 import com.github.chenlijia1111.utils.list.Lists;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -130,5 +135,111 @@ public class PropertyCheckUtil {
             }
         }
         return t;
+    }
+
+    /**
+     * 校验参数
+     *
+     * @param object          要校验的对象
+     * @param checkFieldList  要校验的属性
+     * @param ignoreFieldList 忽略的属性
+     * @return com.github.chenlijia1111.utils.common.CheckResult
+     * @since 下午 1:38 2019/9/9 0009
+     **/
+    public static CheckResult checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
+
+        AssertUtil.isTrue(Objects.nonNull(object), "数据为空");
+
+        //初始化，防止空指针
+        checkFieldList = null == checkFieldList ? new ArrayList<>() : checkFieldList;
+        ignoreFieldList = null == ignoreFieldList ? new ArrayList<>() : ignoreFieldList;
+
+        //判断object 有没有PropertyCheck 的注解
+        Class<?> aClass = object.getClass();
+        PropertyCheck propertyCheck = aClass.getAnnotation(PropertyCheck.class);
+        if (null != propertyCheck) {
+            //需要检验的注解，如果属性带了这些注解的话，就需要参与检测
+            Class[] annotationClassArray = propertyCheck.annotationClass();
+
+            Field[] allFields = getAllFields(aClass);
+            if (null != allFields && allFields.length > 0) {
+                //开始判断
+                for (Field field : allFields) {
+                    field.setAccessible(true);
+                    //属性名称
+                    String fieldName = field.getName();
+
+                    if (Lists.isNotEmpty(checkFieldList) && !checkFieldList.contains(fieldName)) {
+                        continue;
+                    }
+
+                    if (Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName)) {
+                        continue;
+                    }
+
+                    if (Lists.isNotEmpty(checkFieldList) && checkFieldList.contains(fieldName) &&
+                            !(Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName))) {
+                        //直接指明了要校验这个属性 且不存在要忽略这个属性
+                        //直接开始校验
+                        //判断属性类型
+                        Class<?> fieldClass = field.getType();
+                        //获取属性类型
+                        try {
+                            if (fieldClass == String.class) {
+                                String str = (String) getFieldValue(object, aClass, fieldName);
+                                if (StringUtils.isEmpty(str))
+                                    return CheckResult.failure(fieldName + "不能为空");
+                            } else if (List.class.isAssignableFrom(fieldClass)) {
+                                //说明是list集合
+                                List list = (List) getFieldValue(object, aClass, fieldName);
+                                if (null == list || list.size() == 0)
+                                    return CheckResult.failure(fieldName + "不能为空");
+                            } else {
+                                Object o = getFieldValue(object, aClass, fieldName);
+                                if (null == o)
+                                    return CheckResult.failure(fieldName + "不能为空");
+                            }
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        for (Class annotationClass : annotationClassArray) {
+                            Annotation annotation = field.getAnnotation(annotationClass);
+                            if (null != annotation) {
+                                //开始进行判断
+                                //判断属性类型
+                                Class<?> fieldClass = field.getType();
+                                //获取属性类型
+                                try {
+                                    if (fieldClass == String.class) {
+                                        String str = (String) getFieldValue(object, aClass, fieldName);
+                                        if (StringUtils.isEmpty(str))
+                                            return CheckResult.failure(fieldName + "不能为空");
+                                    } else if (List.class.isAssignableFrom(fieldClass)) {
+                                        //说明是list集合
+                                        List list = (List) getFieldValue(object, aClass, fieldName);
+                                        if (null == list || list.size() == 0)
+                                            return CheckResult.failure(fieldName + "不能为空");
+                                    } else {
+                                        Object o = getFieldValue(object, aClass, fieldName);
+                                        if (null == o)
+                                            return CheckResult.failure(fieldName + "不能为空");
+                                    }
+                                } catch (NoSuchFieldException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                break;
+                            }
+                        }
+                    }
+
+
+                }
+            }
+        }
+
+        return CheckResult.success("检测通过");
     }
 }
