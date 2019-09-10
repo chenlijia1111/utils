@@ -35,6 +35,10 @@ import java.util.Base64;
 public class RSAUtils {
 
 
+    //签名方式
+    private static final String SIGN_TYPE = "MD5withRSA";
+
+
     /**
      * 创建一对 私钥公钥
      * 存取 公钥 私钥 以 base64字符串的形式保存
@@ -312,6 +316,80 @@ public class RSAUtils {
         return null;
     }
 
+
+    /**
+     * 签名
+     *
+     * @param privateKey 私钥
+     * @param inputStr   签名的字符串
+     * @return java.lang.String
+     * @since 下午 2:26 2019/9/10 0010
+     **/
+    public static String sign(String privateKey, String inputStr) {
+        //校验参数
+        AssertUtil.isTrue(StringUtils.isNotEmpty(inputStr), "签名的字符串不能为空");
+        AssertUtil.isTrue(StringUtils.isNotEmpty(privateKey), "私钥不能为空");
+
+        //获取私钥
+        RSAPrivateKey rsaPrivateKey = getPrivateKey(privateKey);
+
+        try {
+            Signature signature = Signature.getInstance(SIGN_TYPE);
+            signature.initSign(rsaPrivateKey);
+            signature.update(inputStr.getBytes(CharSetType.UTF8.getType()));
+            //生成签名
+            byte[] sign = signature.sign();
+            //BASE64转换
+            return Base64.getEncoder().encodeToString(sign);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 校验签名
+     *
+     * @param publicKey 公钥
+     * @param inputStr  原字符串
+     * @param signStr   签名
+     * @return boolean
+     * @since 下午 2:33 2019/9/10 0010
+     **/
+    public static boolean checkSign(String publicKey, String inputStr, String signStr) {
+
+        //校验参数
+        AssertUtil.isTrue(StringUtils.isNotEmpty(inputStr), "签名原串不能为空");
+        AssertUtil.isTrue(StringUtils.isNotEmpty(publicKey), "公钥不能为空");
+        AssertUtil.isTrue(StringUtils.isNotEmpty(signStr), "签名不能为空");
+
+        //获取公钥
+        RSAPublicKey rsaPublicKey = getPublicKey(publicKey);
+
+        //转码签名字节数组
+        byte[] signBytes = Base64.getDecoder().decode(signStr);
+        try {
+            Signature signature = Signature.getInstance(SIGN_TYPE);
+            signature.initVerify(rsaPublicKey);
+            signature.update(inputStr.getBytes(CharSetType.UTF8.getType()));
+            return signature.verify(signBytes);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 
 }

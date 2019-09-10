@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.util.encrypt;
 
 import com.github.chenlijia1111.utils.encrypt.*;
+import org.bouncycastle.jcajce.provider.asymmetric.RSA;
 import org.junit.Test;
 
 /**
@@ -52,6 +53,11 @@ public class Test1 {
         System.out.println("私钥加密内容：" + s2);
         String s3 = RSAUtils.publicDecrypt(s2, key.getPublicKey());
         System.out.println("公钥解密内容:" + s3);
+
+        //签名
+        String sign = RSAUtils.sign(key.getPrivateKey(), inputStr);
+        boolean b = RSAUtils.checkSign(key.getPublicKey(), inputStr, sign);
+        System.out.println(b);
     }
 
 
