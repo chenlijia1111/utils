@@ -30,6 +30,8 @@ import java.util.Base64;
  * @see #privateEncrypt(String, String) 私钥加密
  * @see #publicDecrypt(String, String) 公钥解密
  * @see #privateDecrypt(String, String) 私钥解密
+ * @see #sign(String, String) 生成签名
+ * @see #checkSign(String, String, String) 校验签名
  * @since 2019/9/8 20:10
  */
 public class RSAUtils {

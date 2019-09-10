@@ -6,7 +6,7 @@
 
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.0.6-RELEASE</version>
+    <version>1.0.7-RELEASE</version>
     <build>
         <plugins>
             <plugin>
