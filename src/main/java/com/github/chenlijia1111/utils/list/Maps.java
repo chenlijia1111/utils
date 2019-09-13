@@ -54,6 +54,7 @@ public class Maps {
 
     /**
      * 创建 map 构建器
+     *
      * @param mapType
      * @param <K>
      * @param <V>
@@ -74,33 +75,9 @@ public class Maps {
      * @return
      */
     private <K, V> MapBuilder<K, V> buildMap(MapType mapType) {
-        switch (mapType) {
-            case HASH_MAP:
-                return new HashMapBuilder<>();
-            case LINKED_HASH_MAP:
-                return new LinkedHashMapBuilder<>();
-            case TREE_MAP:
-                return new TreeMapBuilder<>();
-        }
-        return new HashMapBuilder<>();
+        return new MapBuilder<>(mapType);
     }
 
-
-    /**
-     * map 构建器接口
-     *
-     * @param <K>
-     * @param <V>
-     */
-    public interface MapBuilder<K, V> {
-
-        MapBuilder put(K key, V value);
-
-        MapBuilder put(Map<K, V> map);
-
-        Map<K, V> build();
-
-    }
 
     /**
      * hashMap 构建器
@@ -108,95 +85,37 @@ public class Maps {
      * @param <K>
      * @param <V>
      */
-    public class HashMapBuilder<K, V> implements MapBuilder<K, V> {
+    public class MapBuilder<K, V> {
 
         private Map<K, V> map;
 
-        public HashMapBuilder() {
-            this.map = new HashMap();
+        public MapBuilder(MapType mapType) {
+            switch (mapType) {
+                case LINKED_HASH_MAP:
+                    this.map = new LinkedHashMap<>();
+                    break;
+                case TREE_MAP:
+                    this.map = new TreeMap<>();
+                    break;
+                default:
+                    this.map = new HashMap<>();
+            }
         }
 
-        @Override
         public MapBuilder put(K key, V value) {
             this.map.put(key, value);
             return this;
         }
 
-        @Override
         public MapBuilder put(Map<K, V> map) {
             this.map.putAll(map);
             return this;
         }
 
-        @Override
         public Map<K, V> build() {
             return this.map;
         }
     }
 
-    /**
-     * linkedHashMap 构建器
-     *
-     * @param <K>
-     * @param <V>
-     */
-    public class LinkedHashMapBuilder<K, V> implements MapBuilder<K, V> {
-
-        private Map<K, V> map;
-
-        public LinkedHashMapBuilder() {
-            this.map = new LinkedHashMap();
-        }
-
-        @Override
-        public MapBuilder put(K key, V value) {
-            this.map.put(key, value);
-            return this;
-        }
-
-        @Override
-        public MapBuilder put(Map<K, V> map) {
-            this.map.putAll(map);
-            return this;
-        }
-
-        @Override
-        public Map<K, V> build() {
-            return this.map;
-        }
-    }
-
-
-    /**
-     * treeMap 构建器
-     *
-     * @param <K>
-     * @param <V>
-     */
-    public class TreeMapBuilder<K, V> implements MapBuilder<K, V> {
-
-        private Map<K, V> map;
-
-        public TreeMapBuilder() {
-            this.map = new TreeMap<>();
-        }
-
-        @Override
-        public MapBuilder put(K key, V value) {
-            this.map.put(key, value);
-            return this;
-        }
-
-        @Override
-        public MapBuilder put(Map<K, V> map) {
-            this.map.putAll(map);
-            return this;
-        }
-
-        @Override
-        public Map<K, V> build() {
-            return this.map;
-        }
-    }
 
 }
