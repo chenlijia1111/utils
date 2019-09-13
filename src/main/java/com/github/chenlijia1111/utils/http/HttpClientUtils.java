@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
@@ -9,6 +10,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +21,8 @@ import java.util.stream.Collectors;
  * 网络请求
  *
  * @author chenlijia
- * @since 2019/8/20 10:19
  * @version 1.0
+ * @since 2019/8/20 10:19
  **/
 public class HttpClientUtils {
 
@@ -73,6 +76,19 @@ public class HttpClientUtils {
     }
 
     /**
+     * 添加请求参数
+     *
+     * @param map
+     * @return
+     */
+    public HttpClientUtils putParams(Map<String, String> map) {
+        if (null != map && map.size() > 0) {
+            this.params.putAll(map);
+        }
+        return this;
+    }
+
+    /**
      * 添加请求头
      *
      * @param key   1
@@ -85,9 +101,24 @@ public class HttpClientUtils {
         return this;
     }
 
+    /**
+     * 添加请求头
+     *
+     * @param map 1
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putHeader(Map<String, String> map) {
+        if (null != map && map.size() > 0) {
+            this.headers.putAll(map);
+        }
+        return this;
+    }
+
 
     /**
      * 发送 get 请求
+     * 对于 get 请求 路径上不可以包含中文 需要用URLEncode 编码一下才可以
      *
      * @param url 1
      * @author chenlijia
@@ -100,7 +131,14 @@ public class HttpClientUtils {
             Set<Map.Entry<String, Object>> entries = params.entrySet();
             //参数拼接成的字符串
             String paramsString = entries.stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
+            //防止url上本来就带了参数导致拼接错误
             url = url.endsWith("&") ? (url + paramsString) : (url + "&" + paramsString);
+            try {
+                //URLEncode 编码
+                url = URLEncoder.encode(url, CharSetType.UTF8.getType());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
         HttpGet httpGet = new HttpGet(url);
         if (headers != null) {
