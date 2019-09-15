@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.ByteArrayInputStream;
@@ -140,15 +143,15 @@ public class HttpClientUtils {
         if (params.size() != 0) {
             Set<Map.Entry<String, Object>> entries = params.entrySet();
             //参数拼接成的字符串
-            String paramsString = entries.stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
-            //防止url上本来就带了参数导致拼接错误
-            url = url.endsWith("&") ? (url + paramsString) : (url + "&" + paramsString);
-            try {
-                //URLEncode 编码
-                url = URLEncoder.encode(url, CharSetType.UTF8.getType());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            String paramsString = entries.stream().map(e -> {
+                try {
+                    return URLEncoder.encode(e.getKey(), CharSetType.UTF8.getType()) + "=" + URLEncoder.encode(e.getValue().toString(), CharSetType.UTF8.getType());
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }).collect(Collectors.joining("&"));
+            url = url + "?" + paramsString;
         }
         HttpGet httpGet = new HttpGet(url);
         if (headers != null) {
@@ -162,7 +165,7 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -182,13 +185,7 @@ public class HttpClientUtils {
      **/
     public Map doPost(String url) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        //判断有没有请求参数,如果有请求参数,拼接请求参数
-        if (params.size() != 0) {
-            Set<Map.Entry<String, Object>> entries = params.entrySet();
-            //参数拼接成的字符串
-            String paramsString = entries.stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
-            url = url.endsWith("&") ? (url + paramsString) : (url + "&" + paramsString);
-        }
+
         HttpPost httpPost = new HttpPost(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -198,10 +195,22 @@ public class HttpClientUtils {
                 httpPost.addHeader(key, value);
             }
         }
+
+
         try {
+            //判断有没有请求参数,如果有请求参数,拼接请求参数
+            if (params.size() != 0) {
+                ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
+                    nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                }
+                UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
+                httpPost.setEntity(formEntity);
+            }
+
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -328,7 +337,7 @@ public class HttpClientUtils {
 
             CloseableHttpResponse response = httpClient.execute(httpPut);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -361,7 +370,7 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpClient.execute(httpDelete);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;

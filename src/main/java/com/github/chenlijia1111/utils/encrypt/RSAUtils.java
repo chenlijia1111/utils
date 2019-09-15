@@ -4,6 +4,7 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.encrypt.enums.EncryptType;
+import com.github.chenlijia1111.utils.encrypt.enums.SignType;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -17,6 +18,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Objects;
 
 /**
  * RSA 加密工具类
@@ -45,7 +47,7 @@ public class RSAUtils {
      * 创建一对 私钥公钥
      * 存取 公钥 私钥 以 base64字符串的形式保存
      *
-     * @param keySize keySize 的大小最小为 512
+     * @param keySize keySize 的大小最小为 512 建议2048以上
      * @return
      */
     public RSAKey createKey(int keySize) {
@@ -321,6 +323,7 @@ public class RSAUtils {
 
     /**
      * 签名
+     * 默认以 {@link SignType#MD5_WITH_RSA} 进行签名
      *
      * @param privateKey 私钥
      * @param inputStr   签名的字符串
@@ -328,15 +331,29 @@ public class RSAUtils {
      * @since 下午 2:26 2019/9/10 0010
      **/
     public static String sign(String privateKey, String inputStr) {
+        return sign(privateKey, inputStr, SignType.MD5_WITH_RSA);
+    }
+
+    /**
+     * 签名
+     *
+     * @param privateKey 私钥
+     * @param inputStr   签名的字符串
+     * @param signType   签名类型
+     * @return java.lang.String
+     * @since 下午 2:26 2019/9/10 0010
+     **/
+    public static String sign(String privateKey, String inputStr, SignType signType) {
         //校验参数
         AssertUtil.isTrue(StringUtils.isNotEmpty(inputStr), "签名的字符串不能为空");
         AssertUtil.isTrue(StringUtils.isNotEmpty(privateKey), "私钥不能为空");
+        AssertUtil.isTrue(Objects.nonNull(signType), "签名类型不能为空");
 
         //获取私钥
         RSAPrivateKey rsaPrivateKey = getPrivateKey(privateKey);
 
         try {
-            Signature signature = Signature.getInstance(SIGN_TYPE);
+            Signature signature = Signature.getInstance(signType.getType());
             signature.initSign(rsaPrivateKey);
             signature.update(inputStr.getBytes(CharSetType.UTF8.getType()));
             //生成签名
@@ -357,6 +374,7 @@ public class RSAUtils {
 
     /**
      * 校验签名
+     * 默认以 {@link SignType#MD5_WITH_RSA} 进行签名
      *
      * @param publicKey 公钥
      * @param inputStr  原字符串
@@ -365,6 +383,20 @@ public class RSAUtils {
      * @since 下午 2:33 2019/9/10 0010
      **/
     public static boolean checkSign(String publicKey, String inputStr, String signStr) {
+        return checkSign(publicKey, inputStr, signStr, SignType.MD5_WITH_RSA);
+    }
+
+    /**
+     * 校验签名
+     *
+     * @param publicKey 公钥
+     * @param inputStr  原字符串
+     * @param signStr   签名
+     * @param signType  签名类型
+     * @return boolean
+     * @since 下午 2:33 2019/9/10 0010
+     **/
+    public static boolean checkSign(String publicKey, String inputStr, String signStr, SignType signType) {
 
         //校验参数
         AssertUtil.isTrue(StringUtils.isNotEmpty(inputStr), "签名原串不能为空");
@@ -377,7 +409,7 @@ public class RSAUtils {
         //转码签名字节数组
         byte[] signBytes = Base64.getDecoder().decode(signStr);
         try {
-            Signature signature = Signature.getInstance(SIGN_TYPE);
+            Signature signature = Signature.getInstance(signType.getType());
             signature.initVerify(rsaPublicKey);
             signature.update(inputStr.getBytes(CharSetType.UTF8.getType()));
             return signature.verify(signBytes);
