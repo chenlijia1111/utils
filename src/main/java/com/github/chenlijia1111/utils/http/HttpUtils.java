@@ -3,6 +3,7 @@ package com.github.chenlijia1111.utils.http;
 import com.github.chenlijia1111.utils.core.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * @author chenlijia
@@ -13,6 +14,10 @@ public class HttpUtils {
 
     //获取请求Ip
     public static String getIpAddr(HttpServletRequest request) {
+
+        if(Objects.isNull(request)){
+            return "127.0.0.1";
+        }
 
         String ip = request.getHeader("x-forwarded-for");
         if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {

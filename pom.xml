@@ -117,6 +117,13 @@
             <version>1.6.2</version>
             <scope>compile</scope>
         </dependency>
+        <!-- jwt -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

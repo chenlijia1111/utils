@@ -177,7 +177,7 @@ public class FileUtils {
     /**
      * 处理断点续传
      * 返回状态 206
-     * 新增 header Content-Range=bytes 2000070-106786027/106786028
+     * 新增 Header Content-Range=bytes 2000070-106786027/106786028
      *
      * @param file     1
      * @param request  2

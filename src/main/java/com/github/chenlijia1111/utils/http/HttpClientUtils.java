@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
+import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
@@ -9,12 +10,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,11 +56,21 @@ public class HttpClientUtils {
      **/
     public static HttpClientUtils getInstance() {
         HttpClientUtils httpClientUtils = new HttpClientUtils();
-        httpClientUtils.params = new HashMap<>();
+        //通过 treeMap 可以很方便的进行构建签名操作
+        //一般都需要把参数通过字典排序进行签名
+        httpClientUtils.params = new TreeMap<>();
         httpClientUtils.headers = new HashMap<>();
         return httpClientUtils;
     }
 
+
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
     /**
      * 添加请求参数
@@ -152,7 +162,7 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity);
+            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -191,7 +201,7 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity);
+            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -234,10 +244,51 @@ public class HttpClientUtils {
 
             CloseableHttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity);
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 以 xml 的形式发送数据
+     * 以 xml 的形式返回数据
+     *
+     * @param url
+     * @return
+     */
+    public Map doPostWithXML(String url) {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        if (headers != null) {
+            Set<Map.Entry<String, String>> entries = headers.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                httpPost.addHeader(key, value);
+            }
+        }
+
+        //组装参数
+        try {
+            //xml 字符串
+            String mapToXmlStr = XmlUtil.parseMapToXml(this.params);
+            StringEntity stringEntity = new StringEntity(mapToXmlStr, "UTF-8");
+            stringEntity.setContentType("text/xml;charset=UTF-8");
+            stringEntity.setContentEncoding("UTF-8");
+
+            httpPost.setEntity(stringEntity);
+
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
+            Map<String, Object> map = XmlUtil.parseXMLToMap(new ByteArrayInputStream(s.getBytes(CharSetType.UTF8.getType())));
+            return map;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -277,7 +328,7 @@ public class HttpClientUtils {
 
             CloseableHttpResponse response = httpClient.execute(httpPut);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity);
+            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -310,7 +361,7 @@ public class HttpClientUtils {
         try {
             CloseableHttpResponse response = httpClient.execute(httpDelete);
             HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity);
+            String s = EntityUtils.toString(entity,CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
             HashMap hashMap = objectMapper.readValue(s, HashMap.class);
             return hashMap;
@@ -318,6 +369,34 @@ public class HttpClientUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    /**
+     * 将参数转为 key=value&key=value的字符串形式
+     *
+     * @param ignoreNull 是否忽略掉参数值为空的参数
+     * @return
+     */
+    public String paramsToString(boolean ignoreNull) {
+        StringBuilder sb = new StringBuilder();
+        if (params.size() > 0) {
+            Set<Map.Entry<String, Object>> entries = params.entrySet();
+            Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Object> next = iterator.next();
+                String key = next.getKey();
+                Object value = next.getValue();
+                if (ignoreNull && Objects.isNull(value)) {
+                    continue;
+                }
+                sb.append(key + "=" + value);
+                if (iterator.hasNext()) {
+                    sb.append("&");
+                }
+            }
+        }
+        return sb.toString();
     }
 
 }
