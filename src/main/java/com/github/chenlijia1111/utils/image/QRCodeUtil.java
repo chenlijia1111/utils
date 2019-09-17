@@ -1,5 +1,7 @@
 package com.github.chenlijia1111.utils.image;
 
+import com.github.chenlijia1111.utils.core.IOUtil;
+import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -61,15 +63,59 @@ public class QRCodeUtil {
     }
 
     /**
-     * 将二维码输出到输出流
+     * 将二维码输出到文件
+     * 带logo
      *
      * @param content 二维码内容
-     * @param output  输出流
+     * @param file    输出文件
+     * @return
      */
-    public void output(String content, OutputStream output) {
+    public boolean outputWithLogo(String content, File file, File logoFile) {
         try {
             createQRCode(content);
-            MatrixToImageWriter.writeToStream(bitMatrix, format, output);
+            MatrixToImageWriter.writeToPath(bitMatrix, format, file.toPath());
+            //进行合并图片
+            ImageMergeUtil.mergeImage(logoFile, file, file, 120, 120, 60, 60);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    /**
+     * 将二维码输出到输出流
+     *
+     * @param content      二维码内容
+     * @param outputStream 输出流
+     */
+    public void output(String content, OutputStream outputStream) {
+        try {
+            createQRCode(content);
+            MatrixToImageWriter.writeToStream(bitMatrix, format, outputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 将二维码输出到输出流
+     *
+     * @param content      二维码内容
+     * @param outputStream 输出流
+     * @param logoFile     logo文件
+     */
+    public void outputWithLogo(String content, OutputStream outputStream, File logoFile) {
+        try {
+            createQRCode(content);
+            //创建一个临时文件用于装载二维码
+            File tempFile = File.createTempFile(RandomUtil.createUUID(), ".png");
+            outputWithLogo(content, tempFile, logoFile);
+
+            //再将临时文件输出到输出流中
+            IOUtil.writeFile(tempFile, outputStream);
+            tempFile.deleteOnExit();
         } catch (Exception e) {
             e.printStackTrace();
         }
