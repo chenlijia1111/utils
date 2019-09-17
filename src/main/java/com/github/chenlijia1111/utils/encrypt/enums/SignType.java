@@ -9,8 +9,8 @@ package com.github.chenlijia1111.utils.encrypt.enums;
 public enum SignType {
 
     MD5_WITH_RSA("MD5withRSA"),
-    SHA256_WITH_RSA("SHA256withRSA"),
-    SHA1_WITH_RSA("SHA1withRSA"),
+    SHA256_WITH_RSA("SHA256WithRSA"),
+    SHA1_WITH_RSA("SHA1WithRSA"),
     ;
 
     private String type;

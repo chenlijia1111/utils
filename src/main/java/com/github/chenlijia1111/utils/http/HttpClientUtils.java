@@ -175,6 +175,53 @@ public class HttpClientUtils {
         return null;
     }
 
+    /**
+     * 发送 get 请求
+     * 对于 get 请求 路径上不可以包含中文 需要用URLEncode 编码一下才可以
+     *
+     * @param url 1
+     * @author chenlijia
+     * @since 10:25 2019/8/20
+     **/
+    public Map doGet2(String url) throws UnsupportedEncodingException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        //判断有没有请求参数,如果有请求参数,拼接请求参数
+        if (params.size() != 0) {
+            Set<Map.Entry<String, Object>> entries = params.entrySet();
+            //参数拼接成的字符串
+            String paramsString = entries.stream().map(e -> {
+                try {
+                    return e.getKey() + "=" + URLEncoder.encode(e.getValue().toString(), CharSetType.UTF8.getType());
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+                return null;
+            }).collect(Collectors.joining("&"));
+            url = url + "?" + paramsString;
+        }
+        System.out.println(url);
+        HttpGet httpGet = new HttpGet(url);
+        if (headers != null) {
+            Set<Map.Entry<String, String>> entries = headers.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                httpGet.addHeader(key, value);
+            }
+        }
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
+            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
+            ObjectMapper objectMapper = new ObjectMapper();
+            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
+            return hashMap;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 发送 post 请求

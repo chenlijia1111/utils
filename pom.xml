@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.60</version>
+            <version>1.62</version>
             <scope>compile</scope>
         </dependency>
         <!--单元测试-->
@@ -124,7 +124,20 @@
             <version>0.9.1</version>
             <scope>compile</scope>
         </dependency>
-
+        <!--支付宝支付-->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>3.7.110.ALL</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--二维码工具类-->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.3.3</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 
