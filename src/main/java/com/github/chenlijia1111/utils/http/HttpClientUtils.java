@@ -4,19 +4,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import javax.net.ssl.SSLContext;
+import java.io.*;
 import java.net.URLEncoder;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +54,11 @@ public class HttpClientUtils {
      **/
     private Map<String, String> headers;
 
+    /**
+     * 请求工具
+     */
+    private HttpClient httpClient;
+
     private HttpClientUtils() {
     }
 
@@ -54,7 +66,6 @@ public class HttpClientUtils {
      * 初始化
      *
      * @author chenlijia
-     * @description TODO
      * @since 10:21 2019/8/20
      **/
     public static HttpClientUtils getInstance() {
@@ -63,6 +74,53 @@ public class HttpClientUtils {
         //一般都需要把参数通过字典排序进行签名
         httpClientUtils.params = new TreeMap<>();
         httpClientUtils.headers = new HashMap<>();
+        httpClientUtils.httpClient = HttpClients.createDefault();
+        return httpClientUtils;
+    }
+
+    /**
+     * 初始化 SSL httpClient
+     *
+     * @param sslFile  证书文件 如 apiclient_cert.p12
+     * @param password 证书密码
+     * @since 10:21 2019/8/20
+     **/
+    public static HttpClientUtils getInstanceWithSSL(File sslFile, String password) {
+        HttpClientUtils httpClientUtils = new HttpClientUtils();
+        //通过 treeMap 可以很方便的进行构建签名操作
+        //一般都需要把参数通过字典排序进行签名
+        httpClientUtils.params = new TreeMap<>();
+        httpClientUtils.headers = new HashMap<>();
+
+        //构建带证书的SSL请求
+        try {
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            keyStore.load(new FileInputStream(sslFile), password.toCharArray());
+            SSLContext sslcontext = SSLContexts.custom()
+                    //忽略掉对服务器端证书的校验
+                    .loadTrustMaterial((chain, authType) -> true)
+                    .loadKeyMaterial(keyStore, password.toCharArray())
+                    .build();
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+                    sslcontext,
+                    new String[]{"TLSv1"},
+                    null,
+                    SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+
+            httpClientUtils.httpClient = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableKeyException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
         return httpClientUtils;
     }
 
@@ -138,7 +196,6 @@ public class HttpClientUtils {
      * @since 10:25 2019/8/20
      **/
     public Map doGet(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
         //判断有没有请求参数,如果有请求参数,拼接请求参数
         if (params.size() != 0) {
             Set<Map.Entry<String, Object>> entries = params.entrySet();
@@ -163,54 +220,7 @@ public class HttpClientUtils {
             }
         }
         try {
-            CloseableHttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * 发送 get 请求
-     * 对于 get 请求 路径上不可以包含中文 需要用URLEncode 编码一下才可以
-     *
-     * @param url 1
-     * @author chenlijia
-     * @since 10:25 2019/8/20
-     **/
-    public Map doGet2(String url) throws UnsupportedEncodingException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        //判断有没有请求参数,如果有请求参数,拼接请求参数
-        if (params.size() != 0) {
-            Set<Map.Entry<String, Object>> entries = params.entrySet();
-            //参数拼接成的字符串
-            String paramsString = entries.stream().map(e -> {
-                try {
-                    return e.getKey() + "=" + URLEncoder.encode(e.getValue().toString(), CharSetType.UTF8.getType());
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-                return null;
-            }).collect(Collectors.joining("&"));
-            url = url + "?" + paramsString;
-        }
-        System.out.println(url);
-        HttpGet httpGet = new HttpGet(url);
-        if (headers != null) {
-            Set<Map.Entry<String, String>> entries = headers.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                httpGet.addHeader(key, value);
-            }
-        }
-        try {
-            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
@@ -231,7 +241,6 @@ public class HttpClientUtils {
      * @since 10:25 2019/8/20
      **/
     public Map doPost(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
 
         HttpPost httpPost = new HttpPost(url);
         if (headers != null) {
@@ -255,7 +264,7 @@ public class HttpClientUtils {
                 httpPost.setEntity(formEntity);
             }
 
-            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
@@ -277,7 +286,6 @@ public class HttpClientUtils {
      * @since 10:25 2019/8/20
      **/
     public Map doPostWithJson(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -298,7 +306,7 @@ public class HttpClientUtils {
 
             httpPost.setEntity(stringEntity);
 
-            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
@@ -319,7 +327,6 @@ public class HttpClientUtils {
      * @return
      */
     public Map doPostWithXML(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -340,7 +347,7 @@ public class HttpClientUtils {
 
             httpPost.setEntity(stringEntity);
 
-            CloseableHttpResponse response = httpClient.execute(httpPost);
+            HttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             Map<String, Object> map = XmlUtil.parseXMLToMap(new ByteArrayInputStream(s.getBytes(CharSetType.UTF8.getType())));
@@ -361,7 +368,6 @@ public class HttpClientUtils {
      * @since 10:25 2019/8/20
      **/
     public Map doPutWithJson(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPut httpPut = new HttpPut(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -382,7 +388,7 @@ public class HttpClientUtils {
 
             httpPut.setEntity(stringEntity);
 
-            CloseableHttpResponse response = httpClient.execute(httpPut);
+            HttpResponse response = httpClient.execute(httpPut);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();
@@ -404,7 +410,6 @@ public class HttpClientUtils {
      * @since 10:25 2019/8/20
      **/
     public Map doDelete(String url) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpDelete httpDelete = new HttpDelete(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -415,7 +420,7 @@ public class HttpClientUtils {
             }
         }
         try {
-            CloseableHttpResponse response = httpClient.execute(httpDelete);
+            HttpResponse response = httpClient.execute(httpDelete);
             HttpEntity entity = response.getEntity();
             String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
             ObjectMapper objectMapper = new ObjectMapper();

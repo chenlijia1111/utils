@@ -11,6 +11,7 @@ import com.github.chenlijia1111.utils.xml.XmlUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
@@ -111,9 +112,52 @@ public class WXPayUtil {
 
         }
 
-        //请求失败,返回错误信息
+        //请求失败,或者是扫码的，直接返回map
         return map;
     }
+
+    /**
+     * 退款
+     *
+     * @param appId
+     * @param mchId
+     * @param signKey       签名密钥
+     * @param sslFile       ssl加密文件
+     * @param sslPassword   ssl密码 默认是商户号 即 mchId
+     * @param transactionId 微信交易流水号 与商家内部订单号 二选一
+     * @param outTradeNo    商家内部订单号
+     * @param totalFee      订单总金额
+     * @param refund_fee    退款金额
+     * @return
+     */
+    public Map refund(String appId, String mchId, String signKey, File sslFile,
+                      String sslPassword, String transactionId,
+                      String outTradeNo, int totalFee, int refund_fee) {
+
+        HttpClientUtils httpClientUtils = HttpClientUtils.getInstanceWithSSL(sslFile, sslPassword);
+        //填充参数
+        httpClientUtils.
+                putParams("appid", appId). //微信支付分配的公众账号ID（企业号corpid即为此appId）
+                putParams("mch_id", mchId). //微信支付分配的商户号
+                putParams("nonce_str", RandomUtil.createUUID()). //随机字符串，长度要求在32位以内
+                putParams("sign_type", "MD5"). //签名类型，默认为MD5，支持HMAC-SHA256和MD5
+                putParams("transaction_id", transactionId). //微信生成的订单号，在支付通知中有返回
+                putParams("out_trade_no", RandomUtil.createUUID()). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
+                putParams("out_refund_no", outTradeNo). //商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
+                putParams("total_fee", totalFee + ""). //订单总金额，单位为分，只能为整数
+                putParams("refund_fee", refund_fee + ""); //退款总金额，订单总金额，单位为分，只能为整数
+
+        //构造签名
+        //进行参数的签名 MD5
+        String paramsString = httpClientUtils.paramsToString(true);
+        String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + signKey);
+        httpClientUtils.putParams("sign", sign);
+
+        //发送请求
+        Map map = httpClientUtils.doPostWithXML("https://api.mch.weixin.qq.com/secapi/pay/refund");
+        return map;
+    }
+
 
     /**
      * 回调处理
