@@ -251,7 +251,7 @@ public class ALiPayUtil {
 
 
     /**
-     * 二维码支付
+     * 退款
      *
      * @param appId
      * @param privateKey
