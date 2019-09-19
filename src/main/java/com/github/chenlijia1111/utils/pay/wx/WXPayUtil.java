@@ -150,7 +150,6 @@ public class WXPayUtil {
         //构造签名
         //进行参数的签名 MD5
         String paramsString = httpClientUtils.paramsToString(true);
-        System.out.println(paramsString);
         String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + signKey);
         httpClientUtils.putParams("sign", sign);
 
