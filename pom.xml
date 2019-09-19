@@ -138,6 +138,13 @@
             <version>3.3.3</version>
             <scope>compile</scope>
         </dependency>
+        <!-- 汉语拼音工具 -->
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 
