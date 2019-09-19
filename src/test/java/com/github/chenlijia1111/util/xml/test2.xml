@@ -1,0 +1,16 @@
+<xml>
+    <name><![CDATA[name]]></name>
+    <code><![CDATA[code]]></code>
+    <childXmlPojoList>
+        <size><![CDATA[size0]]></size>
+        <color><![CDATA[color0]]></color>
+    </childXmlPojoList>
+    <childXmlPojoList>
+        <size><![CDATA[size1]]></size>
+        <color><![CDATA[color1]]></color>
+    </childXmlPojoList>
+    <childXmlPojoList>
+        <size><![CDATA[size2]]></size>
+        <color><![CDATA[color2]]></color>
+    </childXmlPojoList>
+</xml>

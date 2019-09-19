@@ -135,21 +135,25 @@ public class XmlUtil {
      * <p>
      * 如果是数组的话,默认节点就叫做 <node></node>
      *
-     * @param jsonStr
+     * @param jsonStr         json字符串数组
+     * @param defaultNodeName 默认节点名称 如果是json对象数组的话，就需要一个默认的节点名称了,否则，就用默认的 node
      * @return
      */
-    public static String parseJsonToXml(String jsonStr) {
+    public static String parseJsonToXml(String jsonStr, String defaultNodeName) {
 
         StringBuilder sb = new StringBuilder("<xml>");
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonStr);
+            //如果是数组的话，用数组的处理方式处理
             if (jsonNode.isArray()) {
-                sb.append(dealJsonNodeWithArray(jsonNode, "node"));
+                sb.append(dealJsonNodeWithArray(jsonNode, StringUtils.isNotEmpty(defaultNodeName) ? defaultNodeName : "node"));
             } else if (jsonNode.isObject()) {
+                //如果是对象的话，用对象的处理方式处理
                 sb.append(dealJsonNodeWithObj(jsonNode, null));
             }
+            //其他的数据不处理,因为不是对象，没有属性名，就没有节点名称
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,6 +179,7 @@ public class XmlUtil {
         while (iterator.hasNext()) {
             JsonNode next = iterator.next();
             if (next.isObject()) {
+                //如果是对象的话，用对象的处理方式处理,不是对象就不处理
                 String s = dealJsonNodeWithObj(next, nodeName);
                 sb.append(s);
             }
@@ -200,10 +205,13 @@ public class XmlUtil {
             String fieldName = fieldNames.next();
             JsonNode childJsonNode = jsonNode.get(fieldName);
             if (childJsonNode.isArray()) {
+                //如果是数组，调用数组的处理方式进行处理
                 sb.append(dealJsonNodeWithArray(childJsonNode, fieldName));
             } else if (childJsonNode.isObject()) {
+                //如果是对象，递归调用自己进行处理
                 sb.append(dealJsonNodeWithObj(childJsonNode, fieldName));
             } else {
+                //否则，就当成文本处理，生成节点的值
                 sb.append("<" + fieldName + ">");
                 sb.append("<![CDATA[" + childJsonNode.asText() + "]]>");
                 sb.append("</" + fieldName + ">");
