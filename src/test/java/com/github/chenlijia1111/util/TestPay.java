@@ -2,28 +2,16 @@ package com.github.chenlijia1111.util;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.AlipayConstants;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
-import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.chenlijia1111.utils.common.constant.TimeConstant;
-import com.github.chenlijia1111.utils.core.RandomUtil;
-import com.github.chenlijia1111.utils.core.enums.CharSetType;
-import com.github.chenlijia1111.utils.encrypt.RSAUtils;
-import com.github.chenlijia1111.utils.encrypt.enums.SignType;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.pay.wx.PayType;
 import com.github.chenlijia1111.utils.pay.wx.WXPayUtil;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.HashMap;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -42,9 +30,6 @@ public class TestPay {
     }
 
 
-
-
-
     @Test
     public void test3() {
         Map map = HttpClientUtils.getInstance().putParams("userNum", "admin").putParams("password", "123456").
@@ -61,7 +46,7 @@ public class TestPay {
 
 
     @Test
-    public void test4(){
+    public void test4() {
 
         String APP_ID = "2019082666435508";
         String APP_PRIVATE_KEY = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8md5bd1lowiY1fs2YLhrFWxliUp2dhmjnIozJIRAjIq6X3SFBbyKvD2pgFQeZqsCyb8H4OuvSZFjImZJu7EPWb/mDyrm1JUyQwt70AWSlL9YAA3aeffNWrCM4M7EfOmHSNkJkE4SF2uU92eXXyieBfcP8SAS/EvUIK938i7PGgDAHo6xUa1kB9GnR1LFtEWM6IxW40SYM1pWXRxyjR6Zy9xAieItFE10nUm54nRNq6kR0O7vd/wO7oiJewbOwDGdUJy+y/BtAk6W5IudcZHh0xx7xiX1btLvpgCswEcEgNaMHQkIfgPhZ25IgP6oI+HeLtKfrq5EiNFN4Y0dFRTpFAgMBAAECggEAXYQuLUxQmRErwPrPFtZFj/ZL7+TnImSzP2hyRoiOZ92alNKg2sEwgX0zUdEbo6Z3RgMEOwF8TSZUn6MGaNneCUYcgqzSyG9mN6Foy7SlIwNFKVyORKhPMHrKO+Plv4ZDWuhsoxLKc1TGtpSE0yr5y8uAkmdjcxsDRLn7qG3dBl9O2IjfKFhSq9J0MuotMa01Kx9Ud5Z9pCMYJGz7LcClHFsl9RkO6jMm1hAOEBsLmL47bLezyDFgs2f9UR8vApb5AXVBEDRPGiI8qVXbwyKApTOxb3xKg60/PGobMGxv8vD1W3qXPiK5IyO7iqzkQjiqpbiLG2DeEWlur7egwDsBQQKBgQDt7XVeRNBN1f8ManoADzyKAmA82SrB1PoBSkMr784KEtCKua4D8j7z939hZFZGmuLFlTM2c0jhfGZP08xrBZgbvgD5tWXi5BOSaVlHe04dC2Aq38KzO8AQ7ODnKm9gFo9x5e6XU8IJVyfwSJVic1kgsObtiKbRdQCUECIdpesDVwKBgQDK7T9i+Z1aC0Wn+xfjL/6kVruqbyFfF7bLcyrD/wJ5fAExdehetgMKM40wXvND5YF5vjyTB9m8HKDn5h3+6i/CwogAwYvjy+onIsTrsDHucnF9Lsj6x2j8VirddqNCKUeXggE2ImMdWXI5fRj057Po1DlddbSCRinKDJGz1VVpwwKBgQCFSLWsFm5+e/fBk9A+QkrOoSAaVimepdlbaaeRcGgCuqF6ZSP3b/gWITqJa3TtXozU1Iz43sIgFtkVtPdZqKuaNulC+XxXCx9vsHZkFc4fdSTtP6ZJU5p3oMsolFwJ/vlie8UZnsEfDGUCNRcCLM3sA02KGTgiNCIbz6Hc6/poRwKBgBmEZdEbVFcLTdIGuAVAdsPRiD2xRcAAamMA82K8AWKnXjsK+ZJXTuCMhPeNKQfjpzlY26MdfJqz+uPOQv1YE3NpJNL7g4y8ipArRhnhCRZT28ODC5DFXIVGjJNWpMbgC/mYRnC5OD9rjPp/qZC6RhxD+4auE2nCSuT2WagEbn4jAoGADlVyKfRoQgAIXb98s3sobsjQFsB3ySsQ+okSf7GFW2hCANRV/vxSUwNOuQ7fhuIcWq+IST3mWuwaAhOjpDv+oG/idQSblx2NPtgVNyse9xluVGV+gPwaiVanYfGnmS9xEEL7b0mfWQO6QeJkLQ69qU892Vk8BctYPyjetZ5o0e8=";
@@ -91,6 +76,19 @@ public class TestPay {
         } catch (AlipayApiException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void test6() {
+
+        String appId = "wxd3fdb22474bdd195";
+        String appSecret = "a3563455b057a976230c0cb5a828659f";
+        String mchId = "1553017211";
+        String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
+        Map refund = WXPayUtil.refund(appId, mchId, partnerKey,
+                new File("C:/Users/Administrator/Documents/Tencent Files/571740367/FileRecv/1553017211_20190903_cert/apiclient_cert.p12"),
+                mchId, null, "1231546578978", 100, 100);
+        System.out.println(refund);
     }
 
 

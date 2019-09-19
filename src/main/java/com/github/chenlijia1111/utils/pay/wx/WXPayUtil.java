@@ -130,7 +130,7 @@ public class WXPayUtil {
      * @param refund_fee    退款金额
      * @return
      */
-    public Map refund(String appId, String mchId, String signKey, File sslFile,
+    public static Map refund(String appId, String mchId, String signKey, File sslFile,
                       String sslPassword, String transactionId,
                       String outTradeNo, int totalFee, int refund_fee) {
 
@@ -150,6 +150,7 @@ public class WXPayUtil {
         //构造签名
         //进行参数的签名 MD5
         String paramsString = httpClientUtils.paramsToString(true);
+        System.out.println(paramsString);
         String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + signKey);
         httpClientUtils.putParams("sign", sign);
 

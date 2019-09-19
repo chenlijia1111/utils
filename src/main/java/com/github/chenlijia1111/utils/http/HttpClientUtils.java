@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
@@ -448,7 +449,7 @@ public class HttpClientUtils {
                 Map.Entry<String, Object> next = iterator.next();
                 String key = next.getKey();
                 Object value = next.getValue();
-                if (ignoreNull && Objects.isNull(value)) {
+                if (ignoreNull && (Objects.isNull(value) || StringUtils.isEmpty(value.toString()))) {
                     continue;
                 }
                 sb.append(key + "=" + value);
@@ -456,6 +457,7 @@ public class HttpClientUtils {
                     sb.append("&");
                 }
             }
+            sb.delete(sb.length() - 1, sb.length());
         }
         return sb.toString();
     }
