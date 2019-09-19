@@ -1,5 +1,7 @@
 package com.github.chenlijia1111.utils.xml;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,7 +32,7 @@ public class XmlUtil {
      * xml文件的头 一般都以 <xml> 开头 所以解析出的map 会排除最外层
      * 只解析节点的名称以及值 不解析属性
      *
-     * @param inputStream  如果想用字符串为参数 可以通过 {@link java.io.ByteArrayInputStream} 进行转换
+     * @param inputStream 如果想用字符串为参数 可以通过 {@link java.io.ByteArrayInputStream} 进行转换
      * @return
      * @see #parseXMLToMap(InputStream) 解析xml文件转为map
      */
@@ -97,6 +99,8 @@ public class XmlUtil {
 
     /**
      * 将map 转换为xml
+     * 只能转换一层
+     * 不支持多层数据
      *
      * @param map
      * @return
@@ -118,6 +122,96 @@ public class XmlUtil {
             }
         }
         sb.append("</xml>");
+        return sb.toString();
+    }
+
+
+    /**
+     * 将json 转换为xml
+     * 支持复杂数据
+     * <p>
+     * 如果是数组 不可以为基本类型的数组 必须是对象
+     * 因为基本类型会导致无法确定节点的名称
+     * <p>
+     * 如果是数组的话,默认节点就叫做 <node></node>
+     *
+     * @param jsonStr
+     * @return
+     */
+    public static String parseJsonToXml(String jsonStr) {
+
+        StringBuilder sb = new StringBuilder("<xml>");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapper.readTree(jsonStr);
+            if (jsonNode.isArray()) {
+                sb.append(dealJsonNodeWithArray(jsonNode, "node"));
+            } else if (jsonNode.isObject()) {
+                sb.append(dealJsonNodeWithObj(jsonNode, null));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        sb.append("</xml>");
+        return sb.toString();
+    }
+
+
+    /**
+     * 处理当 jsonNode为数组的时候
+     * xml的最外层不能是数组，因为xml以 <xml></xml> 包裹在最外面
+     *
+     * @param jsonNode 1
+     * @param nodeName 这个节点的名称
+     * @return java.lang.String
+     * @since 下午 9:07 2019/9/19 0019
+     **/
+    private static String dealJsonNodeWithArray(JsonNode jsonNode, String nodeName) {
+
+        StringBuilder sb = new StringBuilder();
+        Iterator<JsonNode> iterator = jsonNode.iterator();
+        while (iterator.hasNext()) {
+            JsonNode next = iterator.next();
+            if (next.isObject()) {
+                String s = dealJsonNodeWithObj(next, nodeName);
+                sb.append(s);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 处理当 jsonNode为对象的时候
+     *
+     * @param jsonNode 1
+     * @param nodeName 节点名称
+     * @return java.lang.String
+     * @since 下午 9:07 2019/9/19 0019
+     **/
+    private static String dealJsonNodeWithObj(JsonNode jsonNode, String nodeName) {
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.isNotEmpty(nodeName)) {
+            sb.append("<" + nodeName + ">");
+        }
+        Iterator<String> fieldNames = jsonNode.fieldNames();
+        while (fieldNames.hasNext()) {
+            String fieldName = fieldNames.next();
+            JsonNode childJsonNode = jsonNode.get(fieldName);
+            if (childJsonNode.isArray()) {
+                sb.append(dealJsonNodeWithArray(childJsonNode, fieldName));
+            } else if (childJsonNode.isObject()) {
+                sb.append(dealJsonNodeWithObj(childJsonNode, fieldName));
+            } else {
+                sb.append("<" + fieldName + ">");
+                sb.append("<![CDATA[" + childJsonNode.asText() + "]]>");
+                sb.append("</" + fieldName + ">");
+            }
+        }
+        if (StringUtils.isNotEmpty(nodeName)) {
+            sb.append("</" + nodeName + ">");
+        }
         return sb.toString();
     }
 
