@@ -142,8 +142,8 @@ public class WXPayUtil {
                 putParams("nonce_str", RandomUtil.createUUID()). //随机字符串，长度要求在32位以内
                 putParams("sign_type", "MD5"). //签名类型，默认为MD5，支持HMAC-SHA256和MD5
                 putParams("transaction_id", transactionId). //微信生成的订单号，在支付通知中有返回
-                putParams("out_trade_no", RandomUtil.createUUID()). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
-                putParams("out_refund_no", outTradeNo). //商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
+                putParams("out_trade_no", outTradeNo). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
+                putParams("out_refund_no", RandomUtil.createUUID()). //商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
                 putParams("total_fee", totalFee + ""). //订单总金额，单位为分，只能为整数
                 putParams("refund_fee", refund_fee + ""); //退款总金额，订单总金额，单位为分，只能为整数
 
