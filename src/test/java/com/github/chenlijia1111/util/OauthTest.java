@@ -2,8 +2,11 @@ package com.github.chenlijia1111.util;
 
 import com.github.chenlijia1111.utils.encrypt.HMacSHA256EncryptUtil;
 import com.github.chenlijia1111.utils.oauth.jwt.JWTUtil;
+import com.github.chenlijia1111.utils.oauth.qq.QQLoginUtil;
 import io.jsonwebtoken.Claims;
 import org.junit.Test;
+
+import java.util.Map;
 
 /**
  * @author 陈礼佳
@@ -41,6 +44,16 @@ public class OauthTest {
         String string = HMacSHA256EncryptUtil.SHA256StringToHexString(s1 + "." + s2, "qwewqw");
         //iwUJPL8CeNheAmypUXrLoxDoYllhaeTdKlk9_g_MlYgwqwq
         System.out.println(string);
+    }
+
+
+    @Test
+    public void testqq(){
+        String clientId = "1109533360";
+        String clientSecret = "9sbUyp66fNYGOzDE";
+        QQLoginUtil qqLoginUtil = new QQLoginUtil();
+        Map sa = qqLoginUtil.accessToken(clientId, clientSecret, "sa", "http://192.168.1.167:8086/jiuyou/system/oauth/callback/qq");
+        System.out.println(sa);
     }
 
 
