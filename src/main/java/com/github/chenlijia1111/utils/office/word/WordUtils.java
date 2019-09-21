@@ -1,6 +1,6 @@
 package com.github.chenlijia1111.utils.office.word;
 
-import com.github.chenlijia1111.utils.common.CheckResult;
+import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import org.apache.poi.POIXMLDocument;
@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author  chenlijia
- * @since  2019/5/21 0021 下午 2:44
- * @version  1.0
+ * @author chenlijia
+ * @version 1.0
+ * @since 2019/5/21 0021 下午 2:44
  **/
 public class WordUtils {
 
@@ -35,24 +35,24 @@ public class WordUtils {
      * @param filePath    源文件
      * @param outFilePath 输出文件
      * @param params      替换的参数
-     * @since  下午 3:48 2019/5/28 0028
+     * @since 下午 3:48 2019/5/28 0028
      **/
-    public static CheckResult replaceWord(String filePath, String outFilePath, Map<String, String> params) {
+    public static Result replaceWord(String filePath, String outFilePath, Map<String, String> params) {
 
         File file = new File(filePath);
         if (!file.exists())
-            return CheckResult.failure("源文件不存在");
+            return Result.failure("源文件不存在");
 
 
         boolean b = FileUtils.checkFileSuffix(filePath, ".docx", ".doc");
         boolean b1 = FileUtils.checkFileSuffix(outFilePath, ".docx", ".doc");
         if (!b || !b1)
-            return CheckResult.failure("文件名不合法");
+            return Result.failure("文件名不合法");
 
         File outFile = new File(outFilePath);
         File parentFile = outFile.getParentFile();
         if (!parentFile.exists())
-            return CheckResult.failure("输出目录不存在");
+            return Result.failure("输出目录不存在");
 
         if (FileUtils.checkFileSuffix(filePath, ".docx")) {
             return replaceWord07(file, outFile, params);
@@ -60,7 +60,7 @@ public class WordUtils {
         if (FileUtils.checkFileSuffix(filePath, ".doc")) {
             return replaceWord03(file, outFile, params);
         }
-        return CheckResult.success("格式不合法");
+        return Result.success("格式不合法");
     }
 
 
@@ -70,9 +70,9 @@ public class WordUtils {
      * @param file    源文件
      * @param outFile 输出文件
      * @param params  替换的参数
-     * @since  下午 3:48 2019/5/28 0028
+     * @since 下午 3:48 2019/5/28 0028
      **/
-    private static CheckResult replaceWord03(File file, File outFile, Map<String, String> params) {
+    private static Result replaceWord03(File file, File outFile, Map<String, String> params) {
 
         try (FileInputStream fileInputStream = new FileInputStream(file);
              FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
@@ -89,7 +89,7 @@ public class WordUtils {
             e.printStackTrace();
         }
 
-        return CheckResult.success("替换成功");
+        return Result.success("替换成功");
     }
 
     /**
@@ -99,9 +99,9 @@ public class WordUtils {
      * @param file    源文件
      * @param outFile 输出文件
      * @param params  替换的参数
-     * @since  下午 3:48 2019/5/28 0028
+     * @since 下午 3:48 2019/5/28 0028
      **/
-    private static CheckResult replaceWord07(File file, File outFile, Map<String, String> params) {
+    private static Result replaceWord07(File file, File outFile, Map<String, String> params) {
 
         FileOutputStream outputStream = null;
         try {
@@ -154,7 +154,7 @@ public class WordUtils {
             }
         }
 
-        return CheckResult.success("替换成功");
+        return Result.success("替换成功");
     }
 
 
@@ -164,7 +164,7 @@ public class WordUtils {
      * @param paragraph 1
      * @param params    2
      * @return void
-     * @since  下午 3:36 2019/5/29 0029
+     * @since 下午 3:36 2019/5/29 0029
      **/
     private static void dealRuns(XWPFParagraph paragraph, Map<String, String> params) {
         List<XWPFRun> runs = paragraph.getRuns();
@@ -202,7 +202,7 @@ public class WordUtils {
      *
      * @param file 1
      * @return java.lang.String
-     * @since  下午 1:52 2019/6/25 0025
+     * @since 下午 1:52 2019/6/25 0025
      **/
     public static String readWord(File file) {
 

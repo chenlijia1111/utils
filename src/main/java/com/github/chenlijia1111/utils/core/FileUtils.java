@@ -16,6 +16,7 @@ import java.util.Map;
 
 /**
  * 文件工具类
+ * 主要是封装一些对对文件的基本操作
  *
  * @author 陈礼佳
  * @since 下午 7:30 2019/9/4 0004
@@ -34,10 +35,9 @@ public class FileUtils {
         commonDownLoadContentType.put(".html", "text/html");
         commonDownLoadContentType.put(".img", "application/x-img");
         commonDownLoadContentType.put(".jpeg", "image/jpeg");
+        commonDownLoadContentType.put(".jpg", "image/jpeg");
         commonDownLoadContentType.put(".jpe", "image/jpeg");
-        commonDownLoadContentType.put(".jpg", "application/x-jpg");
         commonDownLoadContentType.put(".mp4", "video/mpeg4");
-        commonDownLoadContentType.put(".png", "application/x-png");
         commonDownLoadContentType.put(".ppt", "application/x-ppt");
         commonDownLoadContentType.put(".apk", "application/vnd.android.package-archive");
         commonDownLoadContentType.put(".css", "text/css");

@@ -1,7 +1,7 @@
 package com.github.chenlijia1111.utils.email;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
-import com.github.chenlijia1111.utils.common.CheckResult;
+import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 
@@ -83,10 +83,10 @@ public class EmailUtil {
      * @return com.github.chenlijia1111.utils.common.CheckResult
      * @since 上午 10:48 2019/9/12 0012
      **/
-    public CheckResult sendMassage(List<String> receiveEmails, String subject, String content, List<File> fileList) {
+    public Result sendMassage(List<String> receiveEmails, String subject, String content, List<File> fileList) {
 
         if (Lists.isEmpty(receiveEmails)) {
-            return CheckResult.failure("接收邮件地址集合不能为空");
+            return Result.failure("接收邮件地址集合不能为空");
         }
 
         //防止为空
@@ -143,12 +143,12 @@ public class EmailUtil {
             transport.connect(account, password);
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
-            return CheckResult.success("发送成功");
+            return Result.success("发送成功");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-        return CheckResult.success("发送失败");
+        return Result.success("发送失败");
     }
 }

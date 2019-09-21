@@ -2,7 +2,7 @@ package com.github.chenlijia1111.utils.core;
 
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
-import com.github.chenlijia1111.utils.common.CheckResult;
+import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
 import com.github.chenlijia1111.utils.list.Lists;
 
@@ -146,7 +146,7 @@ public class PropertyCheckUtil {
      * @return com.github.chenlijia1111.utils.common.CheckResult
      * @since 下午 1:38 2019/9/9 0009
      **/
-    public static CheckResult checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
+    public static Result checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
 
         AssertUtil.isTrue(Objects.nonNull(object), "数据为空");
 
@@ -188,16 +188,16 @@ public class PropertyCheckUtil {
                             if (fieldClass == String.class) {
                                 String str = (String) getFieldValue(object, aClass, fieldName);
                                 if (StringUtils.isEmpty(str))
-                                    return CheckResult.failure(fieldName + "不能为空");
+                                    return Result.failure(fieldName + "不能为空");
                             } else if (List.class.isAssignableFrom(fieldClass)) {
                                 //说明是list集合
                                 List list = (List) getFieldValue(object, aClass, fieldName);
                                 if (null == list || list.size() == 0)
-                                    return CheckResult.failure(fieldName + "不能为空");
+                                    return Result.failure(fieldName + "不能为空");
                             } else {
                                 Object o = getFieldValue(object, aClass, fieldName);
                                 if (null == o)
-                                    return CheckResult.failure(fieldName + "不能为空");
+                                    return Result.failure(fieldName + "不能为空");
                             }
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
@@ -214,16 +214,16 @@ public class PropertyCheckUtil {
                                     if (fieldClass == String.class) {
                                         String str = (String) getFieldValue(object, aClass, fieldName);
                                         if (StringUtils.isEmpty(str))
-                                            return CheckResult.failure(fieldName + "不能为空");
+                                            return Result.failure(fieldName + "不能为空");
                                     } else if (List.class.isAssignableFrom(fieldClass)) {
                                         //说明是list集合
                                         List list = (List) getFieldValue(object, aClass, fieldName);
                                         if (null == list || list.size() == 0)
-                                            return CheckResult.failure(fieldName + "不能为空");
+                                            return Result.failure(fieldName + "不能为空");
                                     } else {
                                         Object o = getFieldValue(object, aClass, fieldName);
                                         if (null == o)
-                                            return CheckResult.failure(fieldName + "不能为空");
+                                            return Result.failure(fieldName + "不能为空");
                                     }
                                 } catch (NoSuchFieldException e) {
                                     e.printStackTrace();
@@ -240,6 +240,6 @@ public class PropertyCheckUtil {
             }
         }
 
-        return CheckResult.success("检测通过");
+        return Result.success("检测通过");
     }
 }

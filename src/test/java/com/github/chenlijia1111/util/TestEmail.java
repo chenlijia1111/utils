@@ -1,6 +1,6 @@
 package com.github.chenlijia1111.util;
 
-import com.github.chenlijia1111.utils.common.CheckResult;
+import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.email.EmailHostType;
 import com.github.chenlijia1111.utils.email.EmailUtil;
 import com.github.chenlijia1111.utils.list.Lists;
@@ -21,7 +21,7 @@ public class TestEmail {
 
         EmailUtil emailUtil = new EmailUtil("571740367@qq.com", "xxnollszofsnbfab", EmailHostType.QQ, "陈陈陈礼佳");
         List<File> files = Lists.asList(new File("D:\\image\\s.jpg"));
-        CheckResult checkResult = emailUtil.sendMassage(Lists.asList("17770039942@163.com"), null, null, null);
+        Result checkResult = emailUtil.sendMassage(Lists.asList("17770039942@163.com"), null, null, null);
         System.out.println(checkResult);
 
 

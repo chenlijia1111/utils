@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 
@@ -55,6 +56,27 @@ public class JSONUtil {
         try {
             T t = objectMapper.readValue(jsonStr, objClass);
             return t;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * json 转 jsonNode对象
+     *
+     * @param jsonStr 1
+     * @return T
+     * @since 上午 9:09 2019/9/19 0019
+     **/
+    public static JsonNode strToJsonNode(String jsonStr) {
+
+        AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapper.readTree(jsonStr);
+            return jsonNode;
         } catch (IOException e) {
             e.printStackTrace();
         }
