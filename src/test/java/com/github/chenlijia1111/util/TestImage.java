@@ -1,7 +1,9 @@
 package com.github.chenlijia1111.util;
 
 import com.github.chenlijia1111.utils.image.ImageMergeUtil;
+import com.github.chenlijia1111.utils.image.OneDimensionalCodeUtil;
 import com.github.chenlijia1111.utils.image.QRCodeUtil;
+import com.github.chenlijia1111.utils.image.ValidateImageUtil;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,6 +40,18 @@ public class TestImage {
         File logo = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\index.jpg");
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         qrCodeUtil.outputWithLogo("http://www.baidu.com",fileOutputStream,logo);
+    }
+
+    @Test
+    public void test4() {
+        String validCode = ValidateImageUtil.createValidCode(4);
+        ValidateImageUtil.writeValidCode(validCode, new File("C:\\Users\\Administrator\\Desktop\\picture\\chen.png"));
+    }
+
+    @Test
+    public void test5(){
+        OneDimensionalCodeUtil codeUtil = new OneDimensionalCodeUtil();
+        codeUtil.output("5675757657",new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\onecode1.jpg"));
     }
 
 }
