@@ -56,7 +56,7 @@ public class NumberUtil {
 
     /**
      * 字节数组转整数
-     * 大端模式
+     * 大端模式 byte[0] 表示高位
      * 低字节存储的是高位
      * 大端模式 字节数组必须要保证是4个字节
      * 因为如果不满4个字节的话，无法确定低位是什么，就不能确定具体的数字大小
@@ -85,12 +85,8 @@ public class NumberUtil {
      * 字节数组转整数
      * 小端模式
      * 低字节存储的是低位
+     * byte[0] 表示低位
      * <p>
-     * 在 java 中 int 用 32 位表示
-     * 也就是 4 个 byte
-     * 第一个 byte 左移 24 位
-     * 第二个 byte 左移 16 位
-     * 第三个 byte 左移 8 位
      *
      * @param bytes 长度最长为4
      * @return java.lang.Integer
