@@ -149,10 +149,11 @@ public class StringUtils {
      * @param prefix       填充的前缀
      * @param numberLength 希望生成的字符串的长度
      * @param number       数字
+     * @param fillContent  循环填充的内容
      * @return java.lang.String
      * @since 下午 7:33 2019/9/4 0004
      **/
-    public static String completeIntToFixedLengthStr(String prefix, int numberLength, long number) {
+    public static String completeIntToFixedLengthStr(String prefix, int numberLength, long number, char fillContent) {
         StringBuilder stringBuilder = new StringBuilder();
         //判断前缀 防止为null
         prefix = prefix == null ? "" : prefix;
@@ -161,7 +162,7 @@ public class StringUtils {
         //不够的补0
         String numberString = String.valueOf(number);
         for (int i = 0; i < numberLength - numberString.length(); i++) {
-            stringBuilder.append("0");
+            stringBuilder.append(fillContent);
         }
 
         stringBuilder.append(numberString);
@@ -175,11 +176,12 @@ public class StringUtils {
      *
      * @param prefix       填充的前缀
      * @param numberLength 希望生成的字符串的长度
-     * @param str       内容
+     * @param str          内容
+     * @param fillContent  要循环填充的内容
      * @return java.lang.String
      * @since 下午 7:33 2019/9/4 0004
      **/
-    public static String completeStrToFixedLengthStr(String prefix, int numberLength, String str) {
+    public static String completeStrToFixedLengthStr(String prefix, int numberLength, String str, char fillContent) {
         StringBuilder stringBuilder = new StringBuilder();
         //判断前缀 防止为null
         prefix = prefix == null ? "" : prefix;
@@ -187,7 +189,7 @@ public class StringUtils {
 
         //不够的补0
         for (int i = 0; i < numberLength - str.length(); i++) {
-            stringBuilder.append("0");
+            stringBuilder.append(fillContent);
         }
 
         stringBuilder.append(str);

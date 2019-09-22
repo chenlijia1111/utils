@@ -67,7 +67,7 @@ public class NumberUtil {
             for (int i = 0; i < bytes.length; i++) {
                 int integer = bytes[i] & 0xFF;
                 String string = Integer.toBinaryString(integer);
-                string = StringUtils.completeStrToFixedLengthStr(null, 8, string);
+                string = StringUtils.completeStrToFixedLengthStr(null, 8, string, '0');
                 sb.append(string);
                 if (i + 1 < bytes.length) {
                     sb.append(" ");
