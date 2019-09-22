@@ -152,7 +152,7 @@ public class StringUtils {
      * @return java.lang.String
      * @since 下午 7:33 2019/9/4 0004
      **/
-    public String completeIntToFixedLengthStr(String prefix, int numberLength, long number) {
+    public static String completeIntToFixedLengthStr(String prefix, int numberLength, long number) {
         StringBuilder stringBuilder = new StringBuilder();
         //判断前缀 防止为null
         prefix = prefix == null ? "" : prefix;
@@ -165,6 +165,32 @@ public class StringUtils {
         }
 
         stringBuilder.append(numberString);
+        return stringBuilder.toString();
+    }
+
+    /**
+     * 填充字符串
+     * <p>
+     * 效果: completeIntToFixedLengthStr(DDLS,5,我爱你)  =>>  DDLS00我爱你
+     *
+     * @param prefix       填充的前缀
+     * @param numberLength 希望生成的字符串的长度
+     * @param str       内容
+     * @return java.lang.String
+     * @since 下午 7:33 2019/9/4 0004
+     **/
+    public static String completeStrToFixedLengthStr(String prefix, int numberLength, String str) {
+        StringBuilder stringBuilder = new StringBuilder();
+        //判断前缀 防止为null
+        prefix = prefix == null ? "" : prefix;
+        stringBuilder.append(prefix);
+
+        //不够的补0
+        for (int i = 0; i < numberLength - str.length(); i++) {
+            stringBuilder.append("0");
+        }
+
+        stringBuilder.append(str);
         return stringBuilder.toString();
     }
 

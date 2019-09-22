@@ -68,4 +68,10 @@ public class NumberTest {
         System.out.println(i);
     }
 
+    @Test
+    public void test6(){
+        byte[] bytes = {1,2,3,4};
+        System.out.println(NumberUtil.byteToBitString(bytes));
+    }
+
 }

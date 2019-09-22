@@ -53,6 +53,30 @@ public class NumberUtil {
         return sb.toString().toUpperCase();
     }
 
+    /**
+     * 将字节数组转换为 位的形式 以字符串输出
+     * 如 1
+     * 输出为 00000001
+     *
+     * @param bytes
+     * @return
+     */
+    public static String byteToBitString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        if (null != bytes && bytes.length > 0) {
+            for (int i = 0; i < bytes.length; i++) {
+                int integer = bytes[i] & 0xFF;
+                String string = Integer.toBinaryString(integer);
+                string = StringUtils.completeStrToFixedLengthStr(null, 8, string);
+                sb.append(string);
+                if (i + 1 < bytes.length) {
+                    sb.append(" ");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
 
     /**
      * 字节数组转整数
