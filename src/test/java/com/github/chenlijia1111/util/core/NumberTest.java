@@ -30,8 +30,8 @@ public class NumberTest {
     public void test3(){
 
         long l = 456L;
-        byte[] bytes = NumberUtil.longToBytes(l);
-        Long aLong = NumberUtil.bytesToLong(bytes);
+        byte[] bytes = NumberUtil.longToBytesLower(l);
+        Long aLong = NumberUtil.bytesToLongLower(bytes);
         System.out.println(aLong);
     }
 
@@ -40,14 +40,32 @@ public class NumberTest {
     public void testInt(){
 
         int l = 456;
-        byte[] bytes = NumberUtil.intToBytes(l);
+        byte[] bytes = NumberUtil.intToBytesLower(l);
         System.out.println(Arrays.toString(bytes));
-        int aLong = NumberUtil.bytesToInteger(bytes);
+        int aLong = NumberUtil.bytesToIntegerLower(bytes);
         System.out.println(aLong);
 
-        byte[] bytes1 = NumberUtil.intToBytes(aLong);
+        byte[] bytes1 = NumberUtil.intToBytesLower(aLong);
         System.out.println(Arrays.toString(bytes1));
 
+    }
+
+    @Test
+    public void test4(){
+        double d = 456.789d;
+
+        byte[] bytes = NumberUtil.doubleToBytes(d);
+        double v = NumberUtil.bytesToDouble(bytes);
+        System.out.println(v);
+    }
+
+    @Test
+    public void test5(){
+        short s = 123;
+
+        byte[] bytes = NumberUtil.shortToBytes(s);
+        short i = NumberUtil.bytesToShort(bytes);
+        System.out.println(i);
     }
 
 }

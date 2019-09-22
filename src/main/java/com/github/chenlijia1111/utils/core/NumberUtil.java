@@ -6,6 +6,18 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
  * 数字工具类
  * 包含 10进制 16进制 2进制 以及字节数组之间的相互转换
  * 以及数据的常用方法
+ * <p>
+ * 大端模式:byte[0] 表示的是高位
+ * 小端模式:byte[0] 表示的是低位
+ * <p>
+ * 一般都会使用小端模式
+ * 即 byte[0] 表示的低位的数据
+ * 因为不需要占满全部的字节就可以表示一个数据
+ * 如果是大端模式，那么需要表示一个 int 就必须要有四个字节才可以表示
+ * <p>
+ * double 转 byte 以及 float 转 byte 都是用的小端模式
+ * double 转 byte 先把 double 转成 long 再利用 long 进行转换
+ * float 转 byte 先把 float 转成 int 再利用 int 进行转换
  *
  * @author chenlijia
  * @version 1.0
@@ -44,6 +56,10 @@ public class NumberUtil {
 
     /**
      * 字节数组转整数
+     * 大端模式
+     * 低字节存储的是高位
+     * 大端模式 字节数组必须要保证是4个字节
+     * 因为如果不满4个字节的话，无法确定低位是什么，就不能确定具体的数字大小
      * <p>
      * 在 java 中 int 用 32 位表示
      * 也就是 4 个 byte
@@ -55,38 +71,88 @@ public class NumberUtil {
      * @return java.lang.Integer
      * @since 下午 2:25 2019/9/21 0021
      **/
-    public static Integer bytesToInteger(byte[] bytes) {
+    public static Integer bytesToIntegerHight(byte[] bytes) {
         //校验参数
-        AssertUtil.isTrue(null != bytes && bytes.length > 0, "bytes数组不能为空");
+        AssertUtil.isTrue(null != bytes && bytes.length == 4, "bytes数组不合法");
 
-        int value = 0;
+        int value;
+        value = ((bytes[0] & 0xFF) << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8)
+                | ((bytes[3]) & 0xFF);
+        return value;
+    }
+
+    /**
+     * 字节数组转整数
+     * 小端模式
+     * 低字节存储的是低位
+     * <p>
+     * 在 java 中 int 用 32 位表示
+     * 也就是 4 个 byte
+     * 第一个 byte 左移 24 位
+     * 第二个 byte 左移 16 位
+     * 第三个 byte 左移 8 位
+     *
+     * @param bytes 长度最长为4
+     * @return java.lang.Integer
+     * @since 下午 2:25 2019/9/21 0021
+     **/
+    public static Integer bytesToIntegerLower(byte[] bytes) {
+        //校验参数
+        AssertUtil.isTrue(null != bytes && bytes.length != 0, "bytes数组不合法");
+
         int length = bytes.length > 4 ? 4 : bytes.length;
+        int value = 0;
         for (int i = 0; i < length; i++) {
-            byte aByte = bytes[i];
-            value = value | (aByte & 0xFF << ((length - 1 - i) * 8));
+            value |= ((bytes[i] & 0xFF) << i * 8);
         }
         return value;
     }
 
     /**
      * 整数转 byte 数组
+     * 高位放在字节数组的低地址中
+     * byte[0] 表示高位
+     * 即高位放在高位
+     * 大端模式
      *
      * @param i
      * @return byte[]
      * @since 下午 2:35 2019/9/21 0021
      **/
-    public static byte[] intToBytes(int i) {
+    public static byte[] intToBytesHight(int i) {
         byte[] bytes = new byte[4];
-        bytes[0] = (byte) (i >>> 24 & 0xFF);
-        bytes[1] = (byte) (i >>> 16 & 0xFF);
-        bytes[2] = (byte) (i >>> 8 & 0xFF);
+        bytes[0] = (byte) (i >> 24 & 0xFF);
+        bytes[1] = (byte) (i >> 16 & 0xFF);
+        bytes[2] = (byte) (i >> 8 & 0xFF);
         bytes[3] = (byte) (i & 0xFF);
         return bytes;
     }
 
 
     /**
+     * 整数转 byte 数组
+     * 低位放在字节数组的低地址中
+     * byte[0] 为低位
+     * 小端模式
+     *
+     * @param i
+     * @return byte[]
+     * @since 下午 2:35 2019/9/21 0021
+     **/
+    public static byte[] intToBytesLower(int i) {
+        byte[] bytes = new byte[4];
+        bytes[0] = (byte) (i & 0xFF);
+        bytes[1] = (byte) (i >> 8 & 0xFF);
+        bytes[2] = (byte) (i >> 16 & 0xFF);
+        bytes[3] = (byte) (i >> 24 & 0xFF);
+        return bytes;
+    }
+
+
+    /**
      * 字节数组转长整数
+     * 大端模式
+     * byte[0] 表示高位
      * <p>
      * 在 java 中 long 用 64 位表示
      * 也就是 8 个 byte
@@ -102,27 +168,50 @@ public class NumberUtil {
      * @return java.lang.Integer
      * @since 下午 2:25 2019/9/21 0021
      **/
-    public static Long bytesToLong(byte[] bytes) {
+    public static Long bytesToLongHeight(byte[] bytes) {
         //校验参数
-        AssertUtil.isTrue(null != bytes && bytes.length > 0, "bytes数组不能为空");
+        AssertUtil.isTrue(null != bytes && bytes.length == 8, "bytes数组不合法");
+
+        long value = 0;
+
+        for (int i = 0; i < bytes.length; i++) {
+            value |= (((long) (bytes[i] & 0xFF)) << (bytes.length - i - 1) * 8);
+        }
+        return value;
+    }
+
+    /**
+     * 字节数组转长整数
+     * 小端模式
+     * byte[0] 表示低位
+     * <p>
+     *
+     * @param bytes 长度最长为8
+     * @return java.lang.Integer
+     * @since 下午 2:25 2019/9/21 0021
+     **/
+    public static Long bytesToLongLower(byte[] bytes) {
+        //校验参数
+        AssertUtil.isTrue(null != bytes && bytes.length > 0, "bytes数组不合法");
 
         long value = 0;
         int length = bytes.length > 8 ? 8 : bytes.length;
         for (int i = 0; i < length; i++) {
-            byte aByte = bytes[i];
-            value = value | (aByte << ((length - 1 - i) * 8));
+            value |= (((long) (bytes[i] & 0xFF)) << i * 8);
         }
         return value;
     }
 
     /**
      * 长整数转 byte 数组
+     * 大端模式
+     * byte[0] 表示高位
      *
      * @param i
      * @return byte[]
      * @since 下午 2:35 2019/9/21 0021
      **/
-    public static byte[] longToBytes(long i) {
+    public static byte[] longToBytesHeight(long i) {
         byte[] bytes = new byte[8];
         bytes[0] = (byte) (i >> 56 & 0xFF);
         bytes[1] = (byte) (i >> 48 & 0xFF);
@@ -132,6 +221,28 @@ public class NumberUtil {
         bytes[5] = (byte) (i >> 16 & 0xFF);
         bytes[6] = (byte) (i >> 8 & 0xFF);
         bytes[7] = (byte) (i & 0xFF);
+        return bytes;
+    }
+
+    /**
+     * 长整数转 byte 数组
+     * 小端模式
+     * byte[0] 表示低位
+     *
+     * @param i
+     * @return byte[]
+     * @since 下午 2:35 2019/9/21 0021
+     **/
+    public static byte[] longToBytesLower(long i) {
+        byte[] bytes = new byte[8];
+        bytes[0] = (byte) (i & 0xFF);
+        bytes[1] = (byte) (i >> 8 & 0xFF);
+        bytes[2] = (byte) (i >> 16 & 0xFF);
+        bytes[3] = (byte) (i >> 24 & 0xFF);
+        bytes[4] = (byte) (i >> 32 & 0xFF);
+        bytes[5] = (byte) (i >> 40 & 0xFF);
+        bytes[6] = (byte) (i >> 48 & 0xFF);
+        bytes[7] = (byte) (i >> 56 & 0xFF);
         return bytes;
     }
 
@@ -181,7 +292,7 @@ public class NumberUtil {
      * @since 下午 3:07 2019/9/21 0021
      **/
     public static float bytesToFloat(byte[] bytes) {
-        Integer integer = bytesToInteger(bytes);
+        Integer integer = bytesToIntegerLower(bytes);
         float v = Float.intBitsToFloat(integer);
         return v;
     }
@@ -195,7 +306,7 @@ public class NumberUtil {
      **/
     public static byte[] floatToBytes(float i) {
         int i1 = Float.floatToRawIntBits(i);
-        byte[] bytes = intToBytes(i1);
+        byte[] bytes = intToBytesLower(i1);
         return bytes;
     }
 
@@ -209,7 +320,7 @@ public class NumberUtil {
      * @since 下午 3:07 2019/9/21 0021
      **/
     public static double bytesToDouble(byte[] bytes) {
-        Long aLong = bytesToLong(bytes);
+        Long aLong = bytesToLongLower(bytes);
         double v = Double.longBitsToDouble(aLong);
         return v;
     }
@@ -223,7 +334,7 @@ public class NumberUtil {
      **/
     public static byte[] doubleToBytes(double i) {
         long l = Double.doubleToRawLongBits(i);
-        byte[] bytes = longToBytes(l);
+        byte[] bytes = longToBytesLower(l);
         return bytes;
     }
 
