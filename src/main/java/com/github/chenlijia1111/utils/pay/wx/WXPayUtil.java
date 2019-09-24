@@ -131,8 +131,8 @@ public class WXPayUtil {
      * @return
      */
     public static Map refund(String appId, String mchId, String signKey, File sslFile,
-                      String sslPassword, String transactionId,
-                      String outTradeNo, int totalFee, int refund_fee) {
+                             String sslPassword, String transactionId,
+                             String outTradeNo, int totalFee, int refund_fee) {
 
         HttpClientUtils httpClientUtils = HttpClientUtils.getInstanceWithSSL(sslFile, sslPassword);
         //填充参数
@@ -185,6 +185,50 @@ public class WXPayUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    /**
+     * 转账
+     *
+     * @param mchAppid
+     * @param mchid
+     * @param nonceStr       随机字符串
+     * @param partnerTradeNo 转账单号
+     * @param openid
+     * @param amount         金额 分
+     * @param desc           描述
+     * @param spbillCreateIp 请求ip
+     * @param sslFilePath    SSL加密文件
+     * @param signKey        签名加盐秘钥
+     * @return java.util.Map
+     * @since 下午 9:53 2019/9/24 0024
+     **/
+    public static Map transfer(String mchAppid, String mchid, String nonceStr, String partnerTradeNo, String openid,
+                               String amount, String desc, String spbillCreateIp, String sslFilePath, String signKey) {
+
+        File file = new File(sslFilePath);
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(file, mchid);
+
+        instance.putParams("mch_appid", mchAppid);
+        instance.putParams("mchid", mchid);
+        instance.putParams("nonce_str", nonceStr);
+        instance.putParams("partner_trade_no", partnerTradeNo);
+        instance.putParams("openid", openid);
+        instance.putParams("check_name", "NO_CHECK");
+        instance.putParams("amount", amount);
+        instance.putParams("desc", desc);
+        instance.putParams("spbill_create_ip", spbillCreateIp);
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        Map map = instance.doPostWithXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers");
+        return map;
     }
 
 }
