@@ -6,7 +6,7 @@
 
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.0-RELEASE</version>
+    <version>1.1.1-RELEASE</version>
     <build>
         <plugins>
             <plugin>
@@ -102,6 +102,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
         <!-- quartz 定时器框架 -->
         <dependency>
@@ -145,6 +146,7 @@
             <version>2.5.1</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 

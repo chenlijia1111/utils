@@ -457,7 +457,6 @@ public class HttpClientUtils {
                     sb.append("&");
                 }
             }
-            sb.delete(sb.length() - 1, sb.length());
         }
         return sb.toString();
     }

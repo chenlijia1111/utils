@@ -76,6 +76,7 @@ public class TestPay {
         } catch (AlipayApiException e) {
             e.printStackTrace();
         }
+
     }
 
     @Test
@@ -87,7 +88,7 @@ public class TestPay {
         String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
         Map refund = WXPayUtil.refund(appId, mchId, partnerKey,
                 new File("C:/Users/Administrator/Documents/Tencent Files/571740367/FileRecv/1553017211_20190903_cert/apiclient_cert.p12"),
-                mchId, null, "bad9f37f8c8b42ada8dfbba42ae42f96", 11, 11);
+                mchId, null, "ef93a89f5986451b9992d7e1d5041ba9", 20, 20);
         System.out.println(refund);
     }
 

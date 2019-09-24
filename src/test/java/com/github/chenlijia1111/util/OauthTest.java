@@ -49,10 +49,15 @@ public class OauthTest {
 
     @Test
     public void testqq(){
+        //https://graph.qq.com/oauth2.0/show?which=Login&display=pc&
+        // response_type=code&
+        // state=B169C8F0A4A0BC9A328EF07E77401D53605FF4F8011B452A154CB04D86454969557918812EAC705B922D9920A1EF56CB&
+        // client_id=100273020&
+        // redirect_uri=https%3A%2F%2Fqq.jd.com%2Fnew%2Fqq%2Fcallback.action%3Fview%3Dnull%26uuid%3Da1c431c6164d43f1b4124adf5fa427f9
         String clientId = "1109533360";
         String clientSecret = "9sbUyp66fNYGOzDE";
         QQLoginUtil qqLoginUtil = new QQLoginUtil();
-        Map sa = qqLoginUtil.accessToken(clientId, clientSecret, "sa", "http://192.168.1.167:8086/jiuyou/system/oauth/callback/qq");
+        Map sa = qqLoginUtil.accessToken(clientId, clientSecret, "B169C8F0A4A0BC9A328EF07E77401D53605FF4F8011B452A154CB04D86454969557918812EAC705B922D9920A1EF56CB", "http://192.168.1.167:8086/jiuyou/system/oauth/callback/qq");
         System.out.println(sa);
     }
 
