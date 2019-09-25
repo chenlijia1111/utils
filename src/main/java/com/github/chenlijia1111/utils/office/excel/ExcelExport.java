@@ -4,7 +4,9 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.constant.TimeConstant;
 import com.github.chenlijia1111.utils.core.PropertyCheckUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
+import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.http.HttpUtils;
+import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -257,7 +259,7 @@ public class ExcelExport {
                 int currentColumnIndex = 1;
                 for (String fieldName : exportTitleHeadNameMap.keySet()) {
                     try {
-                        Object fieldValue = PropertyCheckUtil.getFieldValue(o, exportClass, fieldName);
+                        Object fieldValue = PropertyUtil.getFieldValue(o, exportClass, fieldName);
                         if (null != fieldValue) {
                             //判断有没有转换器
                             if (null != transferMap && transferMap.get(fieldName) != null) {
@@ -316,13 +318,13 @@ public class ExcelExport {
         //如果自定义了就不初始化了
         if (null == exportTitleHeadNameMap || exportTitleHeadNameMap.size() == 0) {
             Class<?> exportClass = this.exportClass;
-            Field[] allFields = PropertyCheckUtil.getAllFields(exportClass);
+            List<Field> allFields = PropertyUtil.getAllFields(exportClass);
             //判断有ExcelExportField 注解的属性
-            if (null != allFields && allFields.length > 0) {
+            if (Lists.isNotEmpty(allFields)) {
                 //以sort进行排序
                 ArrayList<ExcelExportHeadInfo> headInfoArrayList = new ArrayList<>();
-                for (int i = 0; i < allFields.length; i++) {
-                    Field field = allFields[i];
+                for (int i = 0; i < allFields.size(); i++) {
+                    Field field = allFields.get(i);
                     ExcelExportField annotation = field.getAnnotation(ExcelExportField.class);
                     if (null != annotation) {
                         String titleHeadName = annotation.titleHeadName();

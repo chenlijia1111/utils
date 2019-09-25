@@ -13,18 +13,23 @@ import java.lang.annotation.Target;
  * @version 1.0
  * @since 2019/9/5 0005 下午 1:34
  **/
-@Target({ElementType.TYPE})
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PropertyCheck {
 
     /**
-     * 需要关注的注解
-     * 凡是有这些注解的属性都需要进行验证
-     * 注解的Retention 需要是运行时的 {@link RetentionPolicy#RUNTIME} 否则不起作用
+     * 字段名称
      *
-     * @return java.lang.Class
-     * @since 下午 1:08 2019/9/9 0009
+     * @return java.lang.String
+     * @since 下午 12:48 2019/9/25 0025
      **/
-    Class[] annotationClass();
+    String name();
+
+    /**
+     * 字段匹配正则 只有在字段数据类型是字符串的时候才进行验证
+     *
+     * @since 下午 12:48 2019/9/25 0025
+     **/
+    String regMatcher() default "";
 
 }

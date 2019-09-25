@@ -4,114 +4,27 @@ package com.github.chenlijia1111.utils.core;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
+import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * 属性工具类
  * 用于递归获取 类的所有属性以及属性值
  * 校验属性
+ * {@link PropertyCheck}
+ * 只校验有这个注解的属性
  *
  * @author chenlijia
  * @version 1.0
  * @since 2019/4/8 0008 上午 10:23
  **/
 public class PropertyCheckUtil {
-
-
-    /**
-     * 获取父类属性在内的所有属性
-     *
-     * @param object 1
-     * @author chenlijia
-     * @since 下午 6:47 2019/5/21 0021
-     **/
-    public static Field[] getAllFields(Object object) {
-        Class<?> aClass = object.getClass();
-
-        return getAllFields(aClass);
-    }
-
-    /**
-     * 获取父类属性在内的所有属性
-     *
-     * @param aClass 1
-     * @author chenlijia
-     * @since 下午 6:47 2019/5/21 0021
-     **/
-    public static Field[] getAllFields(Class aClass) {
-
-        ArrayList<Field> fields = new ArrayList<>();
-        while (aClass != null) {
-            fields.addAll(Lists.asList(aClass.getDeclaredFields()));
-            aClass = aClass.getSuperclass();
-        }
-
-        Field[] fields1 = new Field[fields.size()];
-        fields.toArray(fields1);
-        return fields1;
-    }
-
-
-    /**
-     * 获取属性值,递归获取父类的属性
-     *
-     * @param object 1
-     * @author chenlijia
-     * @since 下午 6:47 2019/5/21 0021
-     **/
-    public static Object getFieldValue(Object object, Class objectClass, String propertyName) throws NoSuchFieldException {
-
-        if (Objects.nonNull(object) && Objects.nonNull(objectClass) && StringUtils.isNotEmpty(propertyName)) {
-            try {
-                Field declaredField = objectClass.getDeclaredField(propertyName);
-                if (Objects.nonNull(declaredField)) {
-                    declaredField.setAccessible(true);
-                    Object o = declaredField.get(object);
-                    return o;
-                }
-            } catch (NoSuchFieldException e) {
-                //当前类没有这个属性,寻找父类
-                objectClass = objectClass.getSuperclass();
-                return getFieldValue(object, objectClass, propertyName);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        throw new NoSuchFieldException("找不到这个属性");
-    }
-
-
-    /**
-     * 递归判断是否有这个属性
-     *
-     * @param object       1
-     * @param objectClass  2
-     * @param propertyName 3
-     * @author chenlijia
-     * @description TODO
-     * @since 上午 10:47 2019/6/29 0029
-     **/
-    public static boolean checkHasPropertity(Object object, Class objectClass, String propertyName) {
-        if (Objects.nonNull(object) && Objects.nonNull(objectClass) && StringUtils.isNotEmpty(propertyName)) {
-            try {
-                Field declaredField = objectClass.getDeclaredField(propertyName);
-                if (Objects.nonNull(declaredField)) {
-                    return true;
-                }
-            } catch (NoSuchFieldException e) {
-                //当前类没有这个属性,寻找父类
-                objectClass = objectClass.getSuperclass();
-                return checkHasPropertity(object, objectClass, propertyName);
-            }
-        }
-        return false;
-    }
 
 
     /**
@@ -138,6 +51,42 @@ public class PropertyCheckUtil {
     }
 
     /**
+     * 校验所有带了注解的属性
+     *
+     * @param object 1
+     * @return com.github.chenlijia1111.utils.common.Result
+     * @since 下午 1:07 2019/9/25 0025
+     **/
+    public static Result checkProperty(Object object) {
+        return checkProperty(object, null, null);
+    }
+
+    /**
+     * 指定要校验的属性
+     *
+     * @param object         1
+     * @param checkFieldList 2
+     * @return com.github.chenlijia1111.utils.common.Result
+     * @since 下午 1:07 2019/9/25 0025
+     **/
+    public static Result checkProperty(Object object, List<String> checkFieldList) {
+        return checkProperty(object, checkFieldList, null);
+    }
+
+    /**
+     * 指定要忽略校验的属性
+     *
+     * @param object          1
+     * @param ignoreFieldList 2
+     * @return com.github.chenlijia1111.utils.common.Result
+     * @since 下午 1:07 2019/9/25 0025
+     **/
+    public static Result checkPropertyWithIgnore(Object object, List<String> ignoreFieldList) {
+        return checkProperty(object, null, ignoreFieldList);
+    }
+
+
+    /**
      * 校验参数
      *
      * @param object          要校验的对象
@@ -146,7 +95,7 @@ public class PropertyCheckUtil {
      * @return com.github.chenlijia1111.utils.common.CheckResult
      * @since 下午 1:38 2019/9/9 0009
      **/
-    public static Result checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
+    private static Result checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
 
         AssertUtil.isTrue(Objects.nonNull(object), "数据为空");
 
@@ -156,90 +105,67 @@ public class PropertyCheckUtil {
 
         //判断object 有没有PropertyCheck 的注解
         Class<?> aClass = object.getClass();
-        PropertyCheck propertyCheck = aClass.getAnnotation(PropertyCheck.class);
-        if (null != propertyCheck) {
-            //需要检验的注解，如果属性带了这些注解的话，就需要参与检测
-            Class[] annotationClassArray = propertyCheck.annotationClass();
 
-            Field[] allFields = getAllFields(aClass);
-            if (null != allFields && allFields.length > 0) {
-                //开始判断
-                for (Field field : allFields) {
-                    field.setAccessible(true);
-                    //属性名称
-                    String fieldName = field.getName();
+        //获取所有属性
+        List<Field> allFields = PropertyUtil.getAllFields(aClass);
+        if (Lists.isNotEmpty(allFields)) {
+            //开始判断
+            for (Field field : allFields) {
+                field.setAccessible(true);
+                //属性名称
+                String fieldName = field.getName();
 
-                    if (Lists.isNotEmpty(checkFieldList) && !checkFieldList.contains(fieldName)) {
-                        continue;
-                    }
+                //只处理有注解的字段
+                PropertyCheck propertyCheck = field.getAnnotation(PropertyCheck.class);
+                if (null == propertyCheck) {
+                    continue;
+                }
 
-                    if (Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName)) {
-                        continue;
-                    }
+                String name = propertyCheck.name();
 
-                    if (Lists.isNotEmpty(checkFieldList) && checkFieldList.contains(fieldName) &&
-                            !(Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName))) {
-                        //直接指明了要校验这个属性 且不存在要忽略这个属性
-                        //直接开始校验
-                        //判断属性类型
-                        Class<?> fieldClass = field.getType();
-                        //获取属性类型
-                        try {
-                            if (fieldClass == String.class) {
-                                String str = (String) getFieldValue(object, aClass, fieldName);
-                                if (StringUtils.isEmpty(str))
-                                    return Result.failure(fieldName + "不能为空");
-                            } else if (List.class.isAssignableFrom(fieldClass)) {
-                                //说明是list集合
-                                List list = (List) getFieldValue(object, aClass, fieldName);
-                                if (null == list || list.size() == 0)
-                                    return Result.failure(fieldName + "不能为空");
-                            } else {
-                                Object o = getFieldValue(object, aClass, fieldName);
-                                if (null == o)
-                                    return Result.failure(fieldName + "不能为空");
-                            }
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
+                //指明了只处理某些字段
+                if (Lists.isNotEmpty(checkFieldList) && !checkFieldList.contains(fieldName)) {
+                    continue;
+                }
+                //指明了不处理某些字段
+                if (Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName)) {
+                    continue;
+                }
+
+                //直接开始校验
+                //判断属性类型
+                Class<?> fieldClass = field.getType();
+                //获取属性类型
+                try {
+                    if (fieldClass == String.class) {
+                        String str = (String) PropertyUtil.getFieldValue(object, aClass, fieldName);
+                        if (StringUtils.isEmpty(str)) {
+                            return Result.failure(name + "不能为空");
                         }
+
+                        //判断注解有没有声明正则
+                        String s = propertyCheck.regMatcher();
+                        if (StringUtils.isNotEmpty(s)) {
+                            boolean matches = Pattern.matches(s, str);
+                            if (!matches) {
+                                return Result.failure(name + "不合法");
+                            }
+                        }
+                    } else if (List.class.isAssignableFrom(fieldClass)) {
+                        //说明是list集合
+                        List list = (List) PropertyUtil.getFieldValue(object, aClass, fieldName);
+                        if (null == list || list.size() == 0)
+                            return Result.failure(name + "不能为空");
                     } else {
-                        for (Class annotationClass : annotationClassArray) {
-                            Annotation annotation = field.getAnnotation(annotationClass);
-                            if (null != annotation) {
-                                //开始进行判断
-                                //判断属性类型
-                                Class<?> fieldClass = field.getType();
-                                //获取属性类型
-                                try {
-                                    if (fieldClass == String.class) {
-                                        String str = (String) getFieldValue(object, aClass, fieldName);
-                                        if (StringUtils.isEmpty(str))
-                                            return Result.failure(fieldName + "不能为空");
-                                    } else if (List.class.isAssignableFrom(fieldClass)) {
-                                        //说明是list集合
-                                        List list = (List) getFieldValue(object, aClass, fieldName);
-                                        if (null == list || list.size() == 0)
-                                            return Result.failure(fieldName + "不能为空");
-                                    } else {
-                                        Object o = getFieldValue(object, aClass, fieldName);
-                                        if (null == o)
-                                            return Result.failure(fieldName + "不能为空");
-                                    }
-                                } catch (NoSuchFieldException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                                break;
-                            }
-                        }
+                        Object o = PropertyUtil.getFieldValue(object, aClass, fieldName);
+                        if (null == o)
+                            return Result.failure(name + "不能为空");
                     }
-
-
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
                 }
             }
         }
-
         return Result.success("检测通过");
     }
 }

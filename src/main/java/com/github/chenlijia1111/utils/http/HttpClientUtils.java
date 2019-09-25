@@ -444,6 +444,8 @@ public class HttpClientUtils {
         StringBuilder sb = new StringBuilder();
         if (params.size() > 0) {
             Set<Map.Entry<String, Object>> entries = params.entrySet();
+            //过滤掉值为空的
+            entries = entries.stream().filter(e -> Objects.nonNull(e.getValue())).sorted(Comparator.comparing(e -> e.getKey())).collect(Collectors.toCollection(LinkedHashSet::new));
             Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, Object> next = iterator.next();
