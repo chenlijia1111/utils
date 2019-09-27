@@ -3,6 +3,8 @@ package com.github.chenlijia1111.utils.core;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 
 import java.io.*;
+import java.net.URL;
+import java.util.Objects;
 
 /**
  * 输入输出流工具类
@@ -54,12 +56,28 @@ public class IOUtil {
      * <p>
      * 所以在获取的时候 先判断当前运行的方式
      *
-     * @param relativePath 1
+     * @param relativePath 相对于 classPath 下的路径
      * @return java.io.InputStream
      * @since 下午 1:24 2019/9/25 0025
      **/
     public static InputStream inputStreamToBaseProject(String relativePath) {
 
+        relativePath = (relativePath.startsWith("/") ? "" : "/") + relativePath;
+
+        //先判断当前的运行方式
+        //根据文件协议进行判断 如果是jar:/ 就是在jar包中 如果是 file:/就是非jar中
+        //获取项目根目录的URL
+        URL resource = IOUtil.class.getResource("/");
+        String protocol = resource.getProtocol();
+        if (protocol.equals("jar")) {
+            //如果是springBoot打包的形式的话,最外层路径是BOOT-INF/classes  里面才是classes目录
+            //如果是普通的jar的话,最外层就是顶级目录,不用特别处理
+            URL resource1 = IOUtil.class.getResource("/BOOT-INF/classes");
+            if (Objects.nonNull(resource1)) {
+                //说明是springBoot打包形式的jar包
+                relativePath = "/BOOT-INF/classes" + relativePath;
+            }
+        }
         InputStream inputStream = IOUtil.class.getResourceAsStream(relativePath);
         return inputStream;
     }
@@ -113,13 +131,6 @@ public class IOUtil {
             e.printStackTrace();
         }
         return null;
-    }
-
-
-    public static void main(String[] args) {
-        InputStream inputStream = IOUtil.class.getResourceAsStream("/com/github/chenlijia1111/utils/cn/ChineseNumberUtil.class");
-        String s = readToString(inputStream);
-        System.out.println(s);
     }
 
 }

@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.constant.BooleanConstant;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -166,6 +167,23 @@ public class CastUtil {
      **/
     public static Boolean strCastToBoolean(String str) {
         return strCastToBoolean(str, null);
+    }
+
+
+    /**
+     * double 转字符串
+     * 四舍五入
+     *
+     * @param d      小数
+     * @param length 保留的小数点长度
+     * @return java.lang.String
+     * @since 下午 8:17 2019/9/26 0026
+     **/
+    public static String doubleCastToStr(double d, int length) {
+        BigDecimal bigDecimal = new BigDecimal(d);
+        bigDecimal = bigDecimal.setScale(length, BigDecimal.ROUND_HALF_UP);
+        String s = bigDecimal.toString();
+        return s;
     }
 
 

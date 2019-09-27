@@ -88,7 +88,7 @@ public class TestPay {
         String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
         Map refund = WXPayUtil.refund(appId, mchId, partnerKey,
                 new File("C:/Users/Administrator/Documents/Tencent Files/571740367/FileRecv/1553017211_20190903_cert/apiclient_cert.p12"),
-                mchId, "4200000410201909255250727261", null, 10, 10);
+                mchId, null, "4200000410201909255250727261", 10, 10);
         System.out.println(refund);
     }
 
