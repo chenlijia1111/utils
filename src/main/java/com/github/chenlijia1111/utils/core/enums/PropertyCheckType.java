@@ -43,8 +43,6 @@ public enum PropertyCheckType {
                 return false;
             }
             // 定义判别用户身份证号的正则表达式（15位或者18位，最后一位可以为字母）
-            String regularExpression = "(^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$)|" +
-                    "(^[1-9]\\d{5}\\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\\d{3}$)";
             //假设18位身份证号码:41000119910101123X  410001 19910101 123X
             //^开头
             //[1-9] 第一位1-9中的一个      4
@@ -68,7 +66,7 @@ public enum PropertyCheckType {
             //$结尾
 
 
-            boolean matches = idNumber.matches(regularExpression);
+            boolean matches = idNumber.matches(RegConstant.ID_CARD);
 
             //判断第18位校验值
             if (matches) {
