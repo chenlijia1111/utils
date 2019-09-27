@@ -5,6 +5,7 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import java.io.*;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * 输入输出流工具类
@@ -42,6 +43,38 @@ public class IOUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 输出文件
+     *
+     * @param file
+     * @param destFile
+     */
+    public static void writeFile(File file, File destFile) {
+        AssertUtil.isTrue(null != file && file.exists(), "输出文件为空");
+        AssertUtil.isTrue(null != destFile, "目标文件为空");
+
+        //判断目标文件目录是否存在
+        File parentFile = destFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destFile))) {
+
+            byte[] bytes = new byte[4096];
+            int read;
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+            outputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -127,6 +160,44 @@ public class IOUtil {
             return sb.toString();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 读取输入流到 {@link Properties} 里面
+     *
+     * @param inputStream 1
+     * @return java.util.Properties
+     * @since 上午 11:13 2019/9/27 0027
+     **/
+    public static Properties readToProperties(InputStream inputStream) {
+
+        AssertUtil.isTrue(null != inputStream, "输入流为空");
+        Properties properties = new Properties();
+        try {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
+    }
+
+    /**
+     * 读取文件到 {@link Properties} 里面
+     *
+     * @param file 读取的文件 如 application.properties
+     * @return java.util.Properties
+     * @since 上午 11:13 2019/9/27 0027
+     **/
+    public static Properties readToProperties(File file) {
+
+        AssertUtil.isTrue(null != file && file.exists(), "文件不存在");
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            return readToProperties(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

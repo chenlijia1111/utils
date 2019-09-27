@@ -4,6 +4,7 @@ package com.github.chenlijia1111.utils.core;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
+import com.github.chenlijia1111.utils.core.enums.PropertyCheckType;
 import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 
@@ -11,6 +12,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -137,6 +139,27 @@ public class PropertyCheckUtil {
                 Class<?> fieldClass = field.getType();
                 //获取属性类型
                 try {
+
+                    Object fieldValue = PropertyUtil.getFieldValue(object, aClass, fieldName);
+                    //判断有没有申明校验类型
+                    PropertyCheckType propertyCheckType = propertyCheck.checkType();
+                    if (null != propertyCheck && !Objects.equals(propertyCheck, PropertyCheckType.NO_CHECK)) {
+                        Predicate checkFunction = propertyCheckType.getCheckFunction();
+                        boolean test = checkFunction.test(fieldValue);
+                        if (!test) {
+                            return Result.failure(name + "不合法");
+                        }
+                    }
+                    //判断有没有申明校验方法
+                    Class<? extends Predicate> predicateClass = propertyCheck.checkFunction();
+                    if (Objects.nonNull(predicateClass)) {
+                        Predicate predicate = predicateClass.newInstance();
+                        boolean test = predicate.test(fieldValue);
+                        if (!test) {
+                            return Result.failure(name + "不合法");
+                        }
+                    }
+
                     if (fieldClass == String.class) {
                         String str = (String) PropertyUtil.getFieldValue(object, aClass, fieldName);
                         if (StringUtils.isEmpty(str)) {
@@ -151,6 +174,7 @@ public class PropertyCheckUtil {
                                 return Result.failure(name + "不合法");
                             }
                         }
+
                     } else if (List.class.isAssignableFrom(fieldClass)) {
                         //说明是list集合
                         List list = (List) PropertyUtil.getFieldValue(object, aClass, fieldName);
@@ -162,6 +186,10 @@ public class PropertyCheckUtil {
                             return Result.failure(name + "不能为空");
                     }
                 } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
                     e.printStackTrace();
                 }
             }
