@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.code.mybatis;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import io.swagger.annotations.ApiModel;
 import org.mybatis.generator.api.MyBatisGenerator;
@@ -152,6 +153,13 @@ public class MybatisCodeGeneratorUtil {
      * @Date 下午 2:01 2019/7/17 0017
      **/
     public static String author;
+
+    /**
+     * 是否生成示例代码  这个还是挺有用的，查询使用
+     *
+     * @since 下午 8:41 2019/9/28 0028
+     **/
+    private boolean exampleCode = false;
 
 
     /**
@@ -318,6 +326,10 @@ public class MybatisCodeGeneratorUtil {
         return this;
     }
 
+    public void setExampleCode(boolean exampleCode) {
+        this.exampleCode = exampleCode;
+    }
+
     public void generateCode() {
 
         //检验参数是否正确
@@ -384,11 +396,11 @@ public class MybatisCodeGeneratorUtil {
             TableConfiguration tableConfiguration = new TableConfiguration(context);
             tableConfiguration.setTableName(tableName);
             tableConfiguration.setDomainObjectName(domainClassName);
-            //不生成Example的代码
-            tableConfiguration.setCountByExampleStatementEnabled(false);
-            tableConfiguration.setUpdateByExampleStatementEnabled(false);
-            tableConfiguration.setDeleteByExampleStatementEnabled(false);
-            tableConfiguration.setSelectByExampleStatementEnabled(false);
+            //默认不生成Example的代码
+            tableConfiguration.setCountByExampleStatementEnabled(exampleCode);
+            tableConfiguration.setUpdateByExampleStatementEnabled(exampleCode);
+            tableConfiguration.setDeleteByExampleStatementEnabled(exampleCode);
+            tableConfiguration.setSelectByExampleStatementEnabled(exampleCode);
             tableConfiguration.setUpdateByPrimaryKeyStatementEnabled(true);
             tableConfiguration.setDeleteByPrimaryKeyStatementEnabled(true);
             context.addTableConfiguration(tableConfiguration);
@@ -484,6 +496,8 @@ public class MybatisCodeGeneratorUtil {
                 //实体注释
                 String comment = getEntityApiModelComment(entityClass1);
                 String entityClassName = entityClass1.getSimpleName();
+                //校验文件夹是否存在,不存在则创建
+                FileUtils.checkDirectory(absoluteBizPackagePath);
                 File controllerFile = new File(absoluteBizPackagePath + "/" + entityClassName + "Biz.java");
                 try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(controllerFile))) {
                     //controller包路径
@@ -534,6 +548,8 @@ public class MybatisCodeGeneratorUtil {
                 String entityClassName = entityClass1.getSimpleName();
                 //完整名(包含包)
                 String name = entityClass1.getName();
+                //校验文件夹是否存在,不存在则创建
+                FileUtils.checkDirectory(absoluteServicePackagePath);
                 File serviceFile = new File(absoluteServicePackagePath + "/" + entityClassName + "ServiceI.java");
                 File serviceImplFile = new File(absoluteServicePackagePath + "/impl/" + entityClassName + "ServiceImpl.java");
                 //生成service 文件
@@ -699,6 +715,8 @@ public class MybatisCodeGeneratorUtil {
                 //实体注释
                 String comment = getEntityApiModelComment(entityClass1);
                 String entityClassName = entityClass1.getSimpleName();
+                //校验文件夹是否存在,不存在则创建
+                FileUtils.checkDirectory(absoluteControllerPackagePath);
                 File controllerFile = new File(absoluteControllerPackagePath + "/" + entityClassName + "Controller.java");
                 try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(controllerFile))) {
                     //controller包路径

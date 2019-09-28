@@ -50,8 +50,8 @@ public class CommentGenerator extends DefaultCommentGenerator {
         field.addJavaDocLine(" */");
         //添加swagger注解
         field.addAnnotation("@ApiModelProperty(\"" + introspectedColumn.getRemarks() + "\")");
+        field.addAnnotation("@PropertyCheck(name = \"" + introspectedColumn.getRemarks() + "\")");
     }
-
 
     @Override
     public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
@@ -59,6 +59,8 @@ public class CommentGenerator extends DefaultCommentGenerator {
         //导包
         topLevelClass.addImportedType("io.swagger.annotations.ApiModel");
         topLevelClass.addImportedType("io.swagger.annotations.ApiModelProperty");
+        //属性校验注解
+        topLevelClass.addImportedType("com.github.chenlijia1111.utils.core.annos.PropertyCheck");
 
         //添加swagger注解
         topLevelClass.addAnnotation("@ApiModel(\"" + introspectedTable.getRemarks() + "\")");
