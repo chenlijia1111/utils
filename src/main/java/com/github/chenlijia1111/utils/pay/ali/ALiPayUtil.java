@@ -5,8 +5,10 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.image.QRCodeUtil;
@@ -32,18 +34,19 @@ public class ALiPayUtil {
      *
      * @param appId       appId
      * @param privateKey  私钥
+     * @param publicKey   公钥
      * @param body        描述
      * @param orderNo     订单单号
      * @param totalAmount 支付金额
-     * @param notifyUrl 回调地址
+     * @param notifyUrl   回调地址
      * @return
      */
-    public static String appPay(String appId, String privateKey, String body,
-                                String orderNo, String totalAmount,String notifyUrl) {
+    public static String appPay(String appId, String privateKey, String publicKey, String body,
+                                String orderNo, String totalAmount, String notifyUrl) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
@@ -75,6 +78,7 @@ public class ALiPayUtil {
      *
      * @param appId
      * @param privateKey
+     * @param publicKey   公钥
      * @param orderNo     订单编号
      * @param orderAmount 订单金额
      * @param body        描述
@@ -82,12 +86,12 @@ public class ALiPayUtil {
      * @param notifyUrl   回调地址
      * @return
      */
-    public static void WAPPay(String appId, String privateKey, String orderNo, String orderAmount, String body,
+    public static void WAPPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
                               String returnUrl, String notifyUrl, HttpServletResponse response) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
 
@@ -122,6 +126,7 @@ public class ALiPayUtil {
      *
      * @param appId
      * @param privateKey
+     * @param publicKey   公钥
      * @param orderNo     订单id
      * @param orderAmount 订单金额
      * @param body        描述
@@ -129,11 +134,11 @@ public class ALiPayUtil {
      * @param notifyUrl   回调地址
      * @param response
      */
-    public static void PCPay(String appId, String privateKey, String orderNo, String orderAmount, String body,
+    public static void PCPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
                              String returnUrl, String notifyUrl, HttpServletResponse response) {
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
 
@@ -169,18 +174,19 @@ public class ALiPayUtil {
      *
      * @param appId
      * @param privateKey
+     * @param publicKey
      * @param orderNo     订单编号
      * @param orderAmount 订单金额
      * @param body        描述
      * @param notifyUrl   回调地址
      * @param response
      */
-    public static void QRCodePay(String appId, String privateKey, String orderNo, String orderAmount, String body,
+    public static void QRCodePay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
                                  String notifyUrl, HttpServletResponse response) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
 
@@ -216,18 +222,19 @@ public class ALiPayUtil {
      *
      * @param appId
      * @param privateKey
+     * @param publicKey
      * @param accountName 支付宝账号
      * @param userName    真实姓名
      * @param orderNo     订单编号
      * @param orderAmount 转账金额
      * @param body        转账描述
      */
-    public static boolean transfer(String appId, String privateKey, String accountName, String userName,
+    public static boolean transfer(String appId, String privateKey, String publicKey, String accountName, String userName,
                                    String orderNo, String orderAmount, String body) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
 
@@ -255,19 +262,20 @@ public class ALiPayUtil {
      *
      * @param appId
      * @param privateKey
+     * @param publicKey
      * @param orderNo       订单编号 与支付宝交易流水号 二选一
      * @param transactionNo 支付宝交易流水号 与订单编号二选一
-     * @param orderAmount   订单金额
+     * @param orderAmount   订单金额 支付宝的退款单位为元 这里要注意一下
      * @param body          退款原因
      */
-    public static AlipayTradeAppPayResponse refund(String appId, String privateKey, String orderNo, String transactionNo,
+    public static AlipayTradeRefundResponse refund(String appId, String privateKey, String publicKey, String orderNo, String transactionNo,
                                                    String orderAmount, String body) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), privateKey, "RSA2");
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
 
         AlipayTradeRefundModel model = new AlipayTradeRefundModel();
         model.setOutTradeNo(orderNo);
@@ -277,7 +285,7 @@ public class ALiPayUtil {
         try {
             request.setBizModel(model);
 
-            AlipayTradeAppPayResponse execute = alipayClient.execute(request);
+            AlipayTradeRefundResponse execute = alipayClient.execute(request);
             return execute;
         } catch (Exception e) {
             e.printStackTrace();

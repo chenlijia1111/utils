@@ -6,10 +6,13 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
+import com.github.chenlijia1111.utils.pay.ali.ALiPayUtil;
 import com.github.chenlijia1111.utils.pay.wx.PayType;
 import com.github.chenlijia1111.utils.pay.wx.WXPayUtil;
 import org.junit.Test;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
 import java.io.File;
 import java.util.Map;
@@ -90,6 +93,19 @@ public class TestPay {
                 new File("C:/Users/Administrator/Documents/Tencent Files/571740367/FileRecv/1553017211_20190903_cert/apiclient_cert.p12"),
                 mchId, null, "4200000410201909255250727261", 10, 10);
         System.out.println(refund);
+    }
+
+    @Test
+    public void test7() {
+        String APP_ID = "2019082666435508";
+        String APP_PRIVATE_KEY = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8md5bd1lowiY1fs2YLhrFWxliUp2dhmjnIozJIRAjIq6X3SFBbyKvD2pgFQeZqsCyb8H4OuvSZFjImZJu7EPWb/mDyrm1JUyQwt70AWSlL9YAA3aeffNWrCM4M7EfOmHSNkJkE4SF2uU92eXXyieBfcP8SAS/EvUIK938i7PGgDAHo6xUa1kB9GnR1LFtEWM6IxW40SYM1pWXRxyjR6Zy9xAieItFE10nUm54nRNq6kR0O7vd/wO7oiJewbOwDGdUJy+y/BtAk6W5IudcZHh0xx7xiX1btLvpgCswEcEgNaMHQkIfgPhZ25IgP6oI+HeLtKfrq5EiNFN4Y0dFRTpFAgMBAAECggEAXYQuLUxQmRErwPrPFtZFj/ZL7+TnImSzP2hyRoiOZ92alNKg2sEwgX0zUdEbo6Z3RgMEOwF8TSZUn6MGaNneCUYcgqzSyG9mN6Foy7SlIwNFKVyORKhPMHrKO+Plv4ZDWuhsoxLKc1TGtpSE0yr5y8uAkmdjcxsDRLn7qG3dBl9O2IjfKFhSq9J0MuotMa01Kx9Ud5Z9pCMYJGz7LcClHFsl9RkO6jMm1hAOEBsLmL47bLezyDFgs2f9UR8vApb5AXVBEDRPGiI8qVXbwyKApTOxb3xKg60/PGobMGxv8vD1W3qXPiK5IyO7iqzkQjiqpbiLG2DeEWlur7egwDsBQQKBgQDt7XVeRNBN1f8ManoADzyKAmA82SrB1PoBSkMr784KEtCKua4D8j7z939hZFZGmuLFlTM2c0jhfGZP08xrBZgbvgD5tWXi5BOSaVlHe04dC2Aq38KzO8AQ7ODnKm9gFo9x5e6XU8IJVyfwSJVic1kgsObtiKbRdQCUECIdpesDVwKBgQDK7T9i+Z1aC0Wn+xfjL/6kVruqbyFfF7bLcyrD/wJ5fAExdehetgMKM40wXvND5YF5vjyTB9m8HKDn5h3+6i/CwogAwYvjy+onIsTrsDHucnF9Lsj6x2j8VirddqNCKUeXggE2ImMdWXI5fRj057Po1DlddbSCRinKDJGz1VVpwwKBgQCFSLWsFm5+e/fBk9A+QkrOoSAaVimepdlbaaeRcGgCuqF6ZSP3b/gWITqJa3TtXozU1Iz43sIgFtkVtPdZqKuaNulC+XxXCx9vsHZkFc4fdSTtP6ZJU5p3oMsolFwJ/vlie8UZnsEfDGUCNRcCLM3sA02KGTgiNCIbz6Hc6/poRwKBgBmEZdEbVFcLTdIGuAVAdsPRiD2xRcAAamMA82K8AWKnXjsK+ZJXTuCMhPeNKQfjpzlY26MdfJqz+uPOQv1YE3NpJNL7g4y8ipArRhnhCRZT28ODC5DFXIVGjJNWpMbgC/mYRnC5OD9rjPp/qZC6RhxD+4auE2nCSuT2WagEbn4jAoGADlVyKfRoQgAIXb98s3sobsjQFsB3ySsQ+okSf7GFW2hCANRV/vxSUwNOuQ7fhuIcWq+IST3mWuwaAhOjpDv+oG/idQSblx2NPtgVNyse9xluVGV+gPwaiVanYfGnmS9xEEL7b0mfWQO6QeJkLQ69qU892Vk8BctYPyjetZ5o0e8=";
+        String CHARSET = "UTF-8";
+        String ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAntWGCd9E7dayalOUP2+48AqMEODJRFRV17OKQQ7bO9yoTu6+iyXvp0dqd6FFJycLTc9VTRoOon3Kp7oLnKe/Umb+zrX5o/xv06uQqoNfiUAuFPuRv6kK8w188q3koHoIB549r2G8a74wJuvBaczw4OOsarEuGgWPtICULpw3+u5XvYKIm/htQgLLA7aHpcpboGD1l+2aRo/ZFVt673INEuB/G124BDdZzG6wo2RRecjY0uXhBbF9WVCqkW/lqS9KRPoCt8lJ95MR1BhcWORuUHJNRBxMC+2yHPd+g4pVgIjUz5X1Fx8JKSSI428F9bQxsXPNybiwnFmhQ7DPBs9pMwIDAQAB";
+
+        AlipayTradeRefundResponse desc = ALiPayUtil.refund(APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY,"b99222763f3845f8b44116c4e210af24",
+                null, "0.1", "desc");
+        System.out.println(desc.getBody());
+        System.out.println(desc.getMsg());
     }
 
 

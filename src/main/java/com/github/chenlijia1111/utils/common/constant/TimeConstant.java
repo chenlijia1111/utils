@@ -11,20 +11,30 @@ public class TimeConstant {
 
     /**
      * 年月日 时分秒
+     *
      * @since 上午 9:29 2019/9/4 0004
      **/
     public static final String DATE_TIME = "yyyy-MM-dd HH:mm:ss";
 
     /**
-     * 年月日
+     * 时分秒
+     *
      * @since 上午 9:29 2019/9/4 0004
      **/
     public static final String TIME = "HH:mm:ss";
 
     /**
-     * 时分秒
+     * 年月日
+     *
      * @since 上午 9:29 2019/9/4 0004
      **/
     public static final String DATE = "yyyy-MM-dd";
+
+    /**
+     * 年月
+     *
+     * @since 下午 2:58 2019/9/27 0027
+     **/
+    public static final String MONTH_OF_YEAR = "yyyy-MM";
 
 }

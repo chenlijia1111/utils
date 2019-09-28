@@ -3,8 +3,6 @@ package com.github.chenlijia1111.utils.core;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 
 import java.io.*;
-import java.net.URL;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -80,14 +78,8 @@ public class IOUtil {
 
 
     /**
-     * 获取相对项目目录下的文件
-     * 如果是在编译器运行的文件
-     * 相对项目目录下的路径是在编译路径的classPath下
-     * 而如果是打成jar之后运行的项目
-     * 就是相对于jar的最外层目录了
-     * 所以一般项目在打包之后路径就不一样了，一般我们之前在resource目录下的文件都是打包在class目录下的
-     * <p>
-     * 所以在获取的时候 先判断当前运行的方式
+     * 通过类加载器进行加载 相对于classpath 路径下的文件
+     * 前面不能加 /
      *
      * @param relativePath 相对于 classPath 下的路径
      * @return java.io.InputStream
@@ -95,23 +87,8 @@ public class IOUtil {
      **/
     public static InputStream inputStreamToBaseProject(String relativePath) {
 
-        relativePath = (relativePath.startsWith("/") ? "" : "/") + relativePath;
-
-        //先判断当前的运行方式
-        //根据文件协议进行判断 如果是jar:/ 就是在jar包中 如果是 file:/就是非jar中
-        //获取项目根目录的URL
-        URL resource = IOUtil.class.getResource("/");
-        String protocol = resource.getProtocol();
-        if (protocol.equals("jar")) {
-            //如果是springBoot打包的形式的话,最外层路径是BOOT-INF/classes  里面才是classes目录
-            //如果是普通的jar的话,最外层就是顶级目录,不用特别处理
-            URL resource1 = IOUtil.class.getResource("/BOOT-INF/classes");
-            if (Objects.nonNull(resource1)) {
-                //说明是springBoot打包形式的jar包
-                relativePath = "/BOOT-INF/classes" + relativePath;
-            }
-        }
-        InputStream inputStream = IOUtil.class.getResourceAsStream(relativePath);
+        relativePath = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+        InputStream inputStream = IOUtil.class.getClassLoader().getResourceAsStream(relativePath);
         return inputStream;
     }
 
