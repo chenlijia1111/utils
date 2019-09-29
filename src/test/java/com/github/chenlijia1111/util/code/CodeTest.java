@@ -3,7 +3,6 @@ package com.github.chenlijia1111.util.code;
 import com.github.chenlijia1111.utils.code.mybatis.MybatisCodeGeneratorUtil;
 import org.junit.Test;
 
-import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
 

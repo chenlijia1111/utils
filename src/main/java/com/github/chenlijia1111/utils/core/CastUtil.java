@@ -175,13 +175,13 @@ public class CastUtil {
      * 四舍五入
      *
      * @param d      小数
-     * @param length 保留的小数点长度
+     * @param pointLength 保留的小数点长度
      * @return java.lang.String
      * @since 下午 8:17 2019/9/26 0026
      **/
-    public static String doubleCastToStr(double d, int length) {
+    public static String doubleCastToStr(double d, int pointLength) {
         BigDecimal bigDecimal = new BigDecimal(d);
-        bigDecimal = bigDecimal.setScale(length, BigDecimal.ROUND_HALF_UP);
+        bigDecimal = bigDecimal.setScale(pointLength, BigDecimal.ROUND_HALF_UP);
         String s = bigDecimal.toString();
         return s;
     }

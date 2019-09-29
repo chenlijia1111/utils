@@ -3,6 +3,8 @@ package com.github.chenlijia1111.utils.core.reflect;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -42,5 +44,44 @@ public class MethodUtil {
         return methodList;
     }
 
+
+    /**
+     * 获取字段的 get 方法
+     *
+     * @param fieldName 1
+     * @param cls       2
+     * @return java.lang.reflect.Method
+     * @since 上午 10:18 2019/9/29 0029
+     **/
+    public static Method fieldReadMethod(String fieldName, Class cls) {
+        try {
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, cls);
+            Method readMethod = propertyDescriptor.getReadMethod();
+            return readMethod;
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 获取字段的 set 方法
+     *
+     * @param fieldName 1
+     * @param cls       2
+     * @return java.lang.reflect.Method
+     * @since 上午 10:18 2019/9/29 0029
+     **/
+    public static Method fieldWriteMethod(String fieldName, Class cls) {
+        try {
+            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, cls);
+            Method readMethod = propertyDescriptor.getWriteMethod();
+            return readMethod;
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

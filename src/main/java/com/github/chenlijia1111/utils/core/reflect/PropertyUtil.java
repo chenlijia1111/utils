@@ -3,8 +3,6 @@ package com.github.chenlijia1111.utils.core.reflect;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -121,13 +119,10 @@ public class PropertyUtil {
     public static void propertyWithSet(String propertyName, Object propertyValue, Object object) {
         Class<?> aClass = object.getClass();
         try {
-            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyName, aClass);
-            Method setMethod = propertyDescriptor.getWriteMethod();
+            Method setMethod = MethodUtil.fieldWriteMethod(propertyName, aClass);
             if (Objects.nonNull(setMethod)) {
                 setMethod.invoke(object, propertyValue);
             }
-        } catch (IntrospectionException e) {
-            e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {

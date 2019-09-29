@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.utils.core;
 
+import com.github.chenlijia1111.utils.common.constant.RegConstant;
 import com.github.chenlijia1111.utils.list.Lists;
 
 import java.util.List;
@@ -12,11 +13,6 @@ import java.util.regex.Pattern;
  * @since 下午 1:11 2019/9/3 0003
  **/
 public class StringUtils {
-
-    //整数正则
-    private static final String INT_REG = "^\\d+$";
-    //小数正则(包含了整数)  小数点可以不存在
-    private static final String DOUBLE_REG = "^\\d+(.\\d+)?$";
 
 
     /**
@@ -85,7 +81,7 @@ public class StringUtils {
      * @since 下午 7:33 2019/9/3 0003
      **/
     public static boolean isInt(String str) {
-        return null != str && Pattern.matches(INT_REG, str);
+        return null != str && Pattern.matches(RegConstant.INT, str);
     }
 
     /**
@@ -96,7 +92,7 @@ public class StringUtils {
      * @since 下午 7:33 2019/9/3 0003
      **/
     public static boolean isDouble(String str) {
-        return null != str && Pattern.matches(DOUBLE_REG, str);
+        return null != str && Pattern.matches(RegConstant.DOUBLE, str);
     }
 
     /**
