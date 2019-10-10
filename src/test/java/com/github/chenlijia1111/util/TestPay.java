@@ -91,7 +91,7 @@ public class TestPay {
         String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
         Map refund = WXPayUtil.refund(appId, mchId, partnerKey,
                 new File("C:/Users/Administrator/Documents/Tencent Files/571740367/FileRecv/1553017211_20190903_cert/apiclient_cert.p12"),
-                mchId, null, "4200000410201909255250727261", 10, 10);
+                mchId, null, "02adef55c94049f0bf3c828a61a6dfcb", 200, 200);
         System.out.println(refund);
     }
 
@@ -102,7 +102,7 @@ public class TestPay {
         String CHARSET = "UTF-8";
         String ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAntWGCd9E7dayalOUP2+48AqMEODJRFRV17OKQQ7bO9yoTu6+iyXvp0dqd6FFJycLTc9VTRoOon3Kp7oLnKe/Umb+zrX5o/xv06uQqoNfiUAuFPuRv6kK8w188q3koHoIB549r2G8a74wJuvBaczw4OOsarEuGgWPtICULpw3+u5XvYKIm/htQgLLA7aHpcpboGD1l+2aRo/ZFVt673INEuB/G124BDdZzG6wo2RRecjY0uXhBbF9WVCqkW/lqS9KRPoCt8lJ95MR1BhcWORuUHJNRBxMC+2yHPd+g4pVgIjUz5X1Fx8JKSSI428F9bQxsXPNybiwnFmhQ7DPBs9pMwIDAQAB";
 
-        AlipayTradeRefundResponse desc = ALiPayUtil.refund(APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY,"b99222763f3845f8b44116c4e210af24",
+        AlipayTradeRefundResponse desc = ALiPayUtil.refund(APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY,"236024cf72054b04a5a1baf908472ba2",
                 null, "0.1", "desc");
         System.out.println(desc.getBody());
         System.out.println(desc.getMsg());

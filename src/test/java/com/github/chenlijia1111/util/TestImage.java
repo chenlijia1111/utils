@@ -1,9 +1,6 @@
 package com.github.chenlijia1111.util;
 
-import com.github.chenlijia1111.utils.image.ImageMergeUtil;
-import com.github.chenlijia1111.utils.image.OneDimensionalCodeUtil;
-import com.github.chenlijia1111.utils.image.QRCodeUtil;
-import com.github.chenlijia1111.utils.image.ValidateImageUtil;
+import com.github.chenlijia1111.utils.image.*;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,11 +23,11 @@ public class TestImage {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         QRCodeUtil qrCodeUtil = new QRCodeUtil();
         File file = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\qrcode.jpg");
         File logo = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\index1.jpg");
-        qrCodeUtil.outputWithLogo("http://www.baidu.com",file,logo);
+        qrCodeUtil.outputWithLogo("http://www.baidu.com", file, logo);
     }
 
     @Test
@@ -39,7 +36,7 @@ public class TestImage {
         File file = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\qrcode1.jpg");
         File logo = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\index.jpg");
         FileOutputStream fileOutputStream = new FileOutputStream(file);
-        qrCodeUtil.outputWithLogo("http://www.baidu.com",fileOutputStream,logo);
+        qrCodeUtil.outputWithLogo("http://www.baidu.com", fileOutputStream, logo);
     }
 
     @Test
@@ -49,9 +46,24 @@ public class TestImage {
     }
 
     @Test
-    public void test5(){
+    public void test5() {
         OneDimensionalCodeUtil codeUtil = new OneDimensionalCodeUtil();
-        codeUtil.output("5675757657",new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\onecode1.jpg"));
+        codeUtil.output("5675757657", new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\onecode1.jpg"));
+    }
+
+    /**
+     * 压缩图片测试
+     * 压缩的时间比较长，建议用多线程处理
+     *
+     * @return void
+     * @since 下午 2:38 2019/10/10 0010
+     **/
+    @Test
+    public void test6() {
+        long l = System.currentTimeMillis();
+        File file = new File("E:\\公司资料\\笔记\\mysql\\IMG_20191006_193837.jpg");
+        ReduceImageUtil.reduceImage(file);
+        System.out.println(System.currentTimeMillis() - l);
     }
 
 }

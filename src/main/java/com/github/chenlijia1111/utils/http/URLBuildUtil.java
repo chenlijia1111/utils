@@ -76,6 +76,9 @@ public class URLBuildUtil {
         }
 
         String string = sb.toString();
+        if (string.endsWith("&")) {
+            string = string.substring(0, string.length() - 1);
+        }
         try {
             //进行 URLEncode 编码 防止有中文
             string = URLEncoder.encode(string, CharSetType.UTF8.getType());

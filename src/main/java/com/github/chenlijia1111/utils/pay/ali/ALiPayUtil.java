@@ -37,7 +37,7 @@ public class ALiPayUtil {
      * @param publicKey   公钥
      * @param body        描述
      * @param orderNo     订单单号
-     * @param totalAmount 支付金额
+     * @param totalAmount 支付金额 单位为元，精确到小数点后两位，取值范围[0.01,100000000]
      * @param notifyUrl   回调地址
      * @return
      */
