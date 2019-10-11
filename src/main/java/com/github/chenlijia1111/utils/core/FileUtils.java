@@ -5,6 +5,8 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -161,6 +163,24 @@ public class FileUtils {
             e.printStackTrace();
         }
 
+    }
+
+
+    /**
+     * 判断是否是图片
+     *
+     * @param file 1
+     * @return boolean
+     * @since 下午 4:05 2019/10/10 0010
+     **/
+    public static boolean isImage(File file) {
+        try {
+            BufferedImage read = ImageIO.read(file);
+            return read != null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 

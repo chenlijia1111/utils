@@ -3,9 +3,12 @@ package com.github.chenlijia1111.util;
 import com.github.chenlijia1111.utils.image.*;
 import org.junit.Test;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author 陈礼佳
@@ -64,6 +67,18 @@ public class TestImage {
         File file = new File("E:\\公司资料\\笔记\\mysql\\IMG_20191006_193837.jpg");
         ReduceImageUtil.reduceImage(file);
         System.out.println(System.currentTimeMillis() - l);
+    }
+
+    //判断是否是图片
+    @Test
+    public void test7(){
+        File file = new File("E:\\公司资料\\笔记\\mysql\\mysql 语法笔记.md");
+        try {
+            BufferedImage read = ImageIO.read(file);
+            System.out.println(read);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
