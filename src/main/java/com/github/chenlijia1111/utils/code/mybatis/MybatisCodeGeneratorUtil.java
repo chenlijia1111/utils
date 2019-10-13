@@ -161,6 +161,13 @@ public class MybatisCodeGeneratorUtil {
      **/
     private boolean exampleCode = false;
 
+    /**
+     * 是否生成通用的方法 如增删改查
+     * 如果集成了通用mapper 就不需要这个了
+     * @see CommonMapperCommentGenerator
+     */
+    private boolean commonCode = true;
+
 
     /**
      * 数据库表名 以及对应的实体名称
@@ -330,6 +337,10 @@ public class MybatisCodeGeneratorUtil {
         this.exampleCode = exampleCode;
     }
 
+    public void setCommonCode(boolean commonCode) {
+        this.commonCode = commonCode;
+    }
+
     public void generateCode() {
 
         //检验参数是否正确
@@ -401,8 +412,11 @@ public class MybatisCodeGeneratorUtil {
             tableConfiguration.setUpdateByExampleStatementEnabled(exampleCode);
             tableConfiguration.setDeleteByExampleStatementEnabled(exampleCode);
             tableConfiguration.setSelectByExampleStatementEnabled(exampleCode);
-            tableConfiguration.setUpdateByPrimaryKeyStatementEnabled(true);
-            tableConfiguration.setDeleteByPrimaryKeyStatementEnabled(true);
+            tableConfiguration.setUpdateByPrimaryKeyStatementEnabled(commonCode);
+//            tableConfiguration.setDeleteByPrimaryKeyStatementEnabled(commonCode);
+            tableConfiguration.setInsertStatementEnabled(commonCode);
+            tableConfiguration.setSelectByPrimaryKeyStatementEnabled(commonCode);
+
             context.addTableConfiguration(tableConfiguration);
         }
 

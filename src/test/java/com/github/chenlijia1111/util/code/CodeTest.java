@@ -17,11 +17,11 @@ public class CodeTest {
     private static MybatisCodeGeneratorUtil mybatisCodeGeneratorUtil = new MybatisCodeGeneratorUtil();
 
     static {
-        mybatisCodeGeneratorUtil.setCommentGeneratorType("com.github.chenlijia1111.utils.code.mybatis.CommentGenerator")
-                .setConnectionUrl("jdbc:mysql://rm-wz9yfa169ro1w5vbtdo.mysql.rds.aliyuncs.com:3306/ji9u?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
+        mybatisCodeGeneratorUtil.setCommentGeneratorType("com.github.chenlijia1111.utils.code.mybatis.CommonMapperCommentGenerator")
+                .setConnectionUrl("jdbc:mysql://58.250.17.31:33306/haiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
-                setUserId("ji9u").setPassword("Ji9yousite")
-                .setTargetProjectPath("C:\\Users\\Administrator\\mycode\\utils\\src\\test\\java").
+                setUserId("root").setPassword("1029tqljsw")
+                .setTargetProjectPath("C:\\Users\\Administrator\\IdeaProjects\\utils\\src\\test\\java").
                 setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").
                 setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
                 setTargetXMLPackage("com.github.chenlijia1111.util.code.mapper").
@@ -31,7 +31,7 @@ public class CodeTest {
                 .setAuthor("chenLiJia");
 
         Map<String, String> tableToDomain = mybatisCodeGeneratorUtil.getTableToDoMain();
-        tableToDomain.put("j_group_image", "GroupImage");
+        tableToDomain.put("announce", "Announce");
 
         List<String> ignoreDoMainToBusiness = mybatisCodeGeneratorUtil.getIgnoreDoMainToBusiness();
 //        ignoreDoMainToBusiness.add("FightGroupItem");
@@ -43,7 +43,8 @@ public class CodeTest {
     //生成entity,mapper,dao
     @Test
     public void test1WithChen() {
-        mybatisCodeGeneratorUtil.setExampleCode(true);
+        mybatisCodeGeneratorUtil.setExampleCode(false);
+        mybatisCodeGeneratorUtil.setCommonCode(false);
         mybatisCodeGeneratorUtil.generateCode();
     }
 
