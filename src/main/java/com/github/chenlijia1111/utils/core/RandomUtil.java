@@ -25,7 +25,7 @@ public class RandomUtil {
 
 
     /**
-     * 创建定长随机四位编号
+     * 创建定长随机长度编号
      * @author chenlijia
      * @since  上午 9:48 2019/3/27 0027
      * @param length 数字编号长度

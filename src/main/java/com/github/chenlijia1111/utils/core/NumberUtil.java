@@ -2,6 +2,8 @@ package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 
+import java.math.BigDecimal;
+
 /**
  * 数字工具类
  * 包含 10进制 16进制 2进制 以及字节数组之间的相互转换
@@ -356,6 +358,20 @@ public class NumberUtil {
         long l = Double.doubleToRawLongBits(i);
         byte[] bytes = longToBytesLower(l);
         return bytes;
+    }
+
+    /**
+     * double 保留固定长度位小数 超出小数四舍五入
+     *
+     * @param d      1
+     * @param length 2
+     * @return java.lang.Double
+     * @since 上午 10:38 2019/10/16 0016
+     **/
+    public static Double doubleToFixLengthDouble(double d, int length) {
+        BigDecimal bigDecimal = new BigDecimal(d);
+        bigDecimal = bigDecimal.setScale(length, BigDecimal.ROUND_HALF_UP);
+        return bigDecimal.doubleValue();
     }
 
 

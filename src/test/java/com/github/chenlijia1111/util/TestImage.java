@@ -64,7 +64,7 @@ public class TestImage {
     @Test
     public void test6() {
         long l = System.currentTimeMillis();
-        File file = new File("E:\\公司资料\\笔记\\mysql\\IMG_20191006_193837.jpg");
+        File file = new File("E:\\公司资料\\我的图片\\IMG_20191002_081044.gif");
         ReduceImageUtil.reduceImage(file);
         System.out.println(System.currentTimeMillis() - l);
     }

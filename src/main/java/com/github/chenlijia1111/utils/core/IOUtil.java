@@ -24,23 +24,10 @@ public class IOUtil {
         AssertUtil.isTrue(null != file && file.exists(), "输出文件为空");
         AssertUtil.isTrue(null != outputStream, "输出流为空");
 
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
-            byte[] bytes = new byte[4096];
-            int read;
-            while ((read = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
-            }
-            outputStream.flush();
+        try {
+            writeInputStream(new FileInputStream(file), outputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -60,9 +47,27 @@ public class IOUtil {
             parentFile.mkdirs();
         }
 
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destFile))) {
+        try {
+            writeInputStream(new FileInputStream(file), new FileOutputStream(destFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
+    /**
+     * 将输入流的数据输出到输出流
+     *
+     * @param inputStream  1
+     * @param outputStream 2
+     * @return void
+     * @since 下午 3:36 2019/10/15 0015
+     **/
+    public static void writeInputStream(InputStream inputStream, OutputStream outputStream) {
+
+        AssertUtil.isTrue(null != inputStream, "输入流为空");
+        AssertUtil.isTrue(null != outputStream, "输出流为空");
+
+        try {
             byte[] bytes = new byte[4096];
             int read;
             while ((read = inputStream.read(bytes)) != -1) {
@@ -73,6 +78,13 @@ public class IOUtil {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -180,5 +192,6 @@ public class IOUtil {
         }
         return null;
     }
+
 
 }

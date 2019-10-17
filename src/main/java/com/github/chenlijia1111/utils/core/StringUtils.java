@@ -3,6 +3,8 @@ package com.github.chenlijia1111.utils.core;
 import com.github.chenlijia1111.utils.common.constant.RegConstant;
 import com.github.chenlijia1111.utils.list.Lists;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -190,6 +192,27 @@ public class StringUtils {
 
         stringBuilder.append(str);
         return stringBuilder.toString();
+    }
+
+
+    /**
+     * 异常栈信息转字符串
+     *
+     * @param exception 1
+     * @return java.lang.String
+     * @since 下午 2:12 2019/10/16 0016
+     **/
+    private String exceptionStackInfoToString(Exception exception) {
+        if (null != exception) {
+            try (StringWriter sw = new StringWriter();
+                 PrintWriter pw = new PrintWriter(sw)) {
+                exception.printStackTrace(pw);
+                return sw.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 

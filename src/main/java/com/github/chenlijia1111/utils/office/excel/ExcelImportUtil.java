@@ -10,7 +10,9 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -41,10 +43,34 @@ public class ExcelImportUtil {
         AssertUtil.isTrue(null != file && file.exists() && FileUtils.checkFileSuffix(file.getName(), "xls", "xlsx"), "文件不合法");
 
         //开始处理
+        try (InputStream inputStream = new FileInputStream(file)) {
+            return importExcel(inputStream, tClass, startRowIndex);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 读取excel
+     * 请在调用此方法前判断好输入流是excel文件的输入流
+     *
+     * @param inputStream   处理的输入流
+     * @param tClass        转换的类
+     * @param startRowIndex 开始处理的行
+     * @return java.util.List<T>
+     * @since 下午 5:49 2019/10/11 0011
+     **/
+    public static <T> List<T> importExcel(InputStream inputStream, Class<T> tClass, int startRowIndex) {
+        //先判断文件是否合法
+        AssertUtil.isTrue(null != inputStream, "输入流为空");
+
+        //开始处理
         try {
             List<T> list = new ArrayList<T>();
 
-            Workbook workbook = WorkbookFactory.create(file);
+            Workbook workbook = WorkbookFactory.create(inputStream);
             Sheet sheet = workbook.getSheetAt(0);
             int lastRowNum = sheet.getLastRowNum();
             List<Field> allFields = PropertyUtil.getAllFields(tClass);
@@ -62,7 +88,7 @@ public class ExcelImportUtil {
                             if (null != excelImportField) {
                                 int cellIndex = excelImportField.cellIndex();
                                 Cell cell = row.getCell(cellIndex);
-                                if(null != cell){
+                                if (null != cell) {
                                     //进行转换,判断需要转换的类型,这里只支持基本类型和String、Date
                                     Object o = cellValueToTargetClass(cell, type);
                                     //开始给属性赋值
@@ -88,6 +114,7 @@ public class ExcelImportUtil {
         }
         return null;
     }
+
 
     /**
      * 表格内容转换为java对象值

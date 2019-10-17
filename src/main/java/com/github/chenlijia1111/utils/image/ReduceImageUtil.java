@@ -2,11 +2,14 @@ package com.github.chenlijia1111.utils.image;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -43,9 +46,13 @@ public class ReduceImageUtil {
             Graphics graphics = bufferedImage.getGraphics();
             //Image.SCALE_SMOOTH 压缩策略  还有其他的可以尝试
             graphics.drawImage(read.getScaledInstance(read.getWidth(), read.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
-            //获取目标文件的后缀
-            String fileSuffix = FileUtils.getFileSuffixNotDot(destImage);
-            ImageIO.write(bufferedImage, fileSuffix, destImage);
+
+            FileOutputStream fileOutputStream = new FileOutputStream(destImage);
+            //使用jpeg在压缩一次
+            JPEGImageEncoder jpegEncoder = JPEGCodec.createJPEGEncoder(fileOutputStream);
+            jpegEncoder.encode(bufferedImage);
+
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
