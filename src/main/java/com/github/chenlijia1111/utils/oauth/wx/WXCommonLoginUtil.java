@@ -68,7 +68,7 @@ public class WXCommonLoginUtil {
                 putParams("secret", secret).
                 putParams("code", code).
                 putParams("grant_type", "authorization_code").
-                doGet("https://api.weixin.qq.com/sns/oauth2/access_token");
+                doGet("https://api.weixin.qq.com/sns/oauth2/access_token").toMap();
 
         //判断是否成功
         Object errcode = map.get("errcode");
@@ -101,7 +101,7 @@ public class WXCommonLoginUtil {
         Map map = HttpClientUtils.getInstance().putParams("appid", appId).
                 putParams("grant_type", "refresh_token").
                 putParams("refresh_token", refreshToken).
-                doGet("https://api.weixin.qq.com/sns/oauth2/refresh_token");
+                doGet("https://api.weixin.qq.com/sns/oauth2/refresh_token").toMap();
         return map;
     }
 

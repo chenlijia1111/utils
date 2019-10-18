@@ -7,12 +7,12 @@ import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.pay.ali.ALiPayUtil;
 import com.github.chenlijia1111.utils.pay.wx.PayType;
 import com.github.chenlijia1111.utils.pay.wx.WXPayUtil;
 import org.junit.Test;
-import org.omg.CORBA.PUBLIC_MEMBER;
 
 import java.io.File;
 import java.util.Map;
@@ -36,14 +36,14 @@ public class TestPay {
     @Test
     public void test3() {
         Map map = HttpClientUtils.getInstance().putParams("userNum", "admin").putParams("password", "123456").
-                doPost("http://58.250.17.31:8334/expertise/api/user/login");
+                doPost("http://58.250.17.31:8334/expertise/api/user/login").toMap();
         System.out.println(map);
 
 
         Map map1 = HttpClientUtils.getInstance().putParams("page", "1").putParams("limit", "10").
                 putParams("userName", "管理员").
                 putHeader("authentication", "e639514a859144fb814752063036577b").
-                doGet("http://58.250.17.31:8334/expertise/api/user/listAll");
+                doGet("http://58.250.17.31:8334/expertise/api/user/listAll").toMap();
         System.out.println(map1);
     }
 
@@ -102,8 +102,8 @@ public class TestPay {
         String CHARSET = "UTF-8";
         String ALIPAY_PUBLIC_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAntWGCd9E7dayalOUP2+48AqMEODJRFRV17OKQQ7bO9yoTu6+iyXvp0dqd6FFJycLTc9VTRoOon3Kp7oLnKe/Umb+zrX5o/xv06uQqoNfiUAuFPuRv6kK8w188q3koHoIB549r2G8a74wJuvBaczw4OOsarEuGgWPtICULpw3+u5XvYKIm/htQgLLA7aHpcpboGD1l+2aRo/ZFVt673INEuB/G124BDdZzG6wo2RRecjY0uXhBbF9WVCqkW/lqS9KRPoCt8lJ95MR1BhcWORuUHJNRBxMC+2yHPd+g4pVgIjUz5X1Fx8JKSSI428F9bQxsXPNybiwnFmhQ7DPBs9pMwIDAQAB";
 
-        AlipayTradeRefundResponse desc = ALiPayUtil.refund(APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY,"ba0ad57857f14d99b630ce748b35bb69",
-                null, "0.02", "desc");
+        AlipayTradeRefundResponse desc = ALiPayUtil.refund(APP_ID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY,"c9525d1d8f5249acbcdbc15125dd38f0",
+                null, "2", "desc");
         System.out.println(desc.getBody());
         System.out.println(desc.getMsg());
     }

@@ -1,10 +1,13 @@
 package com.github.chenlijia1111.utils.oauth.qq;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
+import com.github.chenlijia1111.utils.core.JSONUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -60,15 +63,21 @@ public class QQLoginUtil {
             return map1;
         }
 
-        Map map = HttpClientUtils.getInstance().putParams("client_id", appId).
+        String s = HttpClientUtils.getInstance().putParams("client_id", appId).
                 putParams("client_secret", secret).
                 putParams("code", code).
                 putParams("grant_type", "authorization_code").
                 putParams("redirect_uri", redirectUrl).
-                doGet("https://graph.qq.com/oauth2.0/token");
+                doGet("https://graph.qq.com/oauth2.0/token").toString();
 
+
+        //返回callback( {"client_id":"YOUR_APPID","openid":"YOUR_OPENID"} )   或者  callback( {"error":100019,"error_description":"code to access token error"} )
         //判断是否成功
-        Object errcode = map.get("code");
+        //进行截取
+        s = s.substring(s.indexOf("{"), s.lastIndexOf("}") + 1);
+        System.out.println(s);
+        Map map = JSONUtil.strToObj(s, HashMap.class);
+        Object errcode = map.get("error");
         if (Objects.isNull(errcode)) {
             //没有发生错误
             //主动刷新过期时间
@@ -104,14 +113,14 @@ public class QQLoginUtil {
                 putParams("client_secret", secret).
                 putParams("grant_type", "refresh_token").
                 putParams("refresh_token", refreshToken).
-                doGet("https://graph.qq.com/oauth2.0/token");
+                doGet("https://graph.qq.com/oauth2.0/token").toMap();
 
         if (Objects.isNull(map.get("code"))) {
             //请求成功
             //顺便获取openId返回
             Map map1 = HttpClientUtils.getInstance().
                     putParams("access_token", accessToken).
-                    doGet("https://graph.qq.com/oauth2.0/me");
+                    doGet("https://graph.qq.com/oauth2.0/me").toMap();
             Object openid = map1.get("openid");
             map.put("openid", openid.toString());
         }

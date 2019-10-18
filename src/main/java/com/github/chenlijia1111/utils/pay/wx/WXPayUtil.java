@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.utils.pay.wx;
 
+import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
 import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
@@ -66,7 +67,8 @@ public class WXPayUtil {
         String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + signKey);
         httpClientUtils.putParams("sign", sign);
         //发起请求
-        Map map = httpClientUtils.doPostWithXML("https://api.mch.weixin.qq.com/pay/unifiedorder");
+        String xmlString = httpClientUtils.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/pay/unifiedorder").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
 
         //获取到 prepay_id 预支付id 在通过签名 把预支付id返回给前端调起支付
         //如果是native 支付的话 直接就返回一个二维码的请求地址,不用进行二次签名
@@ -154,7 +156,8 @@ public class WXPayUtil {
         httpClientUtils.putParams("sign", sign);
 
         //发送请求
-        Map map = httpClientUtils.doPostWithXML("https://api.mch.weixin.qq.com/secapi/pay/refund");
+        String s = httpClientUtils.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/secapi/pay/refund").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(s);
         return map;
     }
 
@@ -227,7 +230,8 @@ public class WXPayUtil {
         String sign = MD5EncryptUtil.MD5StringToHexString(s);
         instance.putParams("sign", sign);
 
-        Map map = instance.doPostWithXML("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers");
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
         return map;
     }
 

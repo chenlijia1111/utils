@@ -33,12 +33,13 @@ public class PropertyCheckUtil {
      * 检测参数是否为空，为空则实例化对象
      * 防止参数为空
      *
-     * @param t 1
+     * @param t                 1
+     * @param spaceStringToNull 空字符转null
      * @author chenlijia
      * @description TODO
      * @since 上午 11:44 2019/7/13 0013
      **/
-    public static <T> T transferObjectNotNull(T t) {
+    public static <T> T transferObjectNotNull(T t, boolean spaceStringToNull) {
         if (Objects.isNull(t)) {
             Class<?> aClass = t.getClass();
             try {
@@ -49,6 +50,29 @@ public class PropertyCheckUtil {
                 e.printStackTrace();
             }
         }
+
+        if (spaceStringToNull) {
+            List<Field> allFields = PropertyUtil.getAllFields(t);
+            if (Lists.isNotEmpty(allFields)) {
+                for (Field allField : allFields) {
+                    allField.setAccessible(true);
+                    Class<?> type = allField.getType();
+                    if (String.class == type) {
+                        try {
+                            Object fieldValue = PropertyUtil.getFieldValue(t, t.getClass(), allField.getName());
+                            if (Objects.nonNull(fieldValue) && fieldValue.equals("")) {
+                                allField.set(t, null);
+                            }
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
         return t;
     }
 

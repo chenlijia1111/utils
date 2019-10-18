@@ -26,8 +26,8 @@ public class OauthTest {
 
         long l1 = System.currentTimeMillis();
         System.out.println(JWTUtil.checkFormat(jwt));
-        System.out.println(JWTUtil.checkSign(jwt,"qwewqw"));
-        System.out.println(JWTUtil.checkExpired(jwt,"qwewqw"));
+        System.out.println(JWTUtil.checkSign(jwt, "qwewqw"));
+        System.out.println(JWTUtil.checkExpired(jwt, "qwewqw"));
 
         Claims claims = JWTUtil.parseJWT(jwt, "qwewqw");
         System.out.println(claims);
@@ -37,7 +37,7 @@ public class OauthTest {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         String s1 = "eyJhbGciOiJIUzI1NiJ9";
         String s2 = "eyJqdGkiOiIxIiwiaWF0IjoxNTY4NDI1NDQzLCJzdWIiOiLpmYjnpLw95L2zOlwi5oiR5ZiO5ZiOLyIsImV4cCI6MTU2ODUxMTg0M30";
 
@@ -48,7 +48,7 @@ public class OauthTest {
 
 
     @Test
-    public void testqq(){
+    public void testqq() {
         //https://graph.qq.com/oauth2.0/show?which=Login&display=pc&
         // response_type=code&
         // state=B169C8F0A4A0BC9A328EF07E77401D53605FF4F8011B452A154CB04D86454969557918812EAC705B922D9920A1EF56CB&

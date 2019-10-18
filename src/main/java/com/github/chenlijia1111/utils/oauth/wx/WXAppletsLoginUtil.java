@@ -40,7 +40,7 @@ public class WXAppletsLoginUtil {
                 putParams("secret", secret).
                 putParams("js_code", code).
                 putParams("grant_type", "authorization_code").
-                doGet("https://api.weixin.qq.com/sns/jscode2session");
+                doGet("https://api.weixin.qq.com/sns/jscode2session").toMap();
         return map;
     }
 

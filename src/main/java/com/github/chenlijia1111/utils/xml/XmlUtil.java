@@ -3,6 +3,7 @@ package com.github.chenlijia1111.utils.xml;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.StringUtils;
+import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,8 +13,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -58,6 +61,27 @@ public class XmlUtil {
         }
         return null;
     }
+
+
+    /**
+     * 解析xml文件
+     * xml文件的头 一般都以 <xml> 开头 所以解析出的map 会排除最外层
+     * 只解析节点的名称以及值 不解析属性
+     *
+     * @param s
+     * @return
+     * @see #parseXMLToMap(InputStream) 解析xml文件转为map
+     */
+    public static Map<String, Object> parseXMLToMap(String s) {
+        try {
+            Map<String, Object> stringObjectMap = parseXMLToMap(new ByteArrayInputStream(s.getBytes(CharSetType.UTF8.getType())));
+            return stringObjectMap;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 递归获取 节点的值 节点可能会有下级

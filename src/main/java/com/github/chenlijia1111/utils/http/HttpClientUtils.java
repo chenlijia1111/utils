@@ -1,6 +1,6 @@
 package com.github.chenlijia1111.utils.http;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.chenlijia1111.utils.core.JSONUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
@@ -17,11 +17,15 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -59,6 +63,14 @@ public class HttpClientUtils {
      * 请求工具
      */
     private HttpClient httpClient;
+
+
+    /**
+     * 请求的响应
+     *
+     * @since 下午 1:46 2019/10/18 0018
+     **/
+    private HttpResponse response;
 
     private HttpClientUtils() {
     }
@@ -134,6 +146,7 @@ public class HttpClientUtils {
         return headers;
     }
 
+
     /**
      * 添加请求参数
      *
@@ -187,6 +200,20 @@ public class HttpClientUtils {
         return this;
     }
 
+    /**
+     * 添加contentType
+     *
+     * @param contentType 1
+     * @return com.github.chenlijia1111.utils.http.HttpClientUtils
+     * @since 下午 2:07 2019/10/18 0018
+     **/
+    public HttpClientUtils setContentType(String contentType) {
+        if (null != contentType) {
+            this.headers.put(HTTP.CONTENT_TYPE, contentType);
+        }
+        return this;
+    }
+
 
     /**
      * 发送 get 请求
@@ -196,7 +223,7 @@ public class HttpClientUtils {
      * @author chenlijia
      * @since 10:25 2019/8/20
      **/
-    public Map doGet(String url) {
+    public HttpClientUtils doGet(String url) {
         //判断有没有请求参数,如果有请求参数,拼接请求参数
         if (params.size() != 0) {
             Set<Map.Entry<String, Object>> entries = params.entrySet();
@@ -221,16 +248,11 @@ public class HttpClientUtils {
             }
         }
         try {
-            HttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
+            this.response = httpClient.execute(httpGet);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return this;
     }
 
 
@@ -241,7 +263,7 @@ public class HttpClientUtils {
      * @author chenlijia
      * @since 10:25 2019/8/20
      **/
-    public Map doPost(String url) {
+    public HttpClientUtils doPost(String url) {
 
         HttpPost httpPost = new HttpPost(url);
         if (headers != null) {
@@ -257,106 +279,35 @@ public class HttpClientUtils {
         try {
             //判断有没有请求参数,如果有请求参数,拼接请求参数
             if (params.size() != 0) {
-                ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
-                for (Map.Entry<String, Object> entry : params.entrySet()) {
-                    nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                //判断请求类型,看是不是要放在body里面进行请求的,默认为表单的形式发送
+                if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("text/xml")) {
+                    //以xml的形式发送
+                    String s = XmlUtil.parseMapToXml(params);
+                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                    httpPost.setEntity(stringEntity);
+                } else if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("application/json")) {
+                    //以json的形式发送
+                    String s = JSONUtil.objToStr(params);
+                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                    httpPost.setEntity(stringEntity);
+                } else {
+                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                    for (Map.Entry<String, Object> entry : params.entrySet()) {
+                        nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                    }
+                    UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
+                    httpPost.setEntity(formEntity);
                 }
-                UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
-                httpPost.setEntity(formEntity);
+
             }
 
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
+            this.response = httpClient.execute(httpPost);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-
-    /**
-     * 发送 post application/json 请求
-     * 发送 json数据
-     *
-     * @param url 1
-     * @author chenlijia
-     * @since 10:25 2019/8/20
-     **/
-    public Map doPostWithJson(String url) {
-        HttpPost httpPost = new HttpPost(url);
-        if (headers != null) {
-            Set<Map.Entry<String, String>> entries = headers.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                httpPost.addHeader(key, value);
-            }
-        }
-
-        //组装参数
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String jsonStr = mapper.writeValueAsString(params);
-            StringEntity stringEntity = new StringEntity(jsonStr, "UTF-8");
-            stringEntity.setContentType("application/json");
-            stringEntity.setContentEncoding("UTF-8");
-
-            httpPost.setEntity(stringEntity);
-
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-    /**
-     * 以 xml 的形式发送数据
-     * 以 xml 的形式返回数据
-     *
-     * @param url
-     * @return
-     */
-    public Map doPostWithXML(String url) {
-        HttpPost httpPost = new HttpPost(url);
-        if (headers != null) {
-            Set<Map.Entry<String, String>> entries = headers.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                httpPost.addHeader(key, value);
-            }
-        }
-
-        //组装参数
-        try {
-            //xml 字符串
-            String mapToXmlStr = XmlUtil.parseMapToXml(this.params);
-            StringEntity stringEntity = new StringEntity(mapToXmlStr, "UTF-8");
-            stringEntity.setContentType("text/xml;charset=UTF-8");
-            stringEntity.setContentEncoding("UTF-8");
-
-            httpPost.setEntity(stringEntity);
-
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            Map<String, Object> map = XmlUtil.parseXMLToMap(new ByteArrayInputStream(s.getBytes(CharSetType.UTF8.getType())));
-            return map;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return this;
     }
 
 
@@ -368,7 +319,7 @@ public class HttpClientUtils {
      * @author chenlijia
      * @since 10:25 2019/8/20
      **/
-    public Map doPutWithJson(String url) {
+    public HttpClientUtils doPut(String url) {
         HttpPut httpPut = new HttpPut(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -379,38 +330,50 @@ public class HttpClientUtils {
             }
         }
 
-        //组装参数
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            String jsonStr = mapper.writeValueAsString(params);
-            StringEntity stringEntity = new StringEntity(jsonStr, "UTF-8");
-            stringEntity.setContentType("application/json");
-            stringEntity.setContentEncoding("UTF-8");
+            //判断有没有请求参数,如果有请求参数,拼接请求参数
+            if (params.size() != 0) {
+                //判断请求类型,看是不是要放在body里面进行请求的,默认为表单的形式发送
+                if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("text/xml")) {
+                    //以xml的形式发送
+                    String s = XmlUtil.parseMapToXml(params);
+                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                    httpPut.setEntity(stringEntity);
+                } else if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("application/json")) {
+                    //以json的形式发送
+                    String s = JSONUtil.objToStr(params);
+                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                    httpPut.setEntity(stringEntity);
+                } else {
+                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                    for (Map.Entry<String, Object> entry : params.entrySet()) {
+                        nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                    }
+                    UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
+                    httpPut.setEntity(formEntity);
+                }
 
-            httpPut.setEntity(stringEntity);
+            }
 
-            HttpResponse response = httpClient.execute(httpPut);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
+            this.response = httpClient.execute(httpPut);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return this;
     }
 
 
     /**
      * 发送 delete 请求
-     * 发送 json数据
+     * delete 不可以发送body数据
      *
      * @param url 1
      * @author chenlijia
      * @since 10:25 2019/8/20
      **/
-    public Map doDelete(String url) {
+    public HttpClientUtils doDelete(String url) {
         HttpDelete httpDelete = new HttpDelete(url);
         if (headers != null) {
             Set<Map.Entry<String, String>> entries = headers.entrySet();
@@ -421,12 +384,48 @@ public class HttpClientUtils {
             }
         }
         try {
-            HttpResponse response = httpClient.execute(httpDelete);
-            HttpEntity entity = response.getEntity();
-            String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(s, HashMap.class);
-            return hashMap;
+            this.response = httpClient.execute(httpDelete);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
+    /**
+     * 返回结果为字符串
+     *
+     * @return java.lang.String
+     * @since 下午 2:12 2019/10/18 0018
+     **/
+    public String toString() {
+
+        try {
+            if (null != response) {
+                HttpEntity entity = response.getEntity();
+                String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
+                return s;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 返回结果为字符串
+     *
+     * @return java.lang.String
+     * @since 下午 2:12 2019/10/18 0018
+     **/
+    public Map toMap() {
+        try {
+            if (null != response) {
+                HttpEntity entity = response.getEntity();
+                String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
+                Map map = JSONUtil.strToObj(s, HashMap.class);
+                return map;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
