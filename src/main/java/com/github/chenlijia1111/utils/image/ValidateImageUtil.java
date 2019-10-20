@@ -30,7 +30,7 @@ public class ValidateImageUtil {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
     //验证码字体用比较显眼的颜色
-    public static Color[] fontColor = {Color.RED,Color.BLUE,Color.GREEN,Color.YELLOW};
+    public static Color[] fontColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
 
     /**
      * 创建验证码
@@ -91,7 +91,7 @@ public class ValidateImageUtil {
             // 随机颜色
             Color c = fontColor[r.nextInt(fontColor.length)];
             g.setColor(c);
-            g.drawString(code.charAt(i) + "", 20 + i * width / 4, y);
+            g.drawString(code.charAt(i) + "", width / code.length() / 16 + i * width / code.length(), y);
         }
 
         for (int i = 0; i < lines; i++) {
