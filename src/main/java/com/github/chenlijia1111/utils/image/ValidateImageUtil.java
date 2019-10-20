@@ -3,8 +3,7 @@ package com.github.chenlijia1111.utils.image;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 
 /**
@@ -25,11 +24,13 @@ import java.util.Random;
 public class ValidateImageUtil {
 
 
-    //验证码内容
-    public static final char[] commonCode = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
+    //验证码内容,如果需要覆盖验证码内容,直接覆盖此数组即可
+    public static char[] commonCode = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
+    //验证码字体用比较显眼的颜色
+    public static Color[] fontColor = {Color.RED,Color.BLUE,Color.GREEN,Color.YELLOW};
 
     /**
      * 创建验证码
@@ -47,8 +48,30 @@ public class ValidateImageUtil {
         return sb.toString();
     }
 
-    // 验证码功能
+    /**
+     * 输出验证码
+     *
+     * @param code 验证码内容 {@link #createValidCode(int)}
+     * @param file 输出到的文件
+     */
     public static void writeValidCode(String code, File file) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+            writeValidCode(code, fileOutputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 输出验证码
+     *
+     * @param code         验证码内容  {@link #createValidCode(int)}
+     * @param outputStream 输出验证码的输出流
+     */
+    public static void writeValidCode(String code, OutputStream outputStream) {
         // 设置图片宽度和高度
         int width = 400;
         int height = 200;
@@ -65,8 +88,8 @@ public class ValidateImageUtil {
 
         for (int i = 0; i < code.length(); i++) {
             int y = 120 + r.nextInt(60);// y坐标范围
-            // 随机颜色，RGB模式
-            Color c = new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255));
+            // 随机颜色
+            Color c = fontColor[r.nextInt(fontColor.length)];
             g.setColor(c);
             g.drawString(code.charAt(i) + "", 20 + i * width / 4, y);
         }
@@ -78,16 +101,89 @@ public class ValidateImageUtil {
             g.drawLine(r.nextInt(width), r.nextInt(height), r.nextInt(width),
                     r.nextInt(height));
         }
+
+        //扭曲图片
+        shear(g, width, height, Color.WHITE);
+
         try {
             // 清空缓冲
             g.dispose();
-            ImageIO.write(b, "png", file);
+            ImageIO.write(b, "png", outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * 扭曲图片
+     *
+     * @param g
+     * @param w1
+     * @param h1
+     * @param color
+     */
+    private static void shear(Graphics g, int w1, int h1, Color color) {
+        shearX(g, w1, h1, color);
+        shearY(g, w1, h1, color);
+    }
 
+    /**
+     * 修剪X
+     *
+     * @param g
+     * @param w1
+     * @param h1
+     * @param color
+     */
+    private static void shearX(Graphics g, int w1, int h1, Color color) {
+        Random random = new Random();
+        int period = random.nextInt(2);
+        boolean borderGap = true;
+        int frames = 1;
+        int phase = random.nextInt(2);
+        for (int i = 0; i < h1; i++) {
+            double d = (double) (period >> 1)
+                    * Math.sin((double) i / (double) period
+                    + (6.2831853071795862D * (double) phase)
+                    / (double) frames);
+            g.copyArea(0, i, w1, 1, (int) d, 0);
+            if (borderGap) {
+                g.setColor(color);
+                g.drawLine((int) d, i, 0, i);
+                g.drawLine((int) d + w1, i, w1, i);
+            }
+        }
+    }
+
+    /**
+     * 修剪Y
+     *
+     * @param g
+     * @param w1
+     * @param h1
+     * @param color
+     */
+    private static void shearY(Graphics g, int w1, int h1, Color color) {
+        Random random = new Random();
+        int period = random.nextInt(40) + 10; // 50;
+        boolean borderGap = true;
+        int frames = 20;
+        int phase = 7;
+        for (int i = 0; i < w1; i++) {
+            double d = (double) (period >> 1)
+                    * Math.sin((double) i / (double) period
+                    + (6.2831853071795862D * (double) phase)
+                    / (double) frames);
+            g.copyArea(i, 0, 1, h1, 0, (int) d);
+            if (borderGap) {
+                g.setColor(color);
+                g.drawLine(i, (int) d, i, 0);
+                g.drawLine(i, (int) d + h1, i, h1);
+            }
+
+        }
+
+    }
 
 
 }

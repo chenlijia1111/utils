@@ -44,8 +44,11 @@ public class TestImage {
 
     @Test
     public void test4() {
-        String validCode = ValidateImageUtil.createValidCode(4);
-        ValidateImageUtil.writeValidCode(validCode, new File("C:\\Users\\Administrator\\Desktop\\picture\\chen.png"));
+        for (int i = 0; i < 100; i++) {
+            String validCode = ValidateImageUtil.createValidCode(4);
+            ValidateImageUtil.writeValidCode(validCode, new File("C:\\Users\\Administrator\\Desktop\\picture\\chen" + i + ".png"));
+
+        }
     }
 
     @Test
@@ -71,7 +74,7 @@ public class TestImage {
 
     //判断是否是图片
     @Test
-    public void test7(){
+    public void test7() {
         File file = new File("E:\\公司资料\\笔记\\mysql\\mysql 语法笔记.md");
         try {
             BufferedImage read = ImageIO.read(file);
@@ -80,5 +83,6 @@ public class TestImage {
             e.printStackTrace();
         }
     }
+
 
 }
