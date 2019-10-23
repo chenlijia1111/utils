@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.database;
 
 import com.github.chenlijia1111.utils.common.Result;
+import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.IOUtil;
 
 import java.io.*;
@@ -29,16 +30,17 @@ public class MysqlBackUtil {
      * @param userName     mysql用户名
      * @param password     mysql密码
      * @param databaseName 数据库名
-     * @param windows      是否是windows环境 现在支持window和linux环境
      * @param exportFile   导出到的文件
      * @return com.github.chenlijia1111.utils.common.Result
      * @since 上午 10:39 2019/10/23 0023
      **/
     public static Result exportSql(String mysqlBinPath, String ip, String port, String userName, String password,
-                                   String databaseName, boolean windows, File exportFile) {
+                                   String databaseName, File exportFile) {
 
         try {
-            return exportSql(mysqlBinPath, ip, port, userName, password, databaseName, windows, new BufferedOutputStream(new FileOutputStream(exportFile)));
+            //判断exportFile的文件夹是否存在,不存在则创建
+            FileUtils.checkDirectory(exportFile.getParent());
+            return exportSql(mysqlBinPath, ip, port, userName, password, databaseName, new BufferedOutputStream(new FileOutputStream(exportFile)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -60,17 +62,19 @@ public class MysqlBackUtil {
      * @param userName           mysql用户名
      * @param password           mysql密码
      * @param databaseName       数据库名
-     * @param windows            是否是windows环境 现在支持window和linux环境
      * @param exportOutputStream 导出到输出流
      * @return com.github.chenlijia1111.utils.common.Result
      * @since 上午 10:39 2019/10/23 0023
      **/
     public static Result exportSql(String mysqlBinPath, String ip, String port, String userName, String password,
-                                   String databaseName, boolean windows, OutputStream exportOutputStream) {
+                                   String databaseName, OutputStream exportOutputStream) {
 
         StringBuilder cmd = new StringBuilder();
 
-        if (windows) {
+        String property = System.getProperty("os.name").toLowerCase(); //Windows 10
+
+        //windows 系统
+        if (property.startsWith("win")) {
             //处理mysqlBinPath
             //路径使用\\
             mysqlBinPath = mysqlBinPath.replaceAll("/", "\\");
@@ -123,17 +127,19 @@ public class MysqlBackUtil {
      * @param userName     mysql用户名
      * @param password     mysql密码
      * @param databaseName 数据库名
-     * @param windows      是否是windows环境 现在支持window和linux环境
      * @param sqlFilePath  sql文件地址
      * @return com.github.chenlijia1111.utils.common.Result
      * @since 上午 10:39 2019/10/23 0023
      **/
     public static Result importSql(String mysqlBinPath, String ip, String port, String userName, String password,
-                                   String databaseName, boolean windows, String sqlFilePath) {
+                                   String databaseName, String sqlFilePath) {
 
         StringBuilder cmd = new StringBuilder();
 
-        if (windows) {
+        String property = System.getProperty("os.name").toLowerCase(); //Windows 10
+
+        //windows 系统
+        if (property.startsWith("win")) {
             //处理mysqlBinPath
             //路径使用\\
             mysqlBinPath = mysqlBinPath.replaceAll("/", "\\");
@@ -157,8 +163,6 @@ public class MysqlBackUtil {
         cmd.append("-p" + password + " ");
         cmd.append(databaseName);
         cmd.append("<" + sqlFilePath);
-
-        System.out.println(cmd.toString());
 
         Runtime runtime = Runtime.getRuntime();
 
