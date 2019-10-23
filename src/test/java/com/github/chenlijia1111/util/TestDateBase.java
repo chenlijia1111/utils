@@ -79,13 +79,13 @@ public class TestDateBase {
     @Test
     public void test3() {
         MysqlBackUtil.exportSql("C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin", "192.168.1.134",
-                "3306", "root", "root", "demo", new File("D:/1023.sql"));
+                "3306", "root", "root", "demo",null, new File("D:/1023.sql"));
     }
 
     @Test
     public void test4() {
         MysqlBackUtil.importSql("C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin", "192.168.1.134",
-                "3306", "root", "root", "demo", "D:\\1023.sql");
+                "3306", "root", "root", "demo", "C:\\upload\\file\\backup\\98f758c88d5347928a036af3d5e2b86e.sql");
     }
 
     @Test

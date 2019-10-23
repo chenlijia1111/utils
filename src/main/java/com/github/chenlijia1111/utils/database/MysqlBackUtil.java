@@ -3,8 +3,10 @@ package com.github.chenlijia1111.utils.database;
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.IOUtil;
+import com.github.chenlijia1111.utils.list.Lists;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * mysql 备份工具类
@@ -30,17 +32,18 @@ public class MysqlBackUtil {
      * @param userName     mysql用户名
      * @param password     mysql密码
      * @param databaseName 数据库名
+     * @param ignoreTables 要忽略导出的表
      * @param exportFile   导出到的文件
      * @return com.github.chenlijia1111.utils.common.Result
      * @since 上午 10:39 2019/10/23 0023
      **/
     public static Result exportSql(String mysqlBinPath, String ip, String port, String userName, String password,
-                                   String databaseName, File exportFile) {
+                                   String databaseName, List<String> ignoreTables, File exportFile) {
 
         try {
             //判断exportFile的文件夹是否存在,不存在则创建
             FileUtils.checkDirectory(exportFile.getParent());
-            return exportSql(mysqlBinPath, ip, port, userName, password, databaseName, new BufferedOutputStream(new FileOutputStream(exportFile)));
+            return exportSql(mysqlBinPath, ip, port, userName, password, databaseName, ignoreTables, new BufferedOutputStream(new FileOutputStream(exportFile)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -62,12 +65,13 @@ public class MysqlBackUtil {
      * @param userName           mysql用户名
      * @param password           mysql密码
      * @param databaseName       数据库名
+     * @param ignoreTables       要忽略导出的表
      * @param exportOutputStream 导出到输出流
      * @return com.github.chenlijia1111.utils.common.Result
      * @since 上午 10:39 2019/10/23 0023
      **/
     public static Result exportSql(String mysqlBinPath, String ip, String port, String userName, String password,
-                                   String databaseName, OutputStream exportOutputStream) {
+                                   String databaseName, List<String> ignoreTables, OutputStream exportOutputStream) {
 
         StringBuilder cmd = new StringBuilder();
 
@@ -96,7 +100,12 @@ public class MysqlBackUtil {
         cmd.append("-P" + port + " ");
         cmd.append("-u" + userName + " ");
         cmd.append("-p" + password + " ");
-        cmd.append(databaseName);
+        cmd.append(databaseName + " ");
+        if (Lists.isNotEmpty(ignoreTables)) {
+            for (String ignoreTable : ignoreTables) {
+                cmd.append("--ignore-table=" + databaseName + "." + ignoreTable + " ");
+            }
+        }
 
         Runtime runtime = Runtime.getRuntime();
 
@@ -120,6 +129,9 @@ public class MysqlBackUtil {
      * 所以路径符号不要用 / 替换 \\
      * window 命令 cmd.exe /c "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql.exe" -h192.168.1.134 -P3306 -uroot -proot expertise<D:\\1023.sql
      * linux 命令 /usr/bin/mysql -h192.168.1.134 -P3306 -uroot -proot expertise</home/nantian/1023.sql
+     * <p>
+     * mysql 导入这个命令中因为不需要使用输入流,所以是异步执行的,
+     * 想要实现同步执行就需要开两个线程消费掉输入流
      *
      * @param mysqlBinPath mysql 安装的bin 路径 用于获取mysql的命令 示例C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin 或者 /usr/bin
      * @param ip
@@ -167,13 +179,71 @@ public class MysqlBackUtil {
         Runtime runtime = Runtime.getRuntime();
 
         try {
-            runtime.exec(cmd.toString());
+            Process process = runtime.exec(cmd.toString());
+            InputStream inputStream = process.getInputStream();
+            InputStream errorStream = process.getErrorStream();
+
+            ConsumeInputstream consumeInputstream = new ConsumeInputstream(inputStream);
+            ConsumeInputstream consumeInputstream1 = new ConsumeInputstream(errorStream);
+            consumeInputstream.start();
+            consumeInputstream1.start();
+
+            process.waitFor();
+
+            //执行完成--终止线程
+            consumeInputstream.interrupt();
+            consumeInputstream1.interrupt();
+
+            process.destroy();
             return Result.success("操作成功");
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         return Result.failure("导入失败");
+    }
+
+
+    /**
+     * 消费输入流
+     *
+     * @since 下午 5:25 2019/10/23 0023
+     **/
+    static class ConsumeInputstream extends Thread {
+
+        public ConsumeInputstream() {
+        }
+
+        public ConsumeInputstream(InputStream inputStream) {
+            this.inputStream = inputStream;
+        }
+
+        private InputStream inputStream;
+
+        public InputStream getInputStream() {
+            return inputStream;
+        }
+
+        public void setInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+        }
+
+        @Override
+        public void run() {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    //判断是否被外部中断了
+                    if (Thread.currentThread().isInterrupted()) {
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
