@@ -117,8 +117,11 @@ public class IOUtil {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             StringBuilder sb = new StringBuilder();
-            while (reader.ready()) {
+            String s = reader.readLine();
+            while (s != null) {
                 sb.append(reader.readLine());
+                sb.append("\r\n");
+                s = reader.readLine();
             }
             return sb.toString();
         } catch (FileNotFoundException e) {
@@ -142,9 +145,11 @@ public class IOUtil {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             StringBuilder sb = new StringBuilder();
-            while (reader.ready()) {
+            String s = reader.readLine();
+            while (s != null) {
                 sb.append(reader.readLine());
                 sb.append("\r\n");
+                s = reader.readLine();
             }
             return sb.toString();
         } catch (FileNotFoundException e) {

@@ -34,7 +34,7 @@ public class WordUtils {
      *
      * @param filePath    源文件
      * @param outFilePath 输出文件
-     * @param params      替换的参数
+     * @param params      替换的参数  {替换的内容} ---> 替换后的内容
      * @since 下午 3:48 2019/5/28 0028
      **/
     public static Result replaceWord(String filePath, String outFilePath, Map<String, String> params) {
@@ -63,6 +63,30 @@ public class WordUtils {
         return Result.success("格式不合法");
     }
 
+    /**
+     * 替换word数据
+     *
+     * @param fileName     文件名称
+     * @param inputStream  输入流
+     * @param outputStream 输出流
+     * @param params       替换的参数
+     * @return expertise.common.pojo.Result
+     * @author chenlijia
+     * @Description TODO
+     * @Date 下午 3:48 2019/5/28 0028
+     **/
+    public static Result replaceWord(String fileName, FileInputStream inputStream, FileOutputStream outputStream, Map<String, String> params) {
+
+
+        if (FileUtils.checkFileSuffix(fileName, ".docx")) {
+            return replaceWord07(inputStream, outputStream, params);
+        }
+        if (FileUtils.checkFileSuffix(fileName, ".doc")) {
+            return replaceWord03(inputStream, outputStream, params);
+        }
+        return Result.success("格式不合法");
+    }
+
 
     /**
      * 替换03版的word数据
@@ -77,12 +101,34 @@ public class WordUtils {
         try (FileInputStream fileInputStream = new FileInputStream(file);
              FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
 
-            HWPFDocument document = new HWPFDocument(fileInputStream);
+            return replaceWord03(fileInputStream, fileOutputStream, params);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Result.success("替换成功");
+    }
+
+
+    /**
+     * 替换03版的word数据
+     *
+     * @param inputStream  源文件
+     * @param outputStream 输出文件
+     * @param params       替换的参数
+     * @since 下午 3:48 2019/5/28 0028
+     **/
+    private static Result replaceWord03(FileInputStream inputStream, FileOutputStream outputStream, Map<String, String> params) {
+
+        try {
+            HWPFDocument document = new HWPFDocument(inputStream);
             Range range = document.getRange();
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 range.replaceText(entry.getKey(), entry.getValue());
             }
-            document.write(fileOutputStream);
+            document.write(outputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -103,9 +149,32 @@ public class WordUtils {
      **/
     private static Result replaceWord07(File file, File outFile, Map<String, String> params) {
 
-        FileOutputStream outputStream = null;
+        try (FileInputStream fileInputStream = new FileInputStream(file);
+             FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
+
+            return replaceWord07(fileInputStream, fileOutputStream, params);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Result.success("替换成功");
+    }
+
+    /**
+     * 替换07般的word数据
+     * 在模板中填写参数的时候，先在txt文本中写好参数，然后复制到word中去，不然很有可能参数被runs给隔开，从而替换失败
+     *
+     * @param inputStream  源文件
+     * @param outputStream 输出文件
+     * @param params       替换的参数
+     * @since 下午 3:48 2019/5/28 0028
+     **/
+    private static Result replaceWord07(FileInputStream inputStream, FileOutputStream outputStream, Map<String, String> params) {
+
         try {
-            XWPFDocument document = new XWPFDocument(OPCPackage.open(file));
+            XWPFDocument document = new XWPFDocument(OPCPackage.open(inputStream));
             //处理段落
             Iterator<XWPFParagraph> paragraphsIterator = document.getParagraphsIterator();
             while (paragraphsIterator.hasNext()) {
@@ -137,7 +206,6 @@ public class WordUtils {
                     }
                 }
             }
-            outputStream = new FileOutputStream(outFile);
             document.write(outputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -171,10 +239,10 @@ public class WordUtils {
         for (int i = 0; i < runs.size(); i++) {
             XWPFRun run = runs.get(i);
             String text = run.getText(runs.get(i).getTextPosition());
-            if (StringUtils.isEmpty(text)) {
+            if (StringUtils.isNotEmpty(text)) {
                 for (Map.Entry<String, String> entry : params.entrySet()) {
                     String key = entry.getKey();
-                    if (!text.contains(key))
+                    if (StringUtils.isEmpty(text) || !text.contains(key))
                         continue;
                     key = key.replace("{", "\\{");
                     //判断有没有换行
