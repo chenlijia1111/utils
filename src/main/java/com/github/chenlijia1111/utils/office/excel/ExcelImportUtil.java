@@ -6,7 +6,6 @@ import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelImportField;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
@@ -104,8 +103,6 @@ public class ExcelImportUtil {
             }
             return list;
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidFormatException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();

@@ -86,7 +86,6 @@ public class ExcelReplaceUtil {
                                         cellValue = cellValue.replaceAll("\\{" + key + "}", value);
                                     }
                                 }
-                                cell.setCellType(Cell.CELL_TYPE_STRING);
                                 cell.setCellValue(cellValue);
                             }
                         }

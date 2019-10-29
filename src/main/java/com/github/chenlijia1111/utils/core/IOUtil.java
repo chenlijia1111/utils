@@ -199,4 +199,24 @@ public class IOUtil {
     }
 
 
+    /**
+     * 关闭流
+     *
+     * @param closeable 1
+     * @return void
+     * @since 上午 9:38 2019/10/24 0024
+     **/
+    public static void close(Closeable... closeable) {
+        if (null != closeable && closeable.length > 0) {
+            for (int i = 0; i < closeable.length; i++) {
+                if (null != closeable[i]) {
+                    try {
+                        closeable[i].close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 }

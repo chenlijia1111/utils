@@ -369,14 +369,14 @@ public class ExcelExport {
         CellStyle style = workbook.createCellStyle();
 
         //设置样式  上下左右边框 字体 居中 宽度
-        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        style.setBorderRight(CellStyle.BORDER_THIN);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
         style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(CellStyle.BORDER_THIN);
+        style.setBorderLeft(BorderStyle.THIN);
         style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(CellStyle.BORDER_THIN);
+        style.setBorderTop(BorderStyle.THIN);
         style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(CellStyle.BORDER_THIN);
+        style.setBorderBottom(BorderStyle.THIN);
         style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
 
         Font dataFont = workbook.createFont();
@@ -385,9 +385,9 @@ public class ExcelExport {
         style.setFont(dataFont);
 
         //水平居中
-        style.setAlignment(CellStyle.VERTICAL_CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
         //垂直居中
-        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
         //第一个参数代表列id(从0开始),第2个参数代表宽度值  参考 ："2012-08-10"的宽度为2500
         //设置自动换行:
         style.setWrapText(true);//设置自动换行

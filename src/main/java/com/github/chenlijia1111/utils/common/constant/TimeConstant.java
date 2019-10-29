@@ -37,4 +37,11 @@ public class TimeConstant {
      **/
     public static final String MONTH_OF_YEAR = "yyyy-MM";
 
+    /**
+     * 默认时区
+     *
+     * @since 下午 3:20 2019/10/25 0025
+     **/
+    public static final String DELFAULT_TIME_ZONE = "GMT+8";
+
 }

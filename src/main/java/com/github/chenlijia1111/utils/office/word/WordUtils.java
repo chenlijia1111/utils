@@ -3,17 +3,12 @@ package com.github.chenlijia1111.utils.office.word;
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.StringUtils;
-import org.apache.poi.POIXMLDocument;
-import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.*;
-import org.apache.xmlbeans.XmlException;
 
 import java.io.*;
 import java.util.Iterator;
@@ -174,6 +169,7 @@ public class WordUtils {
     private static Result replaceWord07(FileInputStream inputStream, FileOutputStream outputStream, Map<String, String> params) {
 
         try {
+
             XWPFDocument document = new XWPFDocument(OPCPackage.open(inputStream));
             //处理段落
             Iterator<XWPFParagraph> paragraphsIterator = document.getParagraphsIterator();
@@ -280,21 +276,20 @@ public class WordUtils {
         String buffer = "";
         if (FileUtils.getFileSuffix(file).toLowerCase().endsWith(".doc")) {
             try (InputStream is = new FileInputStream(file)) {
-                WordExtractor ex = new WordExtractor(is);
-                buffer = ex.getText();
+
+                HWPFDocument hwpfDocument = new HWPFDocument(is);
+                //文档文本内容
+                StringBuilder text = hwpfDocument.getText();
+                buffer = text.toString();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else if (FileUtils.getFileSuffix(file).toLowerCase().endsWith("docx")) {
-            try {
-                OPCPackage opcPackage = POIXMLDocument.openPackage(file.getAbsolutePath());
-                POIXMLTextExtractor extractor = new XWPFWordExtractor(opcPackage);
-                buffer = extractor.getText();
+            try (InputStream is = new FileInputStream(file)) {
+                XWPFDocument xwpfDocument = new XWPFDocument(is);
+                XWPFWordExtractor xwpfWordExtractor = new XWPFWordExtractor(xwpfDocument);
+                buffer = xwpfWordExtractor.getText();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (XmlException e) {
-                e.printStackTrace();
-            } catch (OpenXML4JException e) {
                 e.printStackTrace();
             }
         } else {
