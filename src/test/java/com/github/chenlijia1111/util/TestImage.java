@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.util;
 
 import com.github.chenlijia1111.utils.image.*;
+import net.coobird.thumbnailator.Thumbnails;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
@@ -79,6 +80,18 @@ public class TestImage {
         try {
             BufferedImage read = ImageIO.read(file);
             System.out.println(read);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void test8() {
+        File file = new File("E:\\公司资料\\我的图片\\IMG_20191027_090423.jpg");
+        File file1 = new File("E:\\公司资料\\我的图片\\IMG_test1.jpg");
+        try {
+            Thumbnails.of(file1).scale(1f).outputQuality(0.25).toFile(new File("E:\\公司资料\\我的图片\\IMG_test2.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }

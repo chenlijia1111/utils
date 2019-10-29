@@ -2,14 +2,9 @@ package com.github.chenlijia1111.utils.image;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import net.coobird.thumbnailator.Thumbnails;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -39,20 +34,9 @@ public class ReduceImageUtil {
         //确保目标文件夹存在
         FileUtils.checkDirectory(destImage.getParent());
         try {
-            BufferedImage read = ImageIO.read(originalImage);
-            //创建一个跟源文件长宽相等的bufferImage
-            BufferedImage bufferedImage = new BufferedImage(read.getWidth(), read.getHeight(), BufferedImage.TYPE_INT_RGB);
-            //获取画笔
-            Graphics graphics = bufferedImage.getGraphics();
-            //Image.SCALE_SMOOTH 压缩策略  还有其他的可以尝试
-            graphics.drawImage(read.getScaledInstance(read.getWidth(), read.getHeight(), Image.SCALE_SMOOTH), 0, 0, null);
-
-            FileOutputStream fileOutputStream = new FileOutputStream(destImage);
-            //使用jpeg在压缩一次
-            JPEGImageEncoder jpegEncoder = JPEGCodec.createJPEGEncoder(fileOutputStream);
-            jpegEncoder.encode(bufferedImage);
-
-            fileOutputStream.close();
+            //scale 表示相对原图的大小 在0-1之间   outputQuality表示输出的质量 在0-1之间
+            //经测试 0.25的图片质量还是可以的 6M的照片压缩在700k左右
+            Thumbnails.of(originalImage).scale(1).outputQuality(0.25).toFile(destImage);
         } catch (IOException e) {
             e.printStackTrace();
         }
