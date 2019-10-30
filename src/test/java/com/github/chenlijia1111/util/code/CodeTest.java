@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.util.code;
 
+import com.github.chenlijia1111.utils.code.mybatis.MapperPlugin;
 import com.github.chenlijia1111.utils.code.mybatis.MybatisCodeGeneratorUtil;
 import org.junit.Test;
 
@@ -14,14 +15,14 @@ import java.util.Map;
 public class CodeTest {
 
 
-    private static MybatisCodeGeneratorUtil mybatisCodeGeneratorUtil = new MybatisCodeGeneratorUtil();
+    private static MybatisCodeGeneratorUtil mybatisCodeGeneratorUtil = MybatisCodeGeneratorUtil.getInstance();
 
     static {
         mybatisCodeGeneratorUtil.setCommentGeneratorType("com.github.chenlijia1111.utils.code.mybatis.CommonMapperCommentGenerator")
                 .setConnectionUrl("jdbc:mysql://58.250.17.31:33306/haiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
                 setUserId("root").setPassword("1029tqljsw")
-                .setTargetProjectPath("C:\\Users\\Administrator\\IdeaProjects\\utils\\src\\test\\java").
+                .setTargetProjectPath("C:\\Users\\Administrator\\mycode\\utils\\src\\test\\java").
                 setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").
                 setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
                 setTargetXMLPackage("com.github.chenlijia1111.util.code.mapper").
@@ -53,5 +54,6 @@ public class CodeTest {
     public void test2WithChen() {
         mybatisCodeGeneratorUtil.generateWithBusinssCode();
     }
+
 
 }

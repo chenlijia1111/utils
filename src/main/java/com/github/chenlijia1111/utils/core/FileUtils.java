@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.core;
 
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.common.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 文件工具类
@@ -181,6 +184,59 @@ public class FileUtils {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * 压缩文件夹
+     *
+     * @param sourceFilePath  要压缩的文件夹
+     * @param destZipFilePath 压缩包存放路径
+     * @param destFileName    压缩包名
+     * @return
+     */
+    public static Result fileToZip(String sourceFilePath, String destZipFilePath, String destFileName) {
+        File sourceFiles = new File(sourceFilePath);
+        if (!sourceFiles.exists()) {
+            //文件夹不存在
+            return Result.failure("文件夹不存在");
+        }
+
+        File[] files = sourceFiles.listFiles();
+        if (files == null || files.length == 0) {
+            return Result.failure("文件夹为空");
+        }
+
+        File file1 = new File(destZipFilePath);
+        if (!file1.exists()) {
+            file1.mkdirs();
+        }
+
+        File destFile = new File(destZipFilePath + "/" + destFileName + ".zip");
+
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(destFile)))) {
+
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
+                //创建zip实体，并添加进压缩包
+                ZipEntry zipEntry = new ZipEntry(file.getName());
+                zipOutputStream.putNextEntry(zipEntry);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
+                byte[] bs = new byte[4096];
+                int read = -1;
+                while ((read = bufferedInputStream.read(bs, 0, 4096)) != -1) {
+                    zipOutputStream.write(bs, 0, read);
+                }
+            }
+            Result success = Result.success("压缩成功");
+            success.setData(destZipFilePath + "/" + destFileName + ".zip");
+            return success;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Result.failure("压缩失败");
     }
 
 

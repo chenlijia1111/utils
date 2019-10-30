@@ -4,8 +4,11 @@ import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 
 import java.text.SimpleDateFormat;
@@ -91,6 +94,17 @@ public class CommonMapperCommentGenerator extends DefaultCommentGenerator {
         sb.append(" **/");
         topLevelClass.addJavaDocLine(sb.toString());
     }
+
+    @Override
+    public void addJavaFileComment(CompilationUnit compilationUnit) {
+        //表明生成的是Mapper.java文件
+        if(compilationUnit instanceof Interface){
+
+        }
+    }
+
+
+
 
 
     /**

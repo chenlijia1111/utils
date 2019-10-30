@@ -164,6 +164,7 @@ public class MybatisCodeGeneratorUtil {
     /**
      * 是否生成通用的方法 如增删改查
      * 如果集成了通用mapper 就不需要这个了
+     *
      * @see CommonMapperCommentGenerator
      */
     private boolean commonCode = true;
@@ -188,23 +189,19 @@ public class MybatisCodeGeneratorUtil {
      **/
     private List<String> ignoreDoMainToBusiness = new ArrayList<>();
 
+    public static MybatisCodeGeneratorUtil instance = new MybatisCodeGeneratorUtil();
 
-    public MybatisCodeGeneratorUtil() {
+    private MybatisCodeGeneratorUtil() {
     }
 
-    public MybatisCodeGeneratorUtil(String commentGeneratorType, String connectionUrl, String driverClass, String userId,
-                                    String password, String targetProjectPath, String targetDAOPackage, String targetXMLPackage,
-                                    String targetEntityPackage, Map<String, String> tableToDoMain) {
-        this.commentGeneratorType = commentGeneratorType;
-        this.connectionUrl = connectionUrl;
-        this.driverClass = driverClass;
-        this.userId = userId;
-        this.password = password;
-        this.targetProjectPath = targetProjectPath;
-        this.targetDAOPackage = targetDAOPackage;
-        this.targetXMLPackage = targetXMLPackage;
-        this.targetEntityPackage = targetEntityPackage;
-        this.tableToDoMain = tableToDoMain;
+    /**
+     * 单例
+     *
+     * @return com.github.chenlijia1111.utils.code.mybatis.MybatisCodeGeneratorUtil
+     * @since 下午 7:51 2019/10/30 0030
+     **/
+    public static MybatisCodeGeneratorUtil getInstance() {
+        return instance;
     }
 
     public String getCommentGeneratorType() {
@@ -370,6 +367,14 @@ public class MybatisCodeGeneratorUtil {
         }
         context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
 
+        //如果是生成通用Mapper,使用自定义Mapper插件修改Mapper继承基类
+        if (Objects.equals(commentGeneratorConfiguration.getConfigurationType(), CommonMapperCommentGenerator.class.getName())) {
+            //添加自定义Mapper生成插件
+            PluginConfiguration pluginConfiguration = new PluginConfiguration();
+            pluginConfiguration.setConfigurationType(MapperPlugin.class.getName());
+            context.addPluginConfiguration(pluginConfiguration);
+        }
+
         //数据库连接配置
         JDBCConnectionConfiguration jdbcConnectionConfiguration = new JDBCConnectionConfiguration();
         jdbcConnectionConfiguration.setConnectionURL(this.connectionUrl);
@@ -413,9 +418,10 @@ public class MybatisCodeGeneratorUtil {
             tableConfiguration.setDeleteByExampleStatementEnabled(exampleCode);
             tableConfiguration.setSelectByExampleStatementEnabled(exampleCode);
             tableConfiguration.setUpdateByPrimaryKeyStatementEnabled(commonCode);
-//            tableConfiguration.setDeleteByPrimaryKeyStatementEnabled(commonCode);
+            tableConfiguration.setDeleteByPrimaryKeyStatementEnabled(commonCode);
             tableConfiguration.setInsertStatementEnabled(commonCode);
-            tableConfiguration.setSelectByPrimaryKeyStatementEnabled(commonCode);
+            //不管怎样,都留一个逐渐查询的方法,不然不生成xml以及resultMap
+            tableConfiguration.setSelectByPrimaryKeyStatementEnabled(true);
 
             context.addTableConfiguration(tableConfiguration);
         }
@@ -577,12 +583,16 @@ public class MybatisCodeGeneratorUtil {
 
 
     private void generateServiceCode(File serviceFile, String comment, String entityClassName, String entityFullName) {
+
+        //防止文件夹不存在
+        FileUtils.checkDirectory(serviceFile.getParent());
+
         try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(serviceFile))) {
             //controller包路径
             printWriter.println("package " + targetServicePackage + ";");
             printWriter.println();
             //导入Result
-            printWriter.println("import com.logicalthinking.jiuyou.common.pojo.Result;");
+            printWriter.println("import com.github.chenlijia1111.utils.common.Result;");
             //导入实体
             printWriter.println("import " + entityFullName + ";");
             printWriter.println();
@@ -596,7 +606,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * 添加\n" +
                     "     *\n" +
                     "     * @param params      1\n" +
-                    "     * @return com.logicalthinking.jiuyou.common.pojo.Result\n" +
+                    "     * @return com.github.chenlijia1111.utils.common.Result\n" +
                     "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
@@ -611,7 +621,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * 添加\n" +
                     "     *\n" +
                     "     * @param params      1\n" +
-                    "     * @return com.logicalthinking.jiuyou.common.pojo.Result\n" +
+                    "     * @return com.github.chenlijia1111.utils.common.Result\n" +
                     "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
@@ -630,13 +640,17 @@ public class MybatisCodeGeneratorUtil {
 
 
     private void generateServiceImplCode(File serviceImplFile, String comment, String entityClassName, String entityFullName) {
+
+        //防止文件夹不存在
+        FileUtils.checkDirectory(serviceImplFile.getParent());
+
         //生成impl
         try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(serviceImplFile))) {
             //serviceImpl包路径
             printWriter.println("package " + targetServicePackage + ".impl;");
             printWriter.println();
             //导包
-            printWriter.println("import com.logicalthinking.jiuyou.common.pojo.Result;");//Result
+            printWriter.println("import com.github.chenlijia1111.utils.common.Result;");//Result
             printWriter.println("import " + entityFullName + ";");//实体
             printWriter.println("import " + targetDAOPackage + "." + entityClassName + "Mapper;");//dao 接口
             printWriter.println("import " + targetServicePackage + "." + entityClassName + "ServiceI;");//service接口
@@ -668,7 +682,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * 添加\n" +
                     "     *\n" +
                     "     * @param params      添加参数\n" +
-                    "     * @return com.logicalthinking.jiuyou.common.pojo.Result\n" +
+                    "     * @return com.github.chenlijia1111.utils.common.Result\n" +
                     "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
@@ -687,7 +701,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * 编辑\n" +
                     "     *\n" +
                     "     * @param params      编辑参数\n" +
-                    "     * @return com.logicalthinking.jiuyou.common.pojo.Result\n" +
+                    "     * @return com.github.chenlijia1111.utils.common.Result\n" +
                     "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");

@@ -20,7 +20,7 @@ public class OauthTest {
 
         long l = System.currentTimeMillis();
 
-        String jwt = JWTUtil.createJWT("1", "陈礼=佳:\"我嘎嘎/", 1000 * 60 * 60 * 24, "qwewqw");
+        String jwt = JWTUtil.createJWT("1", "陈礼=佳:\"我嘎嘎/", 1, "qwewqw");
         System.out.println(jwt);
         System.out.println(System.currentTimeMillis() - l);
 
