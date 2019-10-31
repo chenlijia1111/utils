@@ -1,6 +1,6 @@
 package com.github.chenlijia1111.util.code;
 
-import com.github.chenlijia1111.utils.code.mybatis.MapperPlugin;
+import com.github.chenlijia1111.utils.code.mybatis.CommonMapperCommentGenerator;
 import com.github.chenlijia1111.utils.code.mybatis.MybatisCodeGeneratorUtil;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class CodeTest {
     private static MybatisCodeGeneratorUtil mybatisCodeGeneratorUtil = MybatisCodeGeneratorUtil.getInstance();
 
     static {
-        mybatisCodeGeneratorUtil.setCommentGeneratorType("com.github.chenlijia1111.utils.code.mybatis.CommonMapperCommentGenerator")
+        mybatisCodeGeneratorUtil.setCommentGeneratorType(CommonMapperCommentGenerator.class.getName())
                 .setConnectionUrl("jdbc:mysql://58.250.17.31:33306/haiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
                 setUserId("root").setPassword("1029tqljsw")
