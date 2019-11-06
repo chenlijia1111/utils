@@ -72,6 +72,9 @@ public class ExcelReplaceUtil {
                         //获得当前行的列数
                         int lastCellNum = row.getPhysicalNumberOfCells();
                         //循环当前行
+                        if (-1 == firstCellNum) {
+                            continue;
+                        }
                         for (int cellNum = firstCellNum; cellNum < lastCellNum; cellNum++) {
                             Cell cell = row.getCell(cellNum);
                             String cellValue = ExcelUtil.getCellValue(cell);
