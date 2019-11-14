@@ -29,7 +29,7 @@
         <skipTests>true</skipTests>
         <httpclient.version>4.5.9</httpclient.version>
         <jackson-databind.version>2.9.9.3</jackson-databind.version>
-        <poi.version>4.1.1</poi.version>
+        <poi.version>4.0.1</poi.version>
         <fr.opensagres.xdocreport.version>2.0.2</fr.opensagres.xdocreport.version>
         <joda-time.version>2.9.9</joda-time.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>

@@ -10,10 +10,7 @@ import com.github.chenlijia1111.utils.http.URLBuildUtil;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -161,6 +158,49 @@ public class WXPayUtil {
         return map;
     }
 
+    /**
+     * 退款
+     *
+     * @param appId
+     * @param mchId
+     * @param signKey            签名密钥
+     * @param sslFileInputStream ssl加密文件输入流
+     * @param sslPassword        ssl密码 默认是商户号 即 mchId
+     * @param transactionId      微信交易流水号 与商家内部订单号 二选一
+     * @param outTradeNo         商家内部订单号
+     * @param totalFee           订单总金额
+     * @param refund_fee         退款金额
+     * @return
+     */
+    public static Map refund(String appId, String mchId, String signKey, InputStream sslFileInputStream,
+                             String sslPassword, String transactionId,
+                             String outTradeNo, int totalFee, int refund_fee) {
+
+        HttpClientUtils httpClientUtils = HttpClientUtils.getInstanceWithSSL(sslFileInputStream, sslPassword);
+        //填充参数
+        httpClientUtils.
+                putParams("appid", appId). //微信支付分配的公众账号ID（企业号corpid即为此appId）
+                putParams("mch_id", mchId). //微信支付分配的商户号
+                putParams("nonce_str", RandomUtil.createUUID()). //随机字符串，长度要求在32位以内
+                putParams("sign_type", "MD5"). //签名类型，默认为MD5，支持HMAC-SHA256和MD5
+                putParams("transaction_id", transactionId). //微信生成的订单号，在支付通知中有返回
+                putParams("out_trade_no", outTradeNo). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
+                putParams("out_refund_no", RandomUtil.createUUID()). //商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
+                putParams("total_fee", totalFee + ""). //订单总金额，单位为分，只能为整数
+                putParams("refund_fee", refund_fee + ""); //退款总金额，订单总金额，单位为分，只能为整数
+
+        //构造签名
+        //进行参数的签名 MD5
+        String paramsString = httpClientUtils.paramsToString(true);
+        String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + signKey);
+        httpClientUtils.putParams("sign", sign);
+
+        //发送请求
+        String s = httpClientUtils.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/secapi/pay/refund").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(s);
+        return map;
+    }
+
 
     /**
      * 回调处理
@@ -212,6 +252,50 @@ public class WXPayUtil {
 
         File file = new File(sslFilePath);
         HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(file, mchid);
+
+        instance.putParams("mch_appid", mchAppid);
+        instance.putParams("mchid", mchid);
+        instance.putParams("nonce_str", nonceStr);
+        instance.putParams("partner_trade_no", partnerTradeNo);
+        instance.putParams("openid", openid);
+        instance.putParams("check_name", "NO_CHECK");
+        instance.putParams("amount", amount);
+        instance.putParams("desc", desc);
+        instance.putParams("spbill_create_ip", spbillCreateIp);
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
+        return map;
+    }
+
+
+    /**
+     * 转账
+     *
+     * @param mchAppid
+     * @param mchid
+     * @param nonceStr           随机字符串
+     * @param partnerTradeNo     转账单号
+     * @param openid
+     * @param amount             金额 分
+     * @param desc               描述
+     * @param spbillCreateIp     请求ip
+     * @param sslFileInputStream SSL加密文件输入流
+     * @param signKey            签名加盐秘钥
+     * @return java.util.Map
+     * @since 下午 9:53 2019/9/24 0024
+     **/
+    public static Map transfer(String mchAppid, String mchid, String nonceStr, String partnerTradeNo, String openid,
+                               String amount, String desc, String spbillCreateIp, InputStream sslFileInputStream, String signKey) {
+
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(sslFileInputStream, mchid);
 
         instance.putParams("mch_appid", mchAppid);
         instance.putParams("mchid", mchid);

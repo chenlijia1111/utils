@@ -22,10 +22,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -99,6 +96,26 @@ public class HttpClientUtils {
      * @since 10:21 2019/8/20
      **/
     public static HttpClientUtils getInstanceWithSSL(File sslFile, String password) {
+
+        try (FileInputStream inputStream = new FileInputStream(sslFile)) {
+            return getInstanceWithSSL(inputStream, password);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 初始化 SSL httpClient
+     *
+     * @param sslFileInputStream 证书文件输入流 如 apiclient_cert.p12
+     * @param password           证书密码
+     * @since 10:21 2019/8/20
+     **/
+    public static HttpClientUtils getInstanceWithSSL(InputStream sslFileInputStream, String password) {
         HttpClientUtils httpClientUtils = new HttpClientUtils();
         //通过 treeMap 可以很方便的进行构建签名操作
         //一般都需要把参数通过字典排序进行签名
@@ -108,7 +125,7 @@ public class HttpClientUtils {
         //构建带证书的SSL请求
         try {
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            keyStore.load(new FileInputStream(sslFile), password.toCharArray());
+            keyStore.load(sslFileInputStream, password.toCharArray());
             SSLContext sslcontext = SSLContexts.custom()
                     //忽略掉对服务器端证书的校验
                     .loadTrustMaterial((chain, authType) -> true)

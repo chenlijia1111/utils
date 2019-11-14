@@ -45,4 +45,32 @@ public class WXAppletsLoginUtil {
     }
 
 
+    /**
+     * 获取用户信息
+     *
+     * {
+     *   "openid":" OPENID",
+     *   " nickname": NICKNAME,
+     *   "sex":"1",
+     *   "province":"PROVINCE"
+     *   "city":"CITY",
+     *   "country":"COUNTRY",
+     *   "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+     *   "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
+     *   "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * }
+     *
+     * @since 下午 4:46 2019/11/12 0012
+     * @param accessToken 1
+     * @param openId 2
+     * @return java.util.Map
+     **/
+    public Map userInfo(String accessToken, String openId) {
+        Map map = HttpClientUtils.getInstance().putParams("openid", openId).
+                putParams("access_token", accessToken).
+                putParams("lang", "zh_CN").
+                doGet("https://api.weixin.qq.com/sns/userinfo").toMap();
+        return map;
+    }
+
 }
