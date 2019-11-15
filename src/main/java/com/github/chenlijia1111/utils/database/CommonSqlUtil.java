@@ -19,10 +19,15 @@ import java.util.Objects;
  **/
 public class CommonSqlUtil {
 
-    private Connection connection;
+    /**
+     * 单例模式创建连接
+     *
+     * @since 上午 9:45 2019/11/15 0015
+     **/
+    private static Connection connection;
 
     /**
-     * 创建mysql连接
+     * 创建mysql连接  单例
      *
      * @param url      1
      * @param userName 2
@@ -30,7 +35,7 @@ public class CommonSqlUtil {
      * @return java.sql.Connection
      * @since 下午 1:19 2019/11/14 0014
      **/
-    public Connection createConnection(String url, String userName, String password) {
+    public static Connection createSingleConnection(String url, String userName, String password) {
         if (Objects.isNull(connection)) {
             try {
                 Class.forName(Driver.class.getName());
@@ -42,6 +47,28 @@ public class CommonSqlUtil {
             }
         }
         return connection;
+    }
+
+    /**
+     * 创建mysql连接
+     *
+     * @param url      1
+     * @param userName 2
+     * @param password 3
+     * @return java.sql.Connection
+     * @since 下午 1:19 2019/11/14 0014
+     **/
+    public static Connection createConnection(String url, String userName, String password) {
+        try {
+            Class.forName(Driver.class.getName());
+            Connection connection = DriverManager.getConnection(url, userName, password);
+            return connection;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

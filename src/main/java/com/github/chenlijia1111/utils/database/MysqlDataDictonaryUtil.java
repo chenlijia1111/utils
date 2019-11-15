@@ -52,8 +52,7 @@ public class MysqlDataDictonaryUtil {
     private void writeToDocx(String url, String userName, String password, String databaseName, File exportFile) throws SQLException {
 
         //获取数据库连接
-        CommonSqlUtil sqlUtil = new CommonSqlUtil();
-        Connection connection = sqlUtil.createConnection(url, userName, password);
+        Connection connection = CommonSqlUtil.createConnection(url, userName, password);
 
         //获取所有字典对象集合
         List<DictionaryTablePojo> dictionaryTablePojoList = getDictionaryTablePojoList(connection, databaseName);
