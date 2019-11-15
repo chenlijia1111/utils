@@ -209,6 +209,7 @@
             <version>${thumbnailator.version}</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 

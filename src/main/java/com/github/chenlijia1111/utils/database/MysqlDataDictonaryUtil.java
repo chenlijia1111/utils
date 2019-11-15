@@ -57,7 +57,8 @@ public class MysqlDataDictonaryUtil {
         //获取所有字典对象集合
         List<DictionaryTablePojo> dictionaryTablePojoList = getDictionaryTablePojoList(connection, databaseName);
 
-
+        //校验导出文件夹是否存在,不存在就创建,防止空指针
+        FileUtils.checkDirectory(exportFile.getParent());
         XWPFDocument document = new XWPFDocument();
         try (FileOutputStream outputStream = new FileOutputStream(exportFile)) {
 

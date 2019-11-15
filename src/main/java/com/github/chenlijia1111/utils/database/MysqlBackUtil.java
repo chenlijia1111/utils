@@ -183,16 +183,16 @@ public class MysqlBackUtil {
             InputStream inputStream = process.getInputStream();
             InputStream errorStream = process.getErrorStream();
 
-            ConsumeInputstream consumeInputstream = new ConsumeInputstream(inputStream);
-            ConsumeInputstream consumeInputstream1 = new ConsumeInputstream(errorStream);
-            consumeInputstream.start();
-            consumeInputstream1.start();
+            IOUtil.ConsumeInputStream consumeInputStream = new IOUtil.ConsumeInputStream(inputStream);
+            IOUtil.ConsumeInputStream consumeInputStream1 = new IOUtil.ConsumeInputStream(errorStream);
+            consumeInputStream.start();
+            consumeInputStream1.start();
 
             process.waitFor();
 
             //执行完成--终止线程
-            consumeInputstream.interrupt();
-            consumeInputstream1.interrupt();
+            consumeInputStream.interrupt();
+            consumeInputStream1.interrupt();
 
             process.destroy();
             return Result.success("操作成功");
@@ -205,45 +205,5 @@ public class MysqlBackUtil {
         return Result.failure("导入失败");
     }
 
-
-    /**
-     * 消费输入流
-     *
-     * @since 下午 5:25 2019/10/23 0023
-     **/
-    static class ConsumeInputstream extends Thread {
-
-        public ConsumeInputstream() {
-        }
-
-        public ConsumeInputstream(InputStream inputStream) {
-            this.inputStream = inputStream;
-        }
-
-        private InputStream inputStream;
-
-        public InputStream getInputStream() {
-            return inputStream;
-        }
-
-        public void setInputStream(InputStream inputStream) {
-            this.inputStream = inputStream;
-        }
-
-        @Override
-        public void run() {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    //判断是否被外部中断了
-                    if (Thread.currentThread().isInterrupted()) {
-                        break;
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 }

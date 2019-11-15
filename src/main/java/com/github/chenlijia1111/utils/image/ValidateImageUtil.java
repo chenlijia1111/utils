@@ -30,7 +30,7 @@ public class ValidateImageUtil {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
     //验证码字体用比较显眼的颜色
-    public static Color[] fontColor = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
+    public static Color[] fontColor = {Color.RED, Color.BLUE, Color.GREEN};
 
     /**
      * 创建验证码

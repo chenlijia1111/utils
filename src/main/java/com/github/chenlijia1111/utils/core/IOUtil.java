@@ -219,4 +219,45 @@ public class IOUtil {
             }
         }
     }
+
+
+    /**
+     * 消费输入流
+     *
+     * @since 下午 5:25 2019/10/23 0023
+     **/
+    public static class ConsumeInputStream extends Thread {
+
+        public ConsumeInputStream() {
+        }
+
+        public ConsumeInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+        }
+
+        private InputStream inputStream;
+
+        public InputStream getInputStream() {
+            return inputStream;
+        }
+
+        public void setInputStream(InputStream inputStream) {
+            this.inputStream = inputStream;
+        }
+
+        @Override
+        public void run() {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    //判断是否被外部中断了
+                    if (Thread.currentThread().isInterrupted()) {
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
