@@ -16,6 +16,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * mysql 数据字典导出工具
@@ -110,43 +112,34 @@ public class MysqlDataDictonaryUtil {
             preparedStatement.execute();
 
             //开始获取每个表的详细字段
-            for (String tableName : allTables) {
-                preparedStatement = connection.prepareStatement("SELECT C.TABLE_NAME     AS 'tableName',\n" +
-                        "       T.TABLE_COMMENT  AS 'tableComment',\n" +
-                        "       C.COLUMN_NAME    AS 'columnName',\n" +
-                        "       C.COLUMN_TYPE    AS 'columnType',\n" +
-                        "       C.IS_NULLABLE    AS 'nullAble',\n" +
-                        "       C.COLUMN_COMMENT AS 'columnComment',\n" +
-                        "       C.COLUMN_KEY     AS 'tableKey'\n" +
-                        "FROM COLUMNS C\n" +
-                        "         INNER JOIN TABLES T ON C.TABLE_SCHEMA = T.TABLE_SCHEMA\n" +
-                        "    AND C.TABLE_NAME = T.TABLE_NAME\n" +
-                        "WHERE T.TABLE_SCHEMA ='" + databaseName + "'" + "AND C.TABLE_NAME = '" + tableName + "'");
-                ResultSet resultSet = preparedStatement.executeQuery();
+            preparedStatement = connection.prepareStatement("SELECT C.TABLE_NAME     AS 'tableName',\n" +
+                    "       T.TABLE_COMMENT  AS 'tableComment',\n" +
+                    "       C.COLUMN_NAME    AS 'fieldName',\n" +
+                    "       C.COLUMN_TYPE    AS 'fieldType',\n" +
+                    "       C.IS_NULLABLE    AS 'nullAble',\n" +
+                    "       C.COLUMN_COMMENT AS 'fieldComment',\n" +
+                    "       C.COLUMN_KEY     AS 'tableKey'\n" +
+                    "FROM COLUMNS C\n" +
+                    "         INNER JOIN TABLES T ON C.TABLE_SCHEMA = T.TABLE_SCHEMA\n" +
+                    "    AND C.TABLE_NAME = T.TABLE_NAME\n" +
+                    "WHERE T.TABLE_SCHEMA ='" + databaseName + "'");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //将resultSet映射为 DictionaryFieldPojo 集合对象
+            List<DictionaryFieldPojo> fieldPojos = CommonSqlUtil.resultSetToList(resultSet, DictionaryFieldPojo.class);
 
-                //开始处理数据
+            Map<String, List<DictionaryFieldPojo>> collect = fieldPojos.stream().collect(Collectors.groupingBy(e -> e.getTableName()));
+            for (Map.Entry<String, List<DictionaryFieldPojo>> entry : collect.entrySet()) {
+                String tableName = entry.getKey();
                 DictionaryTablePojo tablePojo = new DictionaryTablePojo();
                 tablePojo.setTableName(tableName);
-                List<DictionaryFieldPojo> fieldPojos = Lists.newArrayList();
-                while (resultSet.next()) {
-                    String tableComment = resultSet.getString("tableComment");
-                    tablePojo.setTableComment(tableComment);
 
-                    DictionaryFieldPojo fieldPojo = new DictionaryFieldPojo();
-                    String columnName = resultSet.getString("columnName");
-                    String columnType = resultSet.getString("columnType");
-                    String columnComment = resultSet.getString("columnComment");
-                    fieldPojo.setFieldName(columnName);
-                    fieldPojo.setFieldType(columnType);
-                    fieldPojo.setFieldComment(columnComment);
-
-                    fieldPojos.add(fieldPojo);
-                }
-
-                tablePojo.setFieldList(fieldPojos);
+                List<DictionaryFieldPojo> dictionaryFieldPojoList = entry.getValue();
+                tablePojo.setTableComment(dictionaryFieldPojoList.get(0).getTableComment());
+                tablePojo.setFieldList(dictionaryFieldPojoList);
 
                 tablePojoList.add(tablePojo);
             }
+
         }
 
         return tablePojoList;
@@ -174,16 +167,5 @@ public class MysqlDataDictonaryUtil {
         return tablesList;
     }
 
-
-    public static void main(String[] args) {
-        try {
-            MysqlDataDictonaryUtil mysqlDataDictonaryUtil = new MysqlDataDictonaryUtil();
-            mysqlDataDictonaryUtil.writeToWord("jdbc:mysql://58.250.17.31:3345/ende?serverTimezone=Asia/Shanghai&useSSL=false&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL",
-                    "root", "0822myljsw", "ende", new File("E:\\公司资料\\公司\\南天司法\\test1.docx"));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
 
 }

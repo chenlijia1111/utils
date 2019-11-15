@@ -10,6 +10,20 @@ import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
  * @since 2019/11/14 0014 下午 1:23
  **/
 public class DictionaryFieldPojo {
+    /**
+     * 表名
+     *
+     * @since 下午 1:30 2019/11/14 0014
+     **/
+    private String tableName;
+
+    /**
+     * 表备注
+     *
+     * @since 下午 1:30 2019/11/14 0014
+     **/
+    private String tableComment;
+
 
     /**
      * 字段名
@@ -35,6 +49,21 @@ public class DictionaryFieldPojo {
     @ExcelExportField(titleHeadName = "字段备注", sort = 2, cellWidth = 400000)
     private String fieldComment;
 
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getTableComment() {
+        return tableComment;
+    }
+
+    public void setTableComment(String tableComment) {
+        this.tableComment = tableComment;
+    }
 
     public String getFieldName() {
         return fieldName;

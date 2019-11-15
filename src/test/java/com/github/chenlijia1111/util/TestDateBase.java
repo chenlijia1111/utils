@@ -2,9 +2,11 @@ package com.github.chenlijia1111.util;
 
 import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.database.MysqlBackUtil;
+import com.github.chenlijia1111.utils.database.MysqlDataDictonaryUtil;
 import org.junit.Test;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +81,7 @@ public class TestDateBase {
     @Test
     public void test3() {
         MysqlBackUtil.exportSql("C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin", "192.168.1.134",
-                "3306", "root", "root", "demo",null, new File("D:/1023.sql"));
+                "3306", "root", "root", "demo", null, new File("D:/1023.sql"));
     }
 
     @Test
@@ -93,5 +95,19 @@ public class TestDateBase {
         String property = System.getProperty("os.name");
         System.out.println(property);
     }
+
+    //导出数据字典
+    @Test
+    public void test6() {
+        try {
+            MysqlDataDictonaryUtil mysqlDataDictonaryUtil = new MysqlDataDictonaryUtil();
+            mysqlDataDictonaryUtil.writeToWord("jdbc:mysql://58.250.17.31:33306/expertise?serverTimezone=Asia/Shanghai&useSSL=false&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL",
+                    "root", "0822myljsw", "expertise", new File("E:\\公司资料\\公司\\南天司法\\南天数据字典.docx"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }
