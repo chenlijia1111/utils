@@ -449,6 +449,20 @@ public class HttpClientUtils {
         return null;
     }
 
+    public List toList(){
+        try {
+            if (null != response) {
+                HttpEntity entity = response.getEntity();
+                String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
+                List<Object> list = JSONUtil.strToList(s, ArrayList.class, Object.class);
+                return list;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 将参数转为 key=value&key=value的字符串形式
