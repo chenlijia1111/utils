@@ -1,6 +1,11 @@
 package com.github.chenlijia1111.utils.core;
 
+import com.github.chenlijia1111.utils.common.Result;
+import com.github.chenlijia1111.utils.encrypt.HMacSHA1EncryptUtil;
+import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.HttpUtils;
+import com.github.chenlijia1111.utils.list.Maps;
+import com.github.chenlijia1111.utils.list.annos.MapType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Base64;
+import java.util.Map;
 
 /**
  * 文件工具类
@@ -131,5 +138,52 @@ public class WebFileUtil {
         }
         return start;
     }
+
+    /**
+     * 七牛云上传文件
+     * 文件名称需要调用者自行保存
+     *
+     * @param inputStream
+     * @param fileName
+     * @return
+     */
+    public static Result qiNiuUpload(InputStream inputStream, String fileName) {
+
+        String uploadFileUrl = "http://up-z2.qiniup.com";
+        String accessKey = "vszem8XnHhtqTLk5sae8eaINGqXUyh0CS-8_AruE";
+        String secretKey = "rCnGMxaW0ZBZxfrLtPYSpKSPCHV7GUlCenxL0zTv";
+
+        //去文件的后缀名
+        String fileSuffix = FileUtils.getFileSuffix(fileName);
+        String uploadFileName = RandomUtil.createRandomName() + fileSuffix;
+        //上传策略
+        Map putPolicy = Maps.mapBuilder(MapType.HASH_MAP).
+                put("scope", "chenlijia").
+                put("deadline", System.currentTimeMillis() / 1000 + 3600).
+                put("saveKey", uploadFileName).
+                build();
+
+        String putPolicyJson = JSONUtil.objToStr(putPolicy);
+        try {
+            String putPolicyBase64 = Base64.getUrlEncoder().encodeToString(putPolicyJson.getBytes("UTF-8"));
+            //构建签名
+            byte[] bytes = HMacSHA1EncryptUtil.SHA1BytesToBytes(putPolicyBase64.getBytes("UTF-8"), secretKey);
+            String sign = Base64.getUrlEncoder().encodeToString(bytes);
+            //生成token
+            String uploadToken = accessKey + ":" + sign + ":" + putPolicyBase64;
+            //开始上传
+            HttpClientUtils.getInstance().putParams("token", uploadToken).
+                    putInputStreamParams("file", inputStream).doPost(uploadFileUrl).toMap();
+
+            //文件地址
+            String fileUrl = "http://q1rhio3tk.bkt.clouddn.com/" + uploadFileName;
+            return Result.success("上传成功", fileUrl);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return Result.failure("上传失败");
+    }
+
 
 }

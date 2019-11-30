@@ -104,9 +104,25 @@ public class FileUtils {
 
         if (file.exists()) {
             String name = file.getName();
-            int i = name.lastIndexOf(".");
+            return getFileSuffix(name);
+        }
+        return null;
+    }
+
+    /**
+     * 返回文件后缀名  .docx
+     *
+     * @param fileName 1
+     * @return java.lang.String
+     * @author chenlijia
+     * @since 上午 9:59 2019/6/14 0014
+     **/
+    public static String getFileSuffix(String fileName) {
+
+        if (StringUtils.isNotEmpty(fileName)) {
+            int i = fileName.lastIndexOf(".");
             if (i != -1)
-                return name.substring(i);
+                return fileName.substring(i);
         }
         return null;
     }
@@ -124,9 +140,26 @@ public class FileUtils {
 
         if (file.exists()) {
             String name = file.getName();
-            int i = name.lastIndexOf(".");
+            return getFileSuffixNotDot(name);
+        }
+        return null;
+    }
+
+    /**
+     * 返回文件后缀名  docx
+     * 不包含前面的 .
+     *
+     * @param fileName 1
+     * @return java.lang.String
+     * @author chenlijia
+     * @since 上午 9:59 2019/6/14 0014
+     **/
+    public static String getFileSuffixNotDot(String fileName) {
+
+        if (StringUtils.isNotEmpty(fileName)) {
+            int i = fileName.lastIndexOf(".");
             if (i != -1)
-                return name.substring(i + 1);
+                return fileName.substring(i + 1);
         }
         return null;
     }

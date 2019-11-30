@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
@@ -24,6 +25,7 @@ import org.apache.http.util.EntityUtils;
 import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.*;
@@ -46,6 +48,24 @@ public class HttpClientUtils {
      * @since 上午 10:37 2019/8/20 0020
      **/
     private Map<String, Object> params;
+
+    /**
+     * 文件参数
+     * 只有post接口才支持
+     */
+    private Map<String, File> fileParams;
+
+    /**
+     * 文件二进制参数
+     * 只有post接口才支持
+     */
+    private Map<String, byte[]> fileByteParams;
+
+    /**
+     * 文件二进制参数
+     * 只有post接口才支持
+     */
+    private Map<String, InputStream> fileInputStreamParams;
 
 
     /**
@@ -83,6 +103,9 @@ public class HttpClientUtils {
         //通过 treeMap 可以很方便的进行构建签名操作
         //一般都需要把参数通过字典排序进行签名
         httpClientUtils.params = new TreeMap<>();
+        httpClientUtils.fileParams = new HashMap<>();
+        httpClientUtils.fileByteParams = new HashMap<>();
+        httpClientUtils.fileInputStreamParams = new HashMap<>();
         httpClientUtils.headers = new HashMap<>();
         httpClientUtils.httpClient = HttpClients.createDefault();
         return httpClientUtils;
@@ -191,6 +214,45 @@ public class HttpClientUtils {
     }
 
     /**
+     * 添加请求参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putFileParams(String key, File value) {
+        this.fileParams.put(key, value);
+        return this;
+    }
+
+    /**
+     * 添加请求参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putFileByteParams(String key, byte[] value) {
+        this.fileByteParams.put(key, value);
+        return this;
+    }
+
+    /**
+     * 添加请求参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putInputStreamParams(String key, InputStream value) {
+        this.fileInputStreamParams.put(key, value);
+        return this;
+    }
+
+    /**
      * 添加请求头
      *
      * @param key   1
@@ -294,31 +356,57 @@ public class HttpClientUtils {
 
 
         try {
-            //判断有没有请求参数,如果有请求参数,拼接请求参数
-            if (params.size() != 0) {
-                //判断请求类型,看是不是要放在body里面进行请求的,默认为表单的形式发送
-                if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("text/xml")) {
-                    //以xml的形式发送
-                    String s = XmlUtil.parseMapToXml(params);
-                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
-                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
-                    httpPost.setEntity(stringEntity);
-                } else if (headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("application/json")) {
-                    //以json的形式发送
-                    String s = JSONUtil.objToStr(params);
-                    StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
-                    stringEntity.setContentEncoding(CharSetType.UTF8.getType());
-                    httpPost.setEntity(stringEntity);
-                } else {
-                    ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
-                    for (Map.Entry<String, Object> entry : params.entrySet()) {
-                        nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+            //判断请求类型,首先看是否是上传文件的,然后看是不是要放在body里面进行请求的,默认为表单的形式发送
+            if (fileParams.size() > 0 || fileByteParams.size() > 0 || fileInputStreamParams.size() > 0) {
+                //上传文件
+                MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+                entityBuilder.setCharset(Charset.forName("UTF-8"));
+                if (fileParams.size() > 0) {
+                    for (Map.Entry<String, File> fileEntry : fileParams.entrySet()) {
+                        entityBuilder.addBinaryBody(fileEntry.getKey(), fileEntry.getValue());
                     }
-                    UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
-                    httpPost.setEntity(formEntity);
+                }
+                if (fileByteParams.size() > 0) {
+                    for (Map.Entry<String, byte[]> fileByteEntry : fileByteParams.entrySet()) {
+                        entityBuilder.addBinaryBody(fileByteEntry.getKey(), fileByteEntry.getValue());
+                    }
+                }
+                if (fileInputStreamParams.size() > 0) {
+                    for (Map.Entry<String, InputStream> fileInputStreamEntry : fileInputStreamParams.entrySet()) {
+                        entityBuilder.addBinaryBody(fileInputStreamEntry.getKey(), fileInputStreamEntry.getValue());
+                    }
+                }
+                //添加参数
+                if (params.size() > 0) {
+                    for (Map.Entry<String, Object> entry : params.entrySet()) {
+                        entityBuilder.addTextBody(entry.getKey(), entry.getValue().toString());
+                    }
                 }
 
+                HttpEntity httpEntity = entityBuilder.build();
+                httpPost.setEntity(httpEntity);
+            } else if (params.size() > 0 && headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("text/xml")) {
+                //以xml的形式发送
+                String s = XmlUtil.parseMapToXml(params);
+                StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                httpPost.setEntity(stringEntity);
+            } else if (params.size() > 0 && headers.get(HTTP.CONTENT_TYPE) != null && headers.get(HTTP.CONTENT_TYPE).toLowerCase().contains("application/json")) {
+                //以json的形式发送
+                String s = JSONUtil.objToStr(params);
+                StringEntity stringEntity = new StringEntity(s, CharSetType.UTF8.getType());
+                stringEntity.setContentEncoding(CharSetType.UTF8.getType());
+                httpPost.setEntity(stringEntity);
+            } else if (params.size() > 0) {
+                //以表单的形式请求
+                ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+                for (Map.Entry<String, Object> entry : params.entrySet()) {
+                    nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                }
+                UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
+                httpPost.setEntity(formEntity);
             }
+
 
             this.response = httpClient.execute(httpPost);
         } catch (IOException e) {
@@ -449,7 +537,7 @@ public class HttpClientUtils {
         return null;
     }
 
-    public List toList(){
+    public List toList() {
         try {
             if (null != response) {
                 HttpEntity entity = response.getEntity();
