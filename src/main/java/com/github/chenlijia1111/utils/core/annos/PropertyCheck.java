@@ -47,8 +47,13 @@ public @interface PropertyCheck {
 
     /**
      * 校验方法 返回true 则校验通过
+     * 以下列举了常用的参数校验方法
      *
      * @return java.lang.Class<? extends java.util.function.Predicate>
+     * @see com.github.chenlijia1111.utils.core.commonCheckFunction.PositiveNumberCheck 正整数校验
+     * @see com.github.chenlijia1111.utils.core.commonCheckFunction.PriceCheck 价格校验
+     * @see com.github.chenlijia1111.utils.core.commonCheckFunction.RatioCheck 比率校验
+     * @see com.github.chenlijia1111.utils.core.commonCheckFunction.StateCheck 状态校验
      * @since 下午 12:41 2019/9/27 0027
      **/
     Class<? extends Predicate> checkFunction() default DefaultPredicate.class;

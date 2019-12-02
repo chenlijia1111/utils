@@ -8,6 +8,7 @@ import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
+import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.pay.ali.ALiPayUtil;
 import com.github.chenlijia1111.utils.pay.wx.PayType;
@@ -25,10 +26,11 @@ public class TestPay {
 
     @Test
     public void test1() {
+        String orderNo = RandomUtil.createUUID();
         Map preOrder = WXPayUtil.createPreOrder("wxd3fdb22474bdd195",
                 "1553017211", "商品1",
                 "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i", 100,
-                "https://www.shixianly.cn/system", PayType.APP, "sa", null);
+                "https://www.shixianly.cn/system", PayType.APP, "sa", orderNo,null);
         System.out.println(preOrder);
     }
 
@@ -108,5 +110,12 @@ public class TestPay {
         System.out.println(desc.getMsg());
     }
 
+
+    @Test
+    public void test8(){
+        //1574216248657
+        //1574216309861
+        System.out.println(System.currentTimeMillis());
+    }
 
 }

@@ -6,7 +6,7 @@
 
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.6-RELEASE</version>
+    <version>1.1.7-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -58,7 +58,7 @@
             <version>${httpclient.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- json 序列化 -->
+        <!-- json 序列化 调用者自己引入依赖,避免冲突-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -249,7 +249,6 @@
         <snapshotRepository>
             <id>snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
-
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>

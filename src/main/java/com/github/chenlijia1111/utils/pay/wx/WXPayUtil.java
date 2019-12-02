@@ -35,11 +35,12 @@ public class WXPayUtil {
      * @param notifyUrl 回调地址
      * @param payType   支付客户端类型
      * @param openId    当支付类型为 {@link PayType#JSAPI} 需要传openId
+     * @param outTradeNo 商户订单号
      * @param request
      * @return
      */
     public static Map createPreOrder(String appId, String mchId, String body, String signKey, int totalFee,
-                                     String notifyUrl, PayType payType, String openId, HttpServletRequest request) {
+                                     String notifyUrl, PayType payType, String openId,String outTradeNo, HttpServletRequest request) {
 
         HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
         //填充参数
@@ -49,7 +50,7 @@ public class WXPayUtil {
                 putParams("nonce_str", RandomUtil.createUUID()). //随机字符串，长度要求在32位以内
                 putParams("sign_type", "MD5"). //签名类型，默认为MD5，支持HMAC-SHA256和MD5
                 putParams("body", body). //商品简单描述
-                putParams("out_trade_no", RandomUtil.createUUID()). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
+                putParams("out_trade_no", outTradeNo). //商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
                 putParams("total_fee", totalFee + ""). //订单总金额，单位为分
                 putParams("spbill_create_ip", HttpUtils.getIpAddr(request)). //终端ip
                 putParams("notify_url", notifyUrl). //回调地址
@@ -96,13 +97,14 @@ public class WXPayUtil {
                 Object prepay_id = map.get("prepay_id");
                 //二次签名
                 TreeMap<String, String> treeMap = new TreeMap<>();
+                treeMap.put("appId", appId);
                 treeMap.put("package", "prepay_id=" + prepay_id.toString());
                 treeMap.put("signType", "MD5");
                 treeMap.put("nonceStr", RandomUtil.createUUID());
                 treeMap.put("timeStamp", (System.currentTimeMillis() / 1000) + "");
 
                 //创建请求参数
-                String paramsToString = new URLBuildUtil("").putParams(treeMap).paramsToString();
+                String paramsToString = HttpClientUtils.getInstance().putParams(treeMap).paramsToString(true);
                 //进行签名
                 String secondSign = MD5EncryptUtil.MD5StringToHexString(paramsToString + "&key=" + signKey);
                 treeMap.put("paySign", secondSign);
@@ -317,6 +319,23 @@ public class WXPayUtil {
         String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers").toString();
         Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
         return map;
+    }
+
+
+    /**
+     * 生成签名
+     *
+     * @param params     需要签名的参数
+     * @param partnerKey 密钥
+     * @return 签名后的数据
+     */
+    public static String createSign(Map<String, String> params, String partnerKey) {
+        // 生成签名前先去除sign
+        params.remove("sign");
+        String tempStr = HttpClientUtils.getInstance().putParams(params).paramsToString(true);
+        String stringSignTemp = tempStr + "&key=" + partnerKey;
+        String sign = MD5EncryptUtil.MD5StringToHexString(stringSignTemp);
+        return sign;
     }
 
 }

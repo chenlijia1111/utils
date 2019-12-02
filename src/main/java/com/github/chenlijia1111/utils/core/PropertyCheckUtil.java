@@ -33,6 +33,19 @@ public class PropertyCheckUtil {
      * 检测参数是否为空，为空则实例化对象
      * 防止参数为空
      *
+     * @param t 1
+     * @author chenlijia
+     * @description TODO
+     * @since 上午 11:44 2019/7/13 0013
+     **/
+    public static <T> T transferObjectNotNull(T t) {
+        return transferObjectNotNull(t, true);
+    }
+
+    /**
+     * 检测参数是否为空，为空则实例化对象
+     * 防止参数为空
+     *
      * @param t                 1
      * @param spaceStringToNull 空字符转null
      * @author chenlijia
