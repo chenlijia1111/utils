@@ -58,7 +58,13 @@
             <version>${httpclient.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- json 序列化 调用者自己引入依赖,避免冲突-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>${httpclient.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- json 序列化 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -105,7 +111,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <!-- log 日志门面类  调用者搭配log-back进行使用 -->
         <dependency>

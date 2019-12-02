@@ -1,6 +1,11 @@
 package com.github.chenlijia1111.utils.common;
 
+import com.github.chenlijia1111.utils.cn.TranslatorUtil;
+import com.github.chenlijia1111.utils.cn.enums.TranslateLanguageEnum;
 import com.github.chenlijia1111.utils.common.enums.ResponseStatusEnum;
+import com.github.chenlijia1111.utils.core.StringUtils;
+
+import java.util.Objects;
 
 /**
  * 返回结果
@@ -11,11 +16,15 @@ import com.github.chenlijia1111.utils.common.enums.ResponseStatusEnum;
  **/
 public class Result {
 
+    //要返回的语言
+    public static String resultLanguage = TranslateLanguageEnum.ZH_CN.getAbbr();
+
+
     /**
-     * @see ResponseStatusEnum
      * @author chenlijia
      * @Description 状态码
      * @Date 上午 10:29 2019/4/4 0004
+     * @see ResponseStatusEnum
      **/
     private int code;
 
@@ -128,7 +137,8 @@ public class Result {
     }
 
     public void setMsg(String msg) {
-        this.msg = msg;
+        //校验返回结果是否需要翻译
+        this.msg = checkMsg(msg);
     }
 
     public Object getData() {
@@ -147,5 +157,19 @@ public class Result {
                 ", msg='" + msg + '\'' +
                 ", data=" + data +
                 '}';
+    }
+
+    /**
+     * 校验返回结果是否需要翻译
+     *
+     * @param msg
+     * @return
+     */
+    private static String checkMsg(String msg) {
+        if (StringUtils.isNotEmpty(msg) && Objects.nonNull(resultLanguage) &&
+                !Objects.equals(TranslateLanguageEnum.ZH_CN.getAbbr(), resultLanguage)) {
+            msg = TranslatorUtil.translate(msg, TranslateLanguageEnum.ZH_CN.getAbbr(), resultLanguage);
+        }
+        return msg;
     }
 }
