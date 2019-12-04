@@ -1,7 +1,11 @@
 package com.github.chenlijia1111.util.core;
 
-import com.github.chenlijia1111.utils.core.BirthUtils;
+import com.github.chenlijia1111.utils.common.constant.TimeConstant;
+import com.github.chenlijia1111.utils.dateTime.BirthUtils;
+import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
 import org.junit.Test;
+
+import java.util.Date;
 
 /**
  * @author chenlijia
@@ -21,6 +25,12 @@ public class TestBirth {
         //获取生肖
         String zodiac = BirthUtils.zodiac("362321199706101018");
         System.out.println(zodiac);
+    }
+
+    @Test
+    public void test2() {
+        String s = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME);
+        System.out.println(s);
     }
 
 }

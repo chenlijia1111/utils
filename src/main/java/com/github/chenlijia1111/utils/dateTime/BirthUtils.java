@@ -1,10 +1,10 @@
-package com.github.chenlijia1111.utils.core;
+package com.github.chenlijia1111.utils.dateTime;
 
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.commonCheckFunction.IDCardNoCheck;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.joda.time.LocalDate;
 import org.joda.time.Years;
-import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
 import java.util.Objects;
@@ -82,7 +82,7 @@ public class BirthUtils {
      * @return
      */
     public static String zodiac(LocalDate date) {
-        return ZODIAC_ARR[date.getYear() % 12];
+        return Objects.isNull(date) ? null : ZODIAC_ARR[date.getYear() % 12];
     }
 
     /**
@@ -94,11 +94,13 @@ public class BirthUtils {
      * @return
      */
     public static String zodiac(String cardNo) {
-        //根据身份证获取生日
-        LocalDate birthDay = birthDay(cardNo);
-        if (Objects.nonNull(birthDay)) {
-            //判断生肖
-            return zodiac(birthDay);
+        if (StringUtils.isNotEmpty(cardNo)) {
+            //根据身份证获取生日
+            LocalDate birthDay = birthDay(cardNo);
+            if (Objects.nonNull(birthDay)) {
+                //判断生肖
+                return zodiac(birthDay);
+            }
         }
         return null;
     }
@@ -128,11 +130,13 @@ public class BirthUtils {
      * @return
      */
     public static String constellation(String cardNo) {
-        //根据身份证获取生日
-        LocalDate birthDay = birthDay(cardNo);
-        if (Objects.nonNull(birthDay)) {
-            //判断星座
-            return constellation(birthDay);
+        if (StringUtils.isNotEmpty(cardNo)) {
+            //根据身份证获取生日
+            LocalDate birthDay = birthDay(cardNo);
+            if (Objects.nonNull(birthDay)) {
+                //判断星座
+                return constellation(birthDay);
+            }
         }
         return null;
     }
@@ -146,14 +150,17 @@ public class BirthUtils {
      * @return
      */
     public static String sex(String cardNo) {
-        String sexStr = "0";
-        if (cardNo.length() == 15) {
-            sexStr = cardNo.substring(14, 15);
-        } else if (cardNo.length() == 18) {
-            sexStr = cardNo.substring(16, 17);
+        if (StringUtils.isNotEmpty(cardNo)) {
+            String sexStr = "0";
+            if (cardNo.length() == 15) {
+                sexStr = cardNo.substring(14, 15);
+            } else if (cardNo.length() == 18) {
+                sexStr = cardNo.substring(16, 17);
+            }
+            int sexNo = Integer.parseInt(sexStr);
+            return sexNo % 2 == 0 ? "女" : "男";
         }
-        int sexNo = Integer.parseInt(sexStr);
-        return sexNo % 2 == 0 ? "女" : "男";
+        return null;
     }
 
     /**
@@ -176,12 +183,14 @@ public class BirthUtils {
      * @since 上午 9:34 2019/12/4 0004
      **/
     public static int age(String cardNo, LocalDate date) {
-        //根据身份证获取生日
-        LocalDate birthDay = birthDay(cardNo);
-        if (Objects.nonNull(birthDay)) {
-            //计算年龄
-            Years years = Years.yearsBetween(birthDay, date);
-            return years.getYears();
+        if (StringUtils.isNotEmpty(cardNo) && Objects.nonNull(date)) {
+            //根据身份证获取生日
+            LocalDate birthDay = birthDay(cardNo);
+            if (Objects.nonNull(birthDay)) {
+                //计算年龄
+                Years years = Years.yearsBetween(birthDay, date);
+                return years.getYears();
+            }
         }
         return 0;
     }
@@ -190,7 +199,7 @@ public class BirthUtils {
      * 根据身份证号获取生日日期
      *
      * @param cardNo 1
-     * @return org.joda.time.LocalDate
+     * @return org.joda.dateTime.LocalDate
      * @since 上午 9:40 2019/12/4 0004
      **/
     public static LocalDate birthDay(String cardNo) {
@@ -199,11 +208,11 @@ public class BirthUtils {
             //开始解析
             if (cardNo.length() == 18) {
                 String substring = cardNo.substring(6, 14);
-                LocalDate localDate = DateTimeFormat.forPattern("yyyyMMdd").parseLocalDate(substring);
+                LocalDate localDate = DateTimeConvertUtil.strToLocalDate(substring, "yyyyMMdd");
                 return localDate;
             } else if (cardNo.length() == 15) {
                 String substring = cardNo.substring(6, 12);
-                LocalDate localDate = DateTimeFormat.forPattern("yyMMdd").parseLocalDate(substring);
+                LocalDate localDate = DateTimeConvertUtil.strToLocalDate(substring, "yyMMdd");
                 return localDate;
             }
         }
