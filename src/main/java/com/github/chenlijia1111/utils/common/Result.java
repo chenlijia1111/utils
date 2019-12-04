@@ -16,7 +16,12 @@ import java.util.Objects;
  **/
 public class Result {
 
-    //要返回的语言
+    /**
+     * 返回给前端展示的语言,通过{@link TranslatorUtil} 进行翻译
+     * 默认中文不翻译
+     *
+     * @since 上午 9:31 2019/12/2 0002
+     **/
     public static String resultLanguage = TranslateLanguageEnum.ZH_CN.getAbbr();
 
 

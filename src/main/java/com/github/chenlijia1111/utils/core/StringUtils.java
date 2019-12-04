@@ -202,7 +202,7 @@ public class StringUtils {
      * @return java.lang.String
      * @since 下午 2:12 2019/10/16 0016
      **/
-    private String exceptionStackInfoToString(Exception exception) {
+    public static String exceptionStackInfoToString(Exception exception) {
         if (null != exception) {
             try (StringWriter sw = new StringWriter();
                  PrintWriter pw = new PrintWriter(sw)) {
@@ -215,5 +215,32 @@ public class StringUtils {
         return null;
     }
 
+    /**
+     * 分割字符串-转集合
+     *
+     * @param str   待分割的字符串
+     * @param regex 分割正则
+     * @return java.util.List<java.lang.String>
+     * @since 上午 9:20 2019/12/4 0004
+     **/
+    public static List<String> splitToList(String str, String regex) {
+        return Lists.asList(splitToArray(str, regex));
+    }
+
+    /**
+     * 分割字符串-转数组
+     *
+     * @param str   待分割的字符串
+     * @param regex 分割正则
+     * @return java.util.List<java.lang.String>
+     * @since 上午 9:20 2019/12/4 0004
+     **/
+    public static String[] splitToArray(String str, String regex) {
+        if (StringUtils.isNotEmpty(str)) {
+            String[] split = str.split(regex);
+            return split;
+        }
+        return new String[]{};
+    }
 
 }

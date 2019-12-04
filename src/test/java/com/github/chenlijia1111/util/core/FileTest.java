@@ -3,6 +3,7 @@ package com.github.chenlijia1111.util.core;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.WebFileUtil;
+import com.github.chenlijia1111.utils.core.enums.SystemPropertyEnum;
 import org.junit.Test;
 
 import java.io.BufferedInputStream;
@@ -18,10 +19,10 @@ import java.io.FileNotFoundException;
 public class FileTest {
 
     @Test
-    public void test1(){
+    public void test1() {
         try {
             long l = System.currentTimeMillis();
-            FileUtils.copyFile(new File("D:\\ssmProject\\waibao\\pageoffice\\target\\pageOffice.war"),new File("D:\\ssmProject\\waibao\\pageoffice\\target\\pageOffice1.war"));
+            FileUtils.copyFile(new File("D:\\ssmProject\\waibao\\pageoffice\\target\\pageOffice.war"), new File("D:\\ssmProject\\waibao\\pageoffice\\target\\pageOffice1.war"));
             System.out.println(System.currentTimeMillis() - l);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -32,7 +33,7 @@ public class FileTest {
      * 测试七牛云上传文件
      */
     @Test
-    public void testQiNiuUpload(){
+    public void testQiNiuUpload() {
         long l = System.currentTimeMillis();
         File file = new File("C:\\Users\\Administrator\\Desktop\\picture\\19_3_20_3.jpg");
         try {
@@ -43,6 +44,16 @@ public class FileTest {
             IOUtil.close(inputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testSystemProperty() {
+        SystemPropertyEnum[] values = SystemPropertyEnum.values();
+        for (SystemPropertyEnum value : values) {
+            String property = System.getProperty(value.getName());
+            System.out.println(value.getName() + ":" + property);
         }
     }
 
