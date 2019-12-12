@@ -48,6 +48,7 @@
         <freemarker.version>2.3.28</freemarker.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <thumbnailator.version>0.4.8</thumbnailator.version>
+        <jsoup.version>1.12.1</jsoup.version>
     </properties>
 
     <dependencies>

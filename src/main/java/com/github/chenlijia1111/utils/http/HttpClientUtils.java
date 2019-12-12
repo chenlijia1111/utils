@@ -143,7 +143,11 @@ public class HttpClientUtils {
         //通过 treeMap 可以很方便的进行构建签名操作
         //一般都需要把参数通过字典排序进行签名
         httpClientUtils.params = new TreeMap<>();
+        httpClientUtils.fileParams = new HashMap<>();
+        httpClientUtils.fileByteParams = new HashMap<>();
+        httpClientUtils.fileInputStreamParams = new HashMap<>();
         httpClientUtils.headers = new HashMap<>();
+        httpClientUtils.httpClient = HttpClients.createDefault();
 
         //构建带证书的SSL请求
         try {

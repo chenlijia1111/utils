@@ -27,14 +27,26 @@ public class QRCodeUtil {
 
     private BitMatrix bitMatrix;
 
+    //二维码宽
+    private Integer width = 300;
+
+    //二维码高
+    private Integer height = 300;
+
+    public QRCodeUtil(Integer width, Integer height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public QRCodeUtil() {
+    }
+
     /**
      * 生成二维码
      *
      * @param msg 信息
      */
     private void createQRCode(String msg) throws WriterException {
-        int width = 300;
-        int height = 300;
         HashMap<EncodeHintType, Object> hashMap = new HashMap<>();
         hashMap.put(EncodeHintType.CHARACTER_SET, "utf-8");
         //纠错等级
