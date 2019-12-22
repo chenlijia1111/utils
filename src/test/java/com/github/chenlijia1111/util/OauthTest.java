@@ -1,12 +1,15 @@
 package com.github.chenlijia1111.util;
 
+import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.encrypt.HMacSHA256EncryptUtil;
+import com.github.chenlijia1111.utils.oauth.jwt.JWTCheckUtil;
 import com.github.chenlijia1111.utils.oauth.jwt.JWTUtil;
 import com.github.chenlijia1111.utils.oauth.qq.QQLoginUtil;
 import io.jsonwebtoken.Claims;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author 陈礼佳
@@ -61,5 +64,38 @@ public class OauthTest {
         System.out.println(sa);
     }
 
+    @Test
+    public void testJWTCheck() {
+
+        long l = System.currentTimeMillis();
+
+        String jwtToken = JWTUtil.createJWT("1", "陈礼佳", 60 * 1000L, "123456");
+        System.out.println(jwtToken);
+        Claims claims = JWTUtil.parseJWT(jwtToken, "123456");
+        System.out.println(claims.getIssuedAt());
+        System.out.println(claims.getExpiration());
+
+        JWTCheckUtil.refreshSeconds = 0;
+        //校验token是否需要刷新
+        Result result = JWTCheckUtil.checkToken(jwtToken, "123456");
+        System.out.println(result);
+        if (Objects.nonNull(result.getData())) {
+            String newToken = result.getData().toString();
+            System.out.println(newToken);
+            claims = JWTUtil.parseJWT(newToken, "123456");
+            System.out.println(claims.getIssuedAt());
+            System.out.println(claims.getExpiration());
+        }
+
+        System.out.println((System.currentTimeMillis() - l) / 1000);
+
+    }
+
+    @Test
+    public void testJwt2(){
+        for (int i = 0; i < 5; i++) {
+            testJWTCheck();
+        }
+    }
 
 }
