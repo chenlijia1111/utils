@@ -15,16 +15,24 @@ import java.util.Objects;
 
 /**
  * 参数校验 aop
+ * 使用方式
+ * 因为spring不会自动扫描jar包中的类
+ * 所以在项目中新建一个类继承当前这个类,然后加上spring-aop的注解即可
+ * 如下
+ * @Aspect
+ * @Component
+ * public class MyParameterCheckProxy extends ParameterCheckProxy {
+ *
+ * }
  *
  * @author 陈礼佳
  * @since 2019/12/22 14:25
  */
-@Aspect
-@Component
 public class ParameterCheckProxy {
 
 
-    @Pointcut(value = "@annotation(com.github.chenlijia1111.utils.core.annos.PropertyCheck)")
+    //表示在类上有这个注解或者在方法上有这个注解都会进行拦截
+    @Pointcut(value = "@within(com.github.chenlijia1111.utils.core.annos.PropertyCheck) || @annotation(com.github.chenlijia1111.utils.core.annos.PropertyCheck)")
     public void pointCut() {
     }
 
