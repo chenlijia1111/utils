@@ -49,6 +49,7 @@
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <thumbnailator.version>0.4.8</thumbnailator.version>
         <jsoup.version>1.12.1</jsoup.version>
+        <spring-boot-starter-aop.version>2.2.2.RELEASE</spring-boot-starter-aop.version>
     </properties>
 
     <dependencies>
@@ -215,6 +216,13 @@
             <artifactId>thumbnailator</artifactId>
             <version>${thumbnailator.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <!-- springBoot AOP 动态代理 用做参数校验 不做显示引入,调用者有需要自行引入-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>${spring-boot-starter-aop.version}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

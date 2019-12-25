@@ -15,6 +15,9 @@ import java.util.Objects;
  * jwt 分为三部分 header payload sign
  * sign = HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
  * base64UrlEncode 算法为 在经过了BASE64算法之后 把"="去掉，"+"用"-"替换，"/"用"_"替换
+ * <p>
+ * 关于jwt解析的一个特点,经过我的测试发现,用循环解析5次,发现第一次用了2秒,而后面都只用了0秒
+ * 所以解析过一次后面就不用担心解析的性能问题了
  *
  * @author 陈礼佳
  * @since 2019/9/13 21:28
