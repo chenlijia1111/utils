@@ -24,9 +24,12 @@ public class IOUtil {
         AssertUtil.isTrue(null != file && file.exists(), "输出文件为空");
         AssertUtil.isTrue(null != outputStream, "输出流为空");
 
-        try {
-            writeInputStream(new FileInputStream(file), outputStream);
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+
+            writeInputStream(inputStream, outputStream);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -47,9 +50,57 @@ public class IOUtil {
             parentFile.mkdirs();
         }
 
-        try {
-            writeInputStream(new FileInputStream(file), new FileOutputStream(destFile));
+        //缓冲流
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destFile))) {
+
+            writeInputStream(inputStream, outputStream);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 输出文件
+     *
+     * @param str
+     * @param destFile
+     */
+    public static void writeFile(String str, File destFile) {
+        AssertUtil.isTrue(null != str, "输出内容为空");
+        AssertUtil.isTrue(null != destFile, "目标文件为空");
+
+        //默认以追加的形式写入字符串
+        writeFile(str, destFile, true);
+    }
+
+    /**
+     * 输出文件
+     *
+     * @param str
+     * @param destFile
+     * @param append   追加或者还是覆盖
+     */
+    public static void writeFile(String str, File destFile, boolean append) {
+        AssertUtil.isTrue(null != str, "输出内容为空");
+        AssertUtil.isTrue(null != destFile, "目标文件为空");
+
+        //判断目标文件目录是否存在
+        File parentFile = destFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        //缓冲流
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destFile, append))) {
+
+            writer.append(str);
+            writer.append("\r\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -68,7 +119,7 @@ public class IOUtil {
         AssertUtil.isTrue(null != outputStream, "输出流为空");
 
         try {
-            byte[] bytes = new byte[4096];
+            byte[] bytes = new byte[8192];
             int read;
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
@@ -79,12 +130,7 @@ public class IOUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                inputStream.close();
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            close(inputStream, outputStream);
         }
     }
 
@@ -115,15 +161,9 @@ public class IOUtil {
     public static String readToString(File file) {
         AssertUtil.isTrue(null != file && file.exists(), "文件不合法");
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-            StringBuilder sb = new StringBuilder();
-            String s = reader.readLine();
-            while (s != null) {
-                sb.append(reader.readLine());
-                sb.append("\r\n");
-                s = reader.readLine();
-            }
-            return sb.toString();
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+
+            return readToString(inputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -187,17 +187,7 @@ public class FileUtils {
         }
 
         //开始复制
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(inputFile));
-             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outPutFile))) {
-            int read;
-            byte[] bufferedBytes = new byte[4096];
-            while ((read = inputStream.read(bufferedBytes)) != -1) {
-                outputStream.write(bufferedBytes, 0, read);
-            }
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        IOUtil.writeFile(inputFile, outPutFile);
 
     }
 

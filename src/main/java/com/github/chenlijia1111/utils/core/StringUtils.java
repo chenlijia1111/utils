@@ -243,4 +243,18 @@ public class StringUtils {
         return new String[]{};
     }
 
+    /**
+     * 判断字符串是否满足正则
+     *
+     * @param regex 正则
+     * @param str   要验证的字符串
+     * @return
+     */
+    public static boolean matches(String regex, CharSequence str) {
+        if (null != str) {
+            return Pattern.matches(regex, str);
+        }
+        return false;
+    }
+
 }
