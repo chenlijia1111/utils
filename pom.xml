@@ -50,6 +50,7 @@
         <thumbnailator.version>0.4.8</thumbnailator.version>
         <jsoup.version>1.12.1</jsoup.version>
         <spring-boot-starter-aop.version>2.2.2.RELEASE</spring-boot-starter-aop.version>
+        <mybatis.version>3.5.3</mybatis.version>
     </properties>
 
     <dependencies>
@@ -224,6 +225,14 @@
             <version>${spring-boot-starter-aop.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- mybatis  不做显示引入,调用者有需要自行引入-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
     </dependencies>
 
