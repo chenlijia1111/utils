@@ -13,7 +13,7 @@ common:系统公用代码
 
 core:核心工具
 
-database:数据库工具,java导入导出sql等
+database:数据库工具,java导入导出sql,mybatis分页插件等
 
 email:邮箱工具
 
