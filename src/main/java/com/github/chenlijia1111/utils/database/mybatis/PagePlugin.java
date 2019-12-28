@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.database.mybatis;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.database.mybatis.pojo.Page;
 import com.github.chenlijia1111.utils.database.mybatis.pojo.PageThreadLocalParameter;
 import com.github.chenlijia1111.utils.list.Lists;
@@ -15,6 +16,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -47,10 +49,25 @@ import java.util.Properties;
 public class PagePlugin implements Interceptor {
 
     //分页统计id后缀
-    public static final String PAGE_COUNT_ID_SUFFIX = "page_count_id_suffix";
+    private static final String PAGE_COUNT_ID_SUFFIX = "page_count_id_suffix";
 
     //分页id后缀
-    public static final String PAGE_ID_SUFFIX = "page_id_suffix";
+    private static final String PAGE_ID_SUFFIX = "page_id_suffix";
+
+    //page 字段名
+    private static final String PAGE_FIELD_NAME = "page";
+
+    //limit 字段名
+    private static final String LIMIT_FIELD_NAME = "limit";
+
+    /**
+     * 自动分页
+     * 如果设置为true,在没有找到线程变量的时候,会自动从参数中查找
+     * page 参数和 limit 参数来进行自当分页
+     * 也就是不用显示调用 Page.startPage(page,limit);
+     * 只要在参数中传入 page 和 limit 参数即可
+     */
+    private boolean autoPage = false;
 
 
     /**
@@ -69,21 +86,64 @@ public class PagePlugin implements Interceptor {
         Object parameterObject = args[1];
 
         //获取分页参数
-        Page page = PageThreadLocalParameter.getPageParameter();
-        AssertUtil.isTrue(Objects.nonNull(page), "分页参数不存在");
+        Page page = findCurrentPageParameter(parameterObject);
+        if (Objects.nonNull(page)) {
+            //进行分页操作
+            //构造统计 MappedStatement
+            args[0] = createCountMappedStatement(mappedStatement, parameterObject);
+            List<Integer> proceed = (List<Integer>) invocation.proceed();
+            Integer count = proceed.get(0);
+            page.setCount(count);
+            //重新赋值线程变量
+            PageThreadLocalParameter.setPageParameter(page);
 
-        //构造统计 MappedStatement
-        args[0] = createCountMappedStatement(mappedStatement, parameterObject);
-        List<Integer> proceed = (List<Integer>) invocation.proceed();
-        Integer count = proceed.get(0);
-        page.setCount(count);
-        //重新赋值线程变量
-        PageThreadLocalParameter.setPageParameter(page);
+            //设置新的MappedStatement 加上分页
+            args[0] = createPageMappedStatement(mappedStatement, parameterObject);
+        }
 
-        //设置新的MappedStatement 加上分页
-        args[0] = createPageMappedStatement(mappedStatement, parameterObject);
         return invocation.proceed();
     }
+
+    /**
+     * 查找线程变量
+     * 如果没有
+     * 判断是否需要自动分页
+     * 如果是--从参数中获取分页参数
+     * 注入线程变量中
+     *
+     * @param parameterObject 请求参数
+     * @return
+     */
+    private Page findCurrentPageParameter(Object parameterObject) {
+        Page page = PageThreadLocalParameter.getPageParameter();
+        if (Objects.isNull(page) && this.autoPage && Objects.nonNull(parameterObject)) {
+            //查询参数中的分页参数
+            if (parameterObject instanceof Map) {
+                //参数是map  用@Params 注解注入的也是以map的形式传参的
+                Map parameterMap = (Map) parameterObject;
+                Object pageObject = parameterMap.get(PAGE_FIELD_NAME);
+                Object limitObject = parameterMap.get(LIMIT_FIELD_NAME);
+                if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
+                    page = Page.startPage((Integer) pageObject, (Integer) limitObject);
+                    PageThreadLocalParameter.setPageParameter(page);
+                }
+            } else {
+                //查找分页字段
+                try {
+                    Object pageObject = PropertyUtil.getFieldValue(parameterObject, parameterObject.getClass(), PAGE_FIELD_NAME);
+                    Object limitObject = PropertyUtil.getFieldValue(parameterObject, parameterObject.getClass(), LIMIT_FIELD_NAME);
+                    if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
+                        page = Page.startPage((Integer) pageObject, (Integer) limitObject);
+                        PageThreadLocalParameter.setPageParameter(page);
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return page;
+    }
+
 
     /**
      * 生成代理类
@@ -218,4 +278,7 @@ public class PagePlugin implements Interceptor {
         return builder.build();
     }
 
+    public void setAutoPage(boolean autoPage) {
+        this.autoPage = autoPage;
+    }
 }

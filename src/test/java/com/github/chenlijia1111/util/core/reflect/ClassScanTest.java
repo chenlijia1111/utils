@@ -45,4 +45,23 @@ public class ClassScanTest {
             System.out.println(fieldType == byte[].class);
         }
     }
+
+
+    @Test
+    public void test4(){
+        DictionaryFieldPojo dictionaryFieldPojo = new DictionaryFieldPojo();
+        dictionaryFieldPojo.setFieldComment("1");
+        dictionaryFieldPojo.setFieldName("1");
+        dictionaryFieldPojo.setFieldType("1");
+        dictionaryFieldPojo.setTableName("1");
+
+        Object obj = dictionaryFieldPojo;
+
+        try {
+            Object fieldName = PropertyUtil.getFieldValue(obj, obj.getClass(), "fieldName");
+            System.out.println(fieldName);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
 }

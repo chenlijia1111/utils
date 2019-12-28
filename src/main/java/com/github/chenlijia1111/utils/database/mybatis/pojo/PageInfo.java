@@ -62,6 +62,8 @@ public class PageInfo<E> {
         //计算总页数
         this.allPage = (count + limit - 1) / limit;
 
+        //分页完之后,消费了线程变量,需要将其删除
+        PageThreadLocalParameter.removePageParameter();
     }
 
 
