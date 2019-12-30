@@ -39,7 +39,6 @@ public class FileTest {
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
             BufferedInputStream inputStream = new BufferedInputStream(fileInputStream);
-            WebFileUtil.qiNiuUpload(inputStream, file.getName());
             System.out.println((System.currentTimeMillis() - l) / 1000);
             IOUtil.close(inputStream);
         } catch (FileNotFoundException e) {

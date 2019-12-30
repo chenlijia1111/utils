@@ -1,16 +1,15 @@
 package com.github.chenlijia1111.utils.dateTime;
 
 import com.github.chenlijia1111.utils.core.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
 /**
  * 时间转换工具
+ * 计算时间间隔 {@link Period}
  *
  * @author chenlijia
  * @version 1.0
@@ -28,7 +27,8 @@ public class DateTimeConvertUtil {
      **/
     public static String dateToStr(Date date, String pattern) {
         if (Objects.nonNull(date) && StringUtils.isNotEmpty(pattern)) {
-            String s = new DateTime(date.getTime()).toString(pattern);
+            LocalDateTime localDateTime = dateToLocalDateTime(date);
+            String s = DateTimeFormatter.ofPattern(pattern).format(localDateTime);
             return s;
         }
         return null;
@@ -44,8 +44,38 @@ public class DateTimeConvertUtil {
      **/
     public static Date strToDate(String timeText, String pattern) {
         if (StringUtils.isNotEmpty(timeText) && StringUtils.isNotEmpty(pattern)) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(pattern);
-            Date date = dateTimeFormatter.parseDateTime(timeText).toDate();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+            LocalDateTime localDateTime = LocalDateTime.parse(timeText, dateTimeFormatter);
+            Date date = localDateTimeToDate(localDateTime);
+            return date;
+        }
+        return null;
+    }
+
+    /**
+     * Date 转 LocalDateTime
+     *
+     * @param date
+     * @return
+     */
+    public static LocalDateTime dateToLocalDateTime(Date date) {
+        if (Objects.nonNull(date)) {
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
+            return localDateTime;
+        }
+        return null;
+    }
+
+    /**
+     * localDateTime 转为 Date
+     *
+     * @param localDateTime
+     * @return
+     */
+    public static Date localDateTimeToDate(LocalDateTime localDateTime) {
+        if (Objects.nonNull(localDateTime)) {
+            ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+            Date date = Date.from(zonedDateTime.toInstant());
             return date;
         }
         return null;
@@ -59,11 +89,11 @@ public class DateTimeConvertUtil {
      * @return org.joda.time.DateTime
      * @since 上午 10:11 2019/12/4 0004
      **/
-    public static DateTime strToDateTime(String timeText, String pattern) {
+    public static LocalDateTime strToDateTime(String timeText, String pattern) {
         if (StringUtils.isNotEmpty(timeText) && StringUtils.isNotEmpty(pattern)) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(pattern);
-            DateTime date = dateTimeFormatter.parseDateTime(timeText);
-            return date;
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+            LocalDateTime localDateTime = LocalDateTime.parse(timeText, dateTimeFormatter);
+            return localDateTime;
         }
         return null;
     }
@@ -78,9 +108,9 @@ public class DateTimeConvertUtil {
      **/
     public static LocalDate strToLocalDate(String timeText, String pattern) {
         if (StringUtils.isNotEmpty(timeText) && StringUtils.isNotEmpty(pattern)) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(pattern);
-            LocalDate date = dateTimeFormatter.parseLocalDate(timeText);
-            return date;
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+            LocalDate localDate = LocalDate.parse(timeText, dateTimeFormatter);
+            return localDate;
         }
         return null;
     }
@@ -92,9 +122,9 @@ public class DateTimeConvertUtil {
      * @return org.joda.time.DateTime
      * @since 上午 10:15 2019/12/4 0004
      **/
-    public static DateTime initStartTime(DateTime dateTime) {
+    public static LocalDateTime initStartTime(LocalDateTime dateTime) {
         if (Objects.nonNull(dateTime)) {
-            dateTime = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
+            dateTime = dateTime.withHour(0).withMinute(0).withSecond(0);
         }
         return dateTime;
     }
@@ -102,15 +132,16 @@ public class DateTimeConvertUtil {
     /**
      * 初始化时分秒为 00:00:00
      *
-     * @param dateTime 1
+     * @param date 1
      * @return org.joda.time.DateTime
      * @since 上午 10:15 2019/12/4 0004
      **/
-    public static Date initStartTime(Date dateTime) {
-        if (Objects.nonNull(dateTime)) {
-            dateTime = new DateTime(dateTime.getTime()).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).toDate();
+    public static Date initStartTime(Date date) {
+        if (Objects.nonNull(date)) {
+            LocalDateTime localDateTime = dateToLocalDateTime(date).withHour(0).withMinute(0).withSecond(0);
+            return localDateTimeToDate(localDateTime);
         }
-        return dateTime;
+        return null;
     }
 
     /**
@@ -120,25 +151,27 @@ public class DateTimeConvertUtil {
      * @return org.joda.time.DateTime
      * @since 上午 10:15 2019/12/4 0004
      **/
-    public static DateTime initEndTime(DateTime dateTime) {
+    public static LocalDateTime initEndTime(LocalDateTime dateTime) {
         if (Objects.nonNull(dateTime)) {
-            dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+            dateTime = dateTime.withHour(23).withMinute(59).withSecond(59);
+            return dateTime;
         }
-        return dateTime;
+        return null;
     }
 
     /**
      * 初始化时分秒为 23:59:59
      *
-     * @param dateTime 1
+     * @param date 1
      * @return org.joda.time.DateTime
      * @since 上午 10:15 2019/12/4 0004
      **/
-    public static Date initEndTime(Date dateTime) {
-        if (Objects.nonNull(dateTime)) {
-            dateTime = new DateTime(dateTime.getTime()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate();
+    public static Date initEndTime(Date date) {
+        if (Objects.nonNull(date)) {
+            LocalDateTime localDateTime = dateToLocalDateTime(date).withHour(23).withMinute(59).withSecond(59);
+            return localDateTimeToDate(localDateTime);
         }
-        return dateTime;
+        return null;
     }
 
 }

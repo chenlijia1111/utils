@@ -4,7 +4,10 @@ import com.github.chenlijia1111.utils.common.constant.TimeConstant;
 import com.github.chenlijia1111.utils.dateTime.BirthUtils;
 import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
 import org.junit.Test;
+import org.omg.CORBA.PUBLIC_MEMBER;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Date;
 
 /**
@@ -31,6 +34,13 @@ public class TestBirth {
     public void test2() {
         String s = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME);
         System.out.println(s);
+    }
+
+    @Test
+    public void test3(){
+        long aLong = LocalDateTime.now().getLong(ChronoField.SECOND_OF_DAY);
+        System.out.println(aLong);
+        System.out.println(System.currentTimeMillis());
     }
 
 }

@@ -19,15 +19,18 @@ import java.util.Objects;
  * 因为spring不会自动扫描jar包中的类
  * 所以在项目中新建一个类继承当前这个类,然后加上spring-aop的注解即可
  * 如下
- * @Aspect
  * @Component
  * public class MyParameterCheckProxy extends ParameterCheckProxy {
  *
  * }
  *
+ * 或者
+ * 使用 @Bean 进行注入
+ *
  * @author 陈礼佳
  * @since 2019/12/22 14:25
  */
+@Aspect
 public class ParameterCheckProxy {
 
 

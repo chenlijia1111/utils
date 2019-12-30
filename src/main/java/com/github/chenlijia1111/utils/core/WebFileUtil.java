@@ -1,24 +1,24 @@
 package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.Result;
-import com.github.chenlijia1111.utils.encrypt.HMacSHA1EncryptUtil;
-import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.HttpUtils;
-import com.github.chenlijia1111.utils.list.Maps;
-import com.github.chenlijia1111.utils.list.annos.MapType;
+import com.github.chenlijia1111.utils.image.ReduceImageUtil;
+import com.github.chenlijia1111.utils.list.Lists;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Base64;
-import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * 文件工具类
+ * web文件工具类
+ * <p>
+ * 使用
  *
  * @author chenlijia
  * @version 1.0
@@ -27,30 +27,79 @@ import java.util.Map;
 public class WebFileUtil {
 
     //log 日志
-    private static final Logger log = LoggerFactory.getLogger(WebFileUtil.class);
+    private static final Logger log = new LogUtil(WebFileUtil.class);
+
 
     /**
-     * 返回项目根目录
+     * 上传文件之后返回相对接口路径,不返回决定url 方便迁移文件
      *
-     * @param request
+     * @param file
+     * @param savePath        保存文件的路径
+     * @param downLoadApiPath 下载的api路径
+     * @param isFileName      是否加文件名参数
      * @return
      */
-    public static String getServerPath(HttpServletRequest request) {
-        String scheme = request.getScheme();
-        String serverName = request.getServerName();
-        int serverPort = request.getServerPort();
-        String contextPath = request.getContextPath();
-        String url = scheme + "://" + serverName + ":" + serverPort + contextPath;
-        return url;
+    public static Result saveFile(MultipartFile file, String savePath, String downLoadApiPath, boolean isFileName, String fileType) {
+        if (file == null) {
+            return Result.failure("上传文件为空");
+        }
+        if (StringUtils.isEmpty(savePath)) {
+            return Result.failure("上传路径为空");
+        }
+        //随机名称
+        String newFileName = UUID.randomUUID().toString().replace("-", "");
+        String originalFilename = file.getOriginalFilename();
+        //后缀
+        int i = originalFilename.lastIndexOf(".");
+        String suffixName = "";
+        if (i != -1)
+            suffixName = originalFilename.substring(i);
+
+        if (StringUtils.isEmpty(suffixName) || suffixName.equals("."))
+            return Result.failure("文件没有后缀名");
+
+        FileUtils.checkDirectory(savePath);
+        File destFile = new File(savePath + "/" + newFileName + suffixName);
+
+        try {
+            file.transferTo(destFile);
+
+            //如果是图片的话,判断图片是否合法
+            if (Objects.equals(fileType, "img")) {
+                boolean image = FileUtils.isImage(destFile);
+                if (!image) {
+                    return Result.failure("图片不合法");
+                }
+            }
+
+            //如果是图片,对图片进行压缩
+            if (Lists.asList(".jpg", ".png", ".gif").contains(suffixName)) {
+                //多线程执行,这个操作耗时比较长
+                new Thread(() -> ReduceImageUtil.reduceImage(destFile)).start();
+            }
+        } catch (IOException e) {
+            log.error("文件上传失败");
+            e.printStackTrace();
+            return Result.failure("上传失败");
+        }
+        String path = downLoadApiPath + "?filePath=" + newFileName + suffixName + "&fileType=" + fileType;
+        //凡是文件的都需要源文件名
+        if (isFileName) {
+            path += "&fileName=" + originalFilename;
+        }
+        Result result = Result.success("上传成功");
+        result.setData(path);
+        return result;
     }
 
 
     /**
-     * @param filePath 文件绝对路径 C:/demo/demo.txt
-     * @param fileName 文件名称 下载返回显示的文件名称
+     * @param filePath 文件绝对路径
+     * @param fileName 文件名称
+     * @param isDelete 下载完成之后是否删除文件
      * @param response
      */
-    public static void downloadFile(String filePath, String fileName, HttpServletResponse response, HttpServletRequest request) {
+    public static void downloadFile(String filePath, String fileName, boolean isDelete, HttpServletResponse response, HttpServletRequest request) {
         File file = new File(filePath);
         if (!file.exists())
             //文件不存在
@@ -87,6 +136,10 @@ public class WebFileUtil {
             log.error("文件未找到:" + filePath);
         } catch (IOException e) {
             log.error("文件下载异常:" + e.getMessage());
+//            e.printStackTrace();
+        } finally {
+            if (isDelete)
+                file.delete();
         }
 
     }
@@ -95,12 +148,13 @@ public class WebFileUtil {
     /**
      * 处理断点续传
      * 返回状态 206
-     * 新增 Header Content-Range=bytes 2000070-106786027/106786028
+     * 新增 header Content-Range=bytes 2000070-106786027/106786028
      *
      * @param file     1
      * @param request  2
      * @param response 3
      * @return void
+     * @author chenlijia
      * @since 下午 4:39 2019/7/23 0023
      **/
     private static void checkGoingDown(File file, HttpServletRequest request, HttpServletResponse response) {
@@ -124,66 +178,40 @@ public class WebFileUtil {
      *
      * @param request 1
      * @return java.lang.Integer
+     * @author chenlijia
      * @since 下午 4:41 2019/7/23 0023
      **/
-    private static Integer findDownLoadStartPosition(HttpServletRequest request) {
+    public static Integer findDownLoadStartPosition(HttpServletRequest request) {
 
         int start = 0;
-        String range = request.getHeader("range");
+        String range = request.getHeader("range"); //Range: bytes=2001-4932
         if (StringUtils.isNotEmpty(range)) {
             String[] split = range.split("=");
-            String s = split[1];
-            s = s.substring(0, s.length() - 1);
-            start = Integer.valueOf(s);
+            String s = split[1]; //2001-4932
+            if (StringUtils.isNotEmpty(s)) {
+                String[] split1 = s.split("-");
+                if (null != split1 && split1.length > 0) {
+                    start = Integer.valueOf(split1[0]);
+                }
+            }
         }
         return start;
     }
 
+
     /**
-     * 七牛云上传文件
-     * 文件名称需要调用者自行保存
+     * 返回项目根目录
      *
-     * @param inputStream
-     * @param fileName
+     * @param request
      * @return
      */
-    public static Result qiNiuUpload(InputStream inputStream, String fileName) {
-
-        String uploadFileUrl = "http://up-z2.qiniup.com";
-        String accessKey = "vszem8XnHhtqTLk5sae8eaINGqXUyh0CS-8_AruE";
-        String secretKey = "rCnGMxaW0ZBZxfrLtPYSpKSPCHV7GUlCenxL0zTv";
-
-        //去文件的后缀名
-        String fileSuffix = FileUtils.getFileSuffix(fileName);
-        String uploadFileName = RandomUtil.createRandomName() + fileSuffix;
-        //上传策略
-        Map putPolicy = Maps.mapBuilder(MapType.HASH_MAP).
-                put("scope", "chenlijia").
-                put("deadline", System.currentTimeMillis() / 1000 + 3600).
-                put("saveKey", uploadFileName).
-                build();
-
-        String putPolicyJson = JSONUtil.objToStr(putPolicy);
-        try {
-            String putPolicyBase64 = Base64.getUrlEncoder().encodeToString(putPolicyJson.getBytes("UTF-8"));
-            //构建签名
-            byte[] bytes = HMacSHA1EncryptUtil.SHA1BytesToBytes(putPolicyBase64.getBytes("UTF-8"), secretKey);
-            String sign = Base64.getUrlEncoder().encodeToString(bytes);
-            //生成token
-            String uploadToken = accessKey + ":" + sign + ":" + putPolicyBase64;
-            //开始上传
-            HttpClientUtils.getInstance().putParams("token", uploadToken).
-                    putInputStreamParams("file", inputStream).doPost(uploadFileUrl).toMap();
-
-            //文件地址
-            String fileUrl = "http://q1rhio3tk.bkt.clouddn.com/" + uploadFileName;
-            return Result.success("上传成功", fileUrl);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return Result.failure("上传失败");
+    public static String getServerPath(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath();
+        String url = scheme + "://" + serverName + ":" + serverPort + contextPath;
+        return url;
     }
-
 
 }

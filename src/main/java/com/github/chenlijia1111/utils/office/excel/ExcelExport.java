@@ -2,15 +2,14 @@ package com.github.chenlijia1111.utils.office.excel;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.constant.TimeConstant;
-import com.github.chenlijia1111.utils.core.PropertyCheckUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
+import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.joda.time.DateTime;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +35,7 @@ import java.util.function.Function;
  * 如果碰到两个表头对应同一个属性值的情况，可以通过设置转换特性的属性名以及转换方法来进行实现
  * {@link #transferMap} 转换方法 {@link #exportTitleHeadNameMap}
  * 当属性不存在时，会默认以对象的数据来进行转换
- *
+ * <p>
  * 自定义导出暂时没有宽度的设置,后期可以加
  *
  * @author chenlijia
@@ -138,7 +137,7 @@ public class ExcelExport {
 
     public ExcelExport setExportFileName(String exportFileName) {
         if (StringUtils.isEmpty(exportFileName)) {
-            this.exportFileName = DateTime.now().toString(TimeConstant.DATE) + ".xls";
+            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME) + ".xls";
         } else if (!(exportFileName.toLowerCase().endsWith(".xls")
                 || exportFileName.toLowerCase().endsWith(".xlsx"))) {
             this.exportFileName = exportFileName + ".xls";
@@ -187,7 +186,7 @@ public class ExcelExport {
         //校验是否设置了导出文件名
         if (StringUtils.isEmpty(this.exportFileName)) {
             //设置默认名城
-            this.exportFileName = DateTime.now().toString(TimeConstant.DATE_TIME);
+            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME);
         }
 
         //导出

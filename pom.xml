@@ -51,6 +51,7 @@
         <jsoup.version>1.12.1</jsoup.version>
         <spring-boot-starter-aop.version>2.2.2.RELEASE</spring-boot-starter-aop.version>
         <mybatis.version>3.5.3</mybatis.version>
+        <spring-web.version>5.2.0.RELEASE</spring-web.version>
     </properties>
 
     <dependencies>
@@ -230,6 +231,13 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>${mybatis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- spring-web  不做显示引入,调用者有需要自行引入-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring-web.version}</version>
             <scope>provided</scope>
         </dependency>
 
