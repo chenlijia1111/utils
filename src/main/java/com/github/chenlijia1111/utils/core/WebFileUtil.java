@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.Result;
+import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.image.ReduceImageUtil;
 import com.github.chenlijia1111.utils.list.Lists;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -58,6 +60,9 @@ public class WebFileUtil {
         if (StringUtils.isEmpty(suffixName) || suffixName.equals("."))
             return Result.failure("文件没有后缀名");
 
+        //以天为文件夹
+        String yyyyMMdd = DateTimeConvertUtil.dateToStr(new Date(), "yyyyMMdd");
+        savePath = savePath + "/" + yyyyMMdd;
         FileUtils.checkDirectory(savePath);
         File destFile = new File(savePath + "/" + newFileName + suffixName);
 
@@ -82,13 +87,23 @@ public class WebFileUtil {
             e.printStackTrace();
             return Result.failure("上传失败");
         }
-        String path = downLoadApiPath + "?filePath=" + newFileName + suffixName + "&fileType=" + fileType;
+        //拼接最终的url请求路径,不带绝对前缀  ------ system/downLoad?filePath=filePath&fileType=file&fileName=fileName
+        StringBuilder pathStringBuilder = new StringBuilder();
+        pathStringBuilder.append(downLoadApiPath);
+        pathStringBuilder.append("?filePath=");
+        pathStringBuilder.append(yyyyMMdd);
+        pathStringBuilder.append("/");
+        pathStringBuilder.append(newFileName);
+        pathStringBuilder.append(suffixName);
+        pathStringBuilder.append("&fileType=");
+        pathStringBuilder.append(fileType);
         //凡是文件的都需要源文件名
         if (isFileName) {
-            path += "&fileName=" + originalFilename;
+            pathStringBuilder.append("&fileName=");
+            pathStringBuilder.append(originalFilename);
         }
         Result result = Result.success("上传成功");
-        result.setData(path);
+        result.setData(pathStringBuilder.toString());
         return result;
     }
 
