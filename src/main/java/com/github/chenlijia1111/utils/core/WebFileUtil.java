@@ -33,7 +33,7 @@ public class WebFileUtil {
 
 
     /**
-     * 上传文件之后返回相对接口路径,不返回决定url 方便迁移文件
+     * 上传文件之后返回相对接口路径,不返回绝对url 方便迁移文件
      *
      * @param file
      * @param savePath        保存文件的路径
