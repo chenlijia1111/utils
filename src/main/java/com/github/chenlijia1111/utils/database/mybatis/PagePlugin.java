@@ -140,6 +140,13 @@ public class PagePlugin implements Interceptor {
                     e.printStackTrace();
                 }
             }
+        } else {
+            //如果page 不为空的话,需要判断是否已经分过一次页了,
+            //如果前面已经分过一次页了,那么后面的查询即使没有被消费掉,也不应该再次分页了,
+            //这样消费线程变量参数就不需要紧跟查询了
+            if (Objects.nonNull(page.getCount())) {
+                return null;
+            }
         }
         return page;
     }
