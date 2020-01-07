@@ -37,16 +37,16 @@ public class PageInfo<E> {
     /**
      * 数据
      */
-    private List<E> data;
+    private List<E> list;
 
 
     private PageInfo() {
     }
 
     /**
-     * @param data
+     * @param list
      */
-    public PageInfo(List<E> data) {
+    public PageInfo(List<E> list) {
 
         //获取线程变量,进行消费
         Page pageParameter = PageThreadLocalParameter.getPageParameter();
@@ -54,7 +54,7 @@ public class PageInfo<E> {
 
         AssertUtil.isTrue(Objects.nonNull(pageParameter.getCount()), "没有进行分页查询,获取总条数失败");
 
-        this.data = data;
+        this.list = list;
         this.page = pageParameter.getPage();
         this.limit = pageParameter.getLimit();
         this.count = pageParameter.getCount();
@@ -77,8 +77,8 @@ public class PageInfo<E> {
     }
 
 
-    public List<E> getData() {
-        return data;
+    public List<E> getList() {
+        return list;
     }
 
     public Integer getPage() {

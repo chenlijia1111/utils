@@ -3,10 +3,9 @@ package com.github.chenlijia1111.utils.dateTime;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.commonCheckFunction.IDCardNoCheck;
 import com.github.chenlijia1111.utils.list.Lists;
+import org.joda.time.LocalDate;
+import org.joda.time.Years;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -114,7 +113,7 @@ public class BirthUtils {
      */
     public static String constellation(LocalDate date) {
         if (Objects.nonNull(date)) {
-            String format = DateTimeFormatter.ofPattern("MM.dd").format(date);
+            String format = date.toString("MM.dd");
             Optional<Constellation> any = CONSTELLATION_LIST.stream().filter(e -> format.compareTo(e.getStartDayOfMonth()) >= 0 &&
                     format.compareTo(e.getEndDayOfMonth()) <= 0).findAny();
             if (any.isPresent()) {
@@ -189,7 +188,7 @@ public class BirthUtils {
             LocalDate birthDay = birthDay(cardNo);
             if (Objects.nonNull(birthDay)) {
                 //计算年龄
-                return Period.between(birthDay, date).getYears();
+                return Years.yearsBetween(birthDay, date).getYears();
             }
         }
         return 0;

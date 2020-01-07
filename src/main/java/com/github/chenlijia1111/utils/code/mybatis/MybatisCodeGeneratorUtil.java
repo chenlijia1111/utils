@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.code.mybatis;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
+import com.github.chenlijia1111.utils.core.LogUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import io.swagger.annotations.ApiModel;
 import org.mybatis.generator.api.MyBatisGenerator;
@@ -25,7 +26,7 @@ import java.util.*;
  **/
 public class MybatisCodeGeneratorUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(MybatisCodeGeneratorUtil.class);
+    private static Logger logger = new LogUtil(MybatisCodeGeneratorUtil.class);
 
     /**
      * 生成实体代码注释的 generator 实现

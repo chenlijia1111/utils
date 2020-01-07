@@ -3,12 +3,18 @@ package com.github.chenlijia1111.utils.office.excel;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.list.Lists;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -65,7 +71,34 @@ public class ExcelUtil {
         //判断数据的类型
         switch (cell.getCellType()) {
             case NUMERIC: //数字
-                cellValue = String.valueOf(cell.getNumericCellValue());
+                if (HSSFDateUtil.isCellDateFormatted(cell)) {// 处理日期格式、时间格式
+                    SimpleDateFormat sdf = null;
+                    if (cell.getCellStyle().getDataFormat() == HSSFDataFormat.getBuiltinFormat("h:mm")) {
+                        sdf = new SimpleDateFormat("HH:mm");
+                    } else {// 日期
+                        sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    }
+                    Date date = cell.getDateCellValue();
+                    cellValue = sdf.format(date);
+                } else if (cell.getCellStyle().getDataFormat() == 58) {
+                    // 处理自定义日期格式：m月d日(通过判断单元格的格式id解决，id的值是58)
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    double value = cell.getNumericCellValue();
+                    Date date = org.apache.poi.ss.usermodel.DateUtil
+                            .getJavaDate(value);
+                    cellValue = sdf.format(date);
+                } else {
+                    double value = cell.getNumericCellValue();
+                    CellStyle style = cell.getCellStyle();
+                    DecimalFormat format = new DecimalFormat();
+                    String temp = style.getDataFormatString();
+                    // 单元格设置成常规
+                    if (Objects.nonNull(temp) && temp.equals("General")) {
+                        format.applyPattern("#");
+                    }
+                    cellValue = format.format(value);
+                }
+
                 break;
             case STRING: //字符串
                 cellValue = String.valueOf(cell.getStringCellValue());

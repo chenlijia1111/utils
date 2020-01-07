@@ -24,7 +24,7 @@ import java.util.zip.ZipOutputStream;
 public class FileUtils {
 
     //log 日志
-    private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger log = new LogUtil(FileUtils.class);
 
     /**
      * 常用下载类型   contentType  MIME Type
