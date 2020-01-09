@@ -2,11 +2,12 @@ package com.github.chenlijia1111.utils.pay.ali;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.AlipayResponse;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.*;
-import com.alipay.api.request.AlipayTradeAppPayRequest;
-import com.alipay.api.request.AlipayTradeRefundRequest;
-import com.alipay.api.request.AlipayTradeWapPayRequest;
+import com.alipay.api.request.*;
+import com.alipay.api.response.AlipayFundTransToaccountTransferResponse;
+import com.alipay.api.response.AlipayFundTransTobankTransferResponse;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -229,14 +230,14 @@ public class ALiPayUtil {
      * @param orderAmount 转账金额
      * @param body        转账描述
      */
-    public static boolean transfer(String appId, String privateKey, String publicKey, String accountName, String userName,
-                                   String orderNo, String orderAmount, String body) {
+    public static AlipayResponse transfer(String appId, String privateKey, String publicKey, String accountName, String userName,
+                                          String orderNo, String orderAmount, String body) {
 
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
                 appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+        AlipayFundTransToaccountTransferRequest request = new AlipayFundTransToaccountTransferRequest();
 
         AlipayFundTransToaccountTransferModel model = new AlipayFundTransToaccountTransferModel();
         model.setOutBizNo(orderNo);
@@ -248,12 +249,51 @@ public class ALiPayUtil {
         model.setRemark(body);
         try {
             request.setBizModel(model);
-            AlipayTradeAppPayResponse execute = alipayClient.execute(request);
-            return execute.isSuccess();
+            AlipayFundTransToaccountTransferResponse response = alipayClient.execute(request);
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
+    }
+
+
+    /**
+     * 转账到银行卡
+     *
+     * @param appId
+     * @param privateKey
+     * @param publicKey
+     * @param userName    真实姓名
+     * @param orderNo     订单编号
+     * @param orderAmount 转账金额
+     * @param body        转账描述
+     */
+    public static AlipayResponse transferToBank(String appId, String privateKey, String publicKey, String bankCardNo, String userName,
+                                                String orderNo, String orderAmount, String body) {
+
+        //实例化客户端
+        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
+        //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
+        AlipayFundTransTobankTransferRequest request = new AlipayFundTransTobankTransferRequest();
+
+
+        AlipayFundTransTobankTransferModel model = new AlipayFundTransTobankTransferModel();
+        model.setAmount(orderAmount); //转账金额，单位：元。支持2位小数，小数点前最大支持13位，金额必须大于0。
+        model.setMemo("1");
+        model.setOutBizNo(orderNo);
+        model.setPayeeAccountName(userName); //收款方银行账户名，必须与收款方银行卡号所属账户信息一致。
+        model.setPayeeCardNo(bankCardNo);
+        model.setRemark(body);
+        try {
+            request.setBizModel(model);
+            AlipayFundTransTobankTransferResponse response = alipayClient.execute(request);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
