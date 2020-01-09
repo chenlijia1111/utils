@@ -4,6 +4,7 @@ import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
 import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
+import com.github.chenlijia1111.utils.encrypt.RSAUtils;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.http.URLBuildUtil;
@@ -28,19 +29,19 @@ public class WXPayUtil {
      * 下预订单
      *
      * @param appId
-     * @param mchId     商户号
-     * @param body      商品描述 128字符
-     * @param totalFee  交易金额 以分为单位
-     * @param signKey   签名加盐的key key设置路径：微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
-     * @param notifyUrl 回调地址
-     * @param payType   支付客户端类型
-     * @param openId    当支付类型为 {@link PayType#JSAPI} 需要传openId
+     * @param mchId      商户号
+     * @param body       商品描述 128字符
+     * @param totalFee   交易金额 以分为单位
+     * @param signKey    签名加盐的key key设置路径：微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
+     * @param notifyUrl  回调地址
+     * @param payType    支付客户端类型
+     * @param openId     当支付类型为 {@link PayType#JSAPI} 需要传openId
      * @param outTradeNo 商户订单号
      * @param request
      * @return
      */
     public static Map createPreOrder(String appId, String mchId, String body, String signKey, int totalFee,
-                                     String notifyUrl, PayType payType, String openId,String outTradeNo, HttpServletRequest request) {
+                                     String notifyUrl, PayType payType, String openId, String outTradeNo, HttpServletRequest request) {
 
         HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
         //填充参数
@@ -317,6 +318,166 @@ public class WXPayUtil {
         instance.putParams("sign", sign);
 
         String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
+        return map;
+    }
+
+
+    /**
+     * 转账银行卡
+     * 转账银行卡需要先去获取RSA公钥对敏感字段先进行加密,然后再用加密密钥进行签名
+     * 获取公钥文档 https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_7&index=4
+     * 银行编号文档 https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_4
+     *
+     * @param mchid              商户号
+     * @param nonceStr           随机字符串
+     * @param partnerTradeNo     转账单号
+     * @param encBankNo          银行卡号
+     * @param encTrueName        真是姓名
+     * @param bankCode           银行编号
+     * @param amount             金额 分
+     * @param desc               描述
+     * @param sslFileInputStream SSL加密文件输入流
+     * @param signKey            签名加盐秘钥
+     * @param rsaPublicKey       参数rsa加密公钥
+     * @return java.util.Map
+     * @since 下午 9:53 2019/9/24 0024
+     **/
+    public static Map transferToBank(String mchid, String nonceStr, String partnerTradeNo, String encBankNo,
+                                     String encTrueName, String bankCode, String amount, String desc, InputStream sslFileInputStream, String signKey, String rsaPublicKey) {
+
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(sslFileInputStream, mchid);
+
+        instance.putParams("mchid", mchid); //商户号
+        instance.putParams("partner_trade_no", partnerTradeNo); //商户企业付款单号
+        instance.putParams("nonce_str", nonceStr); //随机字符串
+
+        //银行卡号进行RSA加密
+        encBankNo = RSAUtils.publicEncrypt(encBankNo, rsaPublicKey);
+        instance.putParams("enc_bank_no", encBankNo); //收款方银行卡号
+        //收款方用户名进行RSA加密
+        encTrueName = RSAUtils.publicEncrypt(encTrueName, rsaPublicKey);
+        instance.putParams("enc_true_name", encTrueName); //收款方用户名
+        instance.putParams("bank_code", bankCode); //收款方开户行
+        instance.putParams("amount", amount); //付款金额
+        instance.putParams("desc", desc); //付款说明
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaysptrans/pay_bank").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
+        return map;
+    }
+
+    /**
+     * 转账银行卡
+     * 转账银行卡需要先去获取RSA公钥对敏感字段先进行加密,然后再用加密密钥进行签名
+     * 获取公钥文档 https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_7&index=4
+     * 银行编号文档 https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=24_4
+     *
+     * @param mchid          商户号
+     * @param nonceStr       随机字符串
+     * @param partnerTradeNo 转账单号
+     * @param encBankNo      银行卡号
+     * @param encTrueName    真是姓名
+     * @param bankCode       银行编号
+     * @param amount         金额 分
+     * @param desc           描述
+     * @param sslFilePath    SSL加密文件
+     * @param signKey        签名加盐秘钥
+     * @param rsaPublicKey   参数rsa加密公钥
+     * @return java.util.Map
+     * @since 下午 9:53 2019/9/24 0024
+     **/
+    public static Map transferToBank(String mchid, String nonceStr, String partnerTradeNo, String encBankNo,
+                                     String encTrueName, String bankCode, String amount, String desc, String sslFilePath, String signKey, String rsaPublicKey) {
+
+        File file = new File(sslFilePath);
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(file, mchid);
+
+        instance.putParams("mchid", mchid); //商户号
+        instance.putParams("partner_trade_no", partnerTradeNo); //商户企业付款单号
+        instance.putParams("nonce_str", nonceStr); //随机字符串
+
+        //银行卡号进行RSA加密
+        encBankNo = RSAUtils.publicEncrypt(encBankNo, rsaPublicKey);
+        instance.putParams("enc_bank_no", encBankNo); //收款方银行卡号
+        //收款方用户名进行RSA加密
+        encTrueName = RSAUtils.publicEncrypt(encTrueName, rsaPublicKey);
+        instance.putParams("enc_true_name", encTrueName); //收款方用户名
+        instance.putParams("bank_code", bankCode); //收款方开户行
+        instance.putParams("amount", amount); //付款金额
+        instance.putParams("desc", desc); //付款说明
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://api.mch.weixin.qq.com/mmpaysptrans/pay_bank").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
+        return map;
+    }
+
+
+    /**
+     * 转账银行卡-获取参数加密rsa公钥
+     *
+     * @param mchId
+     * @param sslFilePath ssl加密文件地址
+     * @param signKey     签名密钥
+     * @return
+     */
+    public static Map fieldRSAPublicKey(String mchId, String sslFilePath, String signKey) {
+        File file = new File(sslFilePath);
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(file, mchId);
+        instance.putParams("mchid", mchId); //商户号
+        String nonceStr = RandomUtil.createUUID();
+        instance.putParams("nonce_str", nonceStr); //随机字符串
+        instance.putParams("sign_type", "MD5"); //签名类型
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://fraud.mch.weixin.qq.com/risk/getpublickey").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
+        return map;
+    }
+
+    /**
+     * 转账银行卡-获取参数加密rsa公钥
+     *
+     * @param mchId
+     * @param sslFileInputStream ssl加密文件输入流
+     * @param signKey            签名密钥
+     * @return
+     */
+    public static Map fieldRSAPublicKey(String mchId, InputStream sslFileInputStream, String signKey) {
+        HttpClientUtils instance = HttpClientUtils.getInstanceWithSSL(sslFileInputStream, mchId);
+        instance.putParams("mchid", mchId); //商户号
+        String nonceStr = RandomUtil.createUUID();
+        instance.putParams("nonce_str", nonceStr); //随机字符串
+        instance.putParams("sign_type", "MD5"); //签名类型
+
+        String s = instance.paramsToString(true);
+
+        s = s + "&key=" + signKey;
+        //构建签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(s);
+        instance.putParams("sign", sign);
+
+        String xmlString = instance.setContentType(ContentTypeConstant.TEXT_XML).doPost("https://fraud.mch.weixin.qq.com/risk/getpublickey").toString();
         Map<String, Object> map = XmlUtil.parseXMLToMap(xmlString);
         return map;
     }

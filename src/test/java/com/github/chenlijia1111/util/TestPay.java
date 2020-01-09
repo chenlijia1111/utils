@@ -134,4 +134,18 @@ public class TestPay {
         System.out.println(alipayResponse.getMsg());
     }
 
+
+    @Test
+    public void test10() {
+
+        String appId = "wxd3fdb22474bdd195";
+        String appSecret = "a3563455b057a976230c0cb5a828659f";
+        String mchId = "1553017211";
+        String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
+        Map map = WXPayUtil.fieldRSAPublicKey(mchId,
+                "D:\\java\\projects\\jiuyou\\src\\main\\resources\\libs\\apiclient_cert.p12",
+                partnerKey);
+        System.out.println(map);
+    }
+
 }
