@@ -4,6 +4,7 @@ import com.github.chenlijia1111.utils.core.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * @author chenlijia
@@ -15,7 +16,7 @@ public class HttpUtils {
     //获取请求Ip
     public static String getIpAddr(HttpServletRequest request) {
 
-        if(Objects.isNull(request)){
+        if (Objects.isNull(request)) {
             return "127.0.0.1";
         }
 
@@ -112,5 +113,6 @@ public class HttpUtils {
         }
         return null;
     }
+
 
 }

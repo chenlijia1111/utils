@@ -594,6 +594,7 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println();
             //导入Result
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");
+            printWriter.println("import java.util.List;");
             //导入实体
             printWriter.println("import " + entityFullName + ";");
             printWriter.println();
@@ -630,6 +631,20 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println("    Result update(" + entityClassName + " params);");
             printWriter.println();
 
+            //条件查询方法
+            printWriter.println("" +
+                    "    /**\n" +
+                    "     * 条件查询\n" +
+                    "     *\n" +
+                    "     * @param condition      1\n" +
+                    "     * @return " +
+                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
+                    "     * @since " + fetchCurrentTimeStr() + "\n" +
+                    "     **/");
+            //方法
+            printWriter.println("    List<"+entityClassName+"> listByCondition(" + entityClassName + " condition);");
+            printWriter.println();
+
             printWriter.println();
             printWriter.println("}");
             printWriter.flush();
@@ -652,12 +667,15 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println();
             //导包
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");//Result
+            printWriter.println("import com.github.chenlijia1111.utils.core.PropertyCheckUtil;");//参数校验
+
             printWriter.println("import " + entityFullName + ";");//实体
             printWriter.println("import " + targetDAOPackage + "." + entityClassName + "Mapper;");//dao 接口
             printWriter.println("import " + targetServicePackage + "." + entityClassName + "ServiceI;");//service接口
             printWriter.println("import org.springframework.stereotype.Service;");//@Service接口
             printWriter.println();
             printWriter.println("import javax.annotation.Resource;");//Resource注解
+            printWriter.println("import java.util.List;");
             printWriter.println();
             //注释
             printComment(printWriter, comment);
@@ -688,6 +706,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
+            printWriter.println("    @Override");
             printWriter.println("    public Result add(" + entityClassName + " params){");
             printWriter.println("    ");
             printWriter.println("        int i = " + daoName + ".insertSelective(params);");
@@ -707,10 +726,32 @@ public class MybatisCodeGeneratorUtil {
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
+            printWriter.println("    @Override");
             printWriter.println("    public Result update(" + entityClassName + " params){");
             printWriter.println("    ");
             printWriter.println("        int i = " + daoName + ".updateByPrimaryKeySelective(params);");
             printWriter.println("        return i > 0 ? Result.success(\"操作成功\") : Result.failure(\"操作失败\");");
+            printWriter.println("    }");
+            printWriter.println();
+
+
+            //条件查询方法
+            //方法注释
+            printWriter.println("" +
+                    "    /**\n" +
+                    "     * 条件查询\n" +
+                    "     *\n" +
+                    "     * @param condition  \n" +
+                    "     * @return \n" +
+                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
+                    "     * @since " + fetchCurrentTimeStr() + "\n" +
+                    "     **/");
+            //方法
+            printWriter.println("    @Override");
+            printWriter.println("    public List<"+entityClassName+"> listByCondition(" + entityClassName + " condition){");
+            printWriter.println("    ");
+            printWriter.println("        PropertyCheckUtil.transferObjectNotNull(condition, true);");
+            printWriter.println("        return " + daoName + ".select(condition);");
             printWriter.println("    }");
             printWriter.println();
 

@@ -1,14 +1,17 @@
 package com.github.chenlijia1111.utils.common;
 
-import com.github.chenlijia1111.utils.cn.TranslatorUtil;
-import com.github.chenlijia1111.utils.cn.enums.TranslateLanguageEnum;
 import com.github.chenlijia1111.utils.common.enums.ResponseStatusEnum;
+import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 
+import java.io.InputStream;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * 返回结果
+ * 新增国际化操作,可读取国际化properties文件 2020-01-13
  *
  * @author chenlijia
  * @version 1.0
@@ -16,13 +19,12 @@ import java.util.Objects;
  **/
 public class Result {
 
+
     /**
-     * 返回给前端展示的语言,通过{@link TranslatorUtil} 进行翻译
-     * 默认中文不翻译
-     *
-     * @since 上午 9:31 2019/12/2 0002
-     **/
-    public static String resultLanguage = TranslateLanguageEnum.ZH_CN.getAbbr();
+     * 国际化解析文件得出的Map {@link #loadTransferPropertyRelativeFilePath(String)}
+     * 也可以采用直接赋值方式赋值,不通过解析
+     */
+    public static Map transferPropertyKeyValueMap;
 
 
     /**
@@ -51,7 +53,7 @@ public class Result {
         Result result = new Result();
         result.setCode(ResponseStatusEnum.SUCCESS.getCode());
         result.setSuccess(true);
-        result.setMsg("操作成功");
+        result.setMsg(msg);
         result.setData(data);
         return result;
     }
@@ -142,7 +144,7 @@ public class Result {
     }
 
     public void setMsg(String msg) {
-        //校验返回结果是否需要翻译
+        //this.msg = msg;
         this.msg = checkMsg(msg);
     }
 
@@ -152,6 +154,22 @@ public class Result {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    /**
+     * 读取国际化properties文件
+     *
+     * @param transferPropertyRelativeFilePath 相对项目位置,存放国际化 properties文件 如: static/test1.properties
+     */
+    public static void loadTransferPropertyRelativeFilePath(String transferPropertyRelativeFilePath) {
+        //读取
+        if (StringUtils.isNotEmpty(transferPropertyRelativeFilePath)) {
+            InputStream inputStream = IOUtil.inputStreamToBaseProject(transferPropertyRelativeFilePath);
+            if (Objects.nonNull(inputStream)) {
+                Properties properties = IOUtil.readToProperties(inputStream);
+                Result.transferPropertyKeyValueMap = properties;
+            }
+        }
     }
 
     @Override
@@ -165,16 +183,19 @@ public class Result {
     }
 
     /**
-     * 校验返回结果是否需要翻译
+     * 处理返回内容,判断是否需要国际化
      *
-     * @param msg
+     * @param str
      * @return
      */
-    private static String checkMsg(String msg) {
-        if (StringUtils.isNotEmpty(msg) && Objects.nonNull(resultLanguage) &&
-                !Objects.equals(TranslateLanguageEnum.ZH_CN.getAbbr(), resultLanguage)) {
-            msg = TranslatorUtil.translate(msg, TranslateLanguageEnum.ZH_CN.getAbbr(), resultLanguage);
+    private String checkMsg(String str) {
+        if (Objects.nonNull(transferPropertyKeyValueMap) && StringUtils.isNotEmpty(str)) {
+            Object o = transferPropertyKeyValueMap.get(str);
+            if (Objects.nonNull(o)) {
+                return o.toString();
+            }
         }
-        return msg;
+        return str;
     }
+
 }

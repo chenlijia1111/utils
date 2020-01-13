@@ -21,8 +21,8 @@ public class CodeTest {
         mybatisCodeGeneratorUtil.setCommentGeneratorType(CommonMapperCommentGenerator.class.getName())
                 .setConnectionUrl("jdbc:mysql://58.250.17.31:33306/haiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
-                setUserId("root").setPassword("1029tqljsw")
-                .setTargetProjectPath("C:\\Users\\Administrator\\mycode\\utils\\src\\test\\java").
+                setUserId("root").setPassword("1015tqljsw")
+                .setTargetProjectPath("D:\\java\\projects\\utils\\src\\test\\java").
                 setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").
                 setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
                 setTargetXMLPackage("com.github.chenlijia1111.util.code.mapper").

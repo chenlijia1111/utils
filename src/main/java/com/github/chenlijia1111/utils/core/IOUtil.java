@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.enums.CharSetType;
 
 import java.io.*;
 import java.util.Properties;
@@ -213,7 +214,8 @@ public class IOUtil {
         AssertUtil.isTrue(null != inputStream, "输入流为空");
         Properties properties = new Properties();
         try {
-            properties.load(inputStream);
+            //防止直接读取properties中文乱码,通过 InputStreamReader 进行指定编码
+            properties.load(new InputStreamReader(inputStream, CharSetType.UTF8.name()));
         } catch (IOException e) {
             e.printStackTrace();
         }

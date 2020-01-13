@@ -51,6 +51,7 @@
         <jsoup.version>1.12.1</jsoup.version>
         <spring-boot-starter-aop.version>2.2.2.RELEASE</spring-boot-starter-aop.version>
         <mybatis.version>3.5.3</mybatis.version>
+        <tk.mybatis.version>4.1.5</tk.mybatis.version>
         <spring-web.version>5.2.0.RELEASE</spring-web.version>
     </properties>
 
@@ -231,6 +232,13 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>${mybatis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--通用mapper  不做显示引入,调用者有需要自行引入-->
+        <dependency>
+            <groupId>tk.mybatis</groupId>
+            <artifactId>mapper</artifactId>
+            <version>${tk.mybatis.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- spring-web  不做显示引入,调用者有需要自行引入-->

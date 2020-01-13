@@ -10,6 +10,7 @@ import java.util.Objects;
 /**
  * 翻译工具类
  * 借助谷歌翻译
+ * 如果大量请求会导致谷歌方面ip预警
  *
  * @author 陈礼佳
  * @since 2019/11/30 10:07
