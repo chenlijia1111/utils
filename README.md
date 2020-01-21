@@ -43,7 +43,7 @@ jar包已上传至maven中央仓库
 <dependency>
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.7-RELEASE</version>
+    <version>1.1.8-RELEASE</version>
 </dependency>
 ~~~
 

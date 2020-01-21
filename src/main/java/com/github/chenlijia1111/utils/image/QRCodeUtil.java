@@ -2,17 +2,22 @@ package com.github.chenlijia1111.utils.image;
 
 import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.RandomUtil;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
+import com.github.chenlijia1111.utils.core.enums.CharSetType;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * 二维码工具类
@@ -131,6 +136,61 @@ public class QRCodeUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * 解析二维码
+     *
+     * @param file 二维码图片文件
+     * @return 二维码包含信息
+     */
+    public String decodeQRCodeFile(File file) {
+        try {
+            BufferedImage image = ImageIO.read(file);
+            if (Objects.nonNull(image)) {
+                BufferedImageLuminanceSource source = new BufferedImageLuminanceSource(image);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                HashMap<DecodeHintType, Object> hints = new HashMap<>();
+                hints.put(DecodeHintType.CHARACTER_SET, CharSetType.UTF8.getType());
+                Result decode = new MultiFormatReader().decode(bitmap, hints);
+                String text = decode.getText();
+                return text;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * 解析二维码
+     *
+     * @param fileInputStream 二维码图片文件输入流
+     * @return 二维码包含信息
+     */
+    public String decodeQRCodeFile(InputStream fileInputStream) {
+        try {
+            BufferedImage image = ImageIO.read(fileInputStream);
+            if (Objects.nonNull(image)) {
+                BufferedImageLuminanceSource source = new BufferedImageLuminanceSource(image);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                HashMap<DecodeHintType, Object> hints = new HashMap<>();
+                hints.put(DecodeHintType.CHARACTER_SET, CharSetType.UTF8.getType());
+                Result decode = new MultiFormatReader().decode(bitmap, hints);
+                String text = decode.getText();
+                return text;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 

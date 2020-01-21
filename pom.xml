@@ -6,7 +6,7 @@
 
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.7-SNAPSHOT</version>
+    <version>1.1.8-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
@@ -55,6 +55,7 @@
         <spring-web.version>5.2.0.RELEASE</spring-web.version>
     </properties>
 
+    <!--只对常用应用做显示引用,其他如office操作,支付宝支付等都需要自行引入依赖,以免加载大量不需要的jar-->
     <dependencies>
         <!-- http 请求封装 -->
         <dependency>
@@ -74,21 +75,21 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- office 处理工具 -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-scratchpad</artifactId>
             <version>${poi.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--xdocreport 对word的处理 转化操作等-->
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.document</artifactId>
             <version>${fr.opensagres.xdocreport.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/fr.opensagres.xdocreport/fr.opensagres.xdocreport.converter.docx.xwpf -->
         <!-- 对docx的处理 -->
@@ -96,13 +97,14 @@
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
             <version>${fr.opensagres.xdocreport.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>${poi.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--时间工具-->
         <dependency>
@@ -116,20 +118,21 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- log 日志门面类  调用者搭配log-back进行使用 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!-- AES AES/CBC/PKCS7Padding 支持 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bcprov-jdk15on.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--单元测试-->
         <dependency>
@@ -143,7 +146,7 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- 邮件 -->
         <dependency>
@@ -157,54 +160,56 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${jjwt.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--支付宝支付-->
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
             <version>${alipay-sdk-java.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--二维码工具类-->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>${zxing.javase.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- 汉语拼音工具 -->
         <dependency>
             <groupId>com.belerweb</groupId>
             <artifactId>pinyin4j</artifactId>
             <version>${pinyin4j.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- swagger 注解 用于生成代码 -->
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>${swagger-annotations.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!--用于代码生成 mybatis-->
         <dependency>
             <groupId>org.mybatis.generator</groupId>
             <artifactId>mybatis-generator-core</artifactId>
             <version>${mybatis-generator-core.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--mysql-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql-connector-java.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!-- freemarker 模板生成-->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${freemarker.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!--java jpa 持久层规范 里面包含了jpa的注解
         这里主要用于生成代码 调用者如果需要需要加上这个依赖,或者直接依赖 spring jpa-->
@@ -212,6 +217,7 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>${javax.persistence-api.version}</version>
+            <scope>provided</scope>
         </dependency>
         <!--图片压缩工具-->
         <dependency>
@@ -281,11 +287,13 @@
     </developers>
 
     <distributionManagement>
+        <!--要上传到的中央仓库-->
         <repository>
             <id>releases</id>
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
+        <!--要上传到的临时仓库-->
         <snapshotRepository>
             <id>snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
@@ -297,7 +305,19 @@
     <repositories>
         <repository>
             <id>maven-ali</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+        <!--下载快照版本-->
+        <repository>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 </project>

@@ -34,7 +34,6 @@ public class TranslatorUtil {
                 putParams("dt", "t").
                 putParams("q", word).
                 doGet("https://translate.google.cn/translate_a/single").toList();
-        System.out.println(list);
         //[[[I love China, 我爱中国, null, null, 1]], null, zh-CN]
         if (Lists.isNotEmpty(list)) {
             List o = (List) list.get(0);

@@ -98,4 +98,16 @@ public class TestImage {
     }
 
 
+    @Test
+    public void test9() {
+        File file = new File("D:\\文件\\图片\\测试图片\\test1.jpg");
+        QRCodeUtil qrCodeUtil = new QRCodeUtil();
+        qrCodeUtil.output("www.baidu.com", file);
+
+        //读取
+        String s = qrCodeUtil.decodeQRCodeFile(file);
+        System.out.println(s);
+    }
+
+
 }
