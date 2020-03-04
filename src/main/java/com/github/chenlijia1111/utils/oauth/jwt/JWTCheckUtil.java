@@ -24,13 +24,13 @@ public class JWTCheckUtil {
      * 过期时间 默认 24小时
      * 默认续期一天
      */
-    public static Integer expireSeconds = 24 * 60 * 60;
+    private Integer expireSeconds = 24 * 60 * 60;
 
     /**
      * 刷新时间 默认 2小时
      * 表示间隔两个小时以上刷新
      */
-    public static Integer refreshSeconds = 2 * 60 * 60;
+    private Integer refreshSeconds = 2 * 60 * 60;
 
     /**
      * 老token失效缓冲期
@@ -40,7 +40,7 @@ public class JWTCheckUtil {
      * 所以这里给一个老token的失效缓冲器
      * 默认在过期后的30秒还是可以使用
      */
-    public static Integer bufferExpireSeconds = 30;
+    private Integer bufferExpireSeconds = 30;
 
     /**
      * 校验token
@@ -63,7 +63,7 @@ public class JWTCheckUtil {
      * @param jwtSignKey jwt签名加密密钥
      * @return 当刷新成功的时候, data里会返回新的token
      */
-    public static Result checkToken(String jwtToken, String jwtSignKey) {
+    public Result checkToken(String jwtToken, String jwtSignKey) {
         if (StringUtils.isEmpty(jwtToken)) {
             return Result.failure("token为空");
         }
@@ -104,4 +104,16 @@ public class JWTCheckUtil {
         return Result.success("校验成功,无需刷新token");
     }
 
+
+    public void setExpireSeconds(Integer expireSeconds) {
+        this.expireSeconds = expireSeconds;
+    }
+
+    public void setRefreshSeconds(Integer refreshSeconds) {
+        this.refreshSeconds = refreshSeconds;
+    }
+
+    public void setBufferExpireSeconds(Integer bufferExpireSeconds) {
+        this.bufferExpireSeconds = bufferExpireSeconds;
+    }
 }

@@ -7,10 +7,7 @@ import com.github.chenlijia1111.utils.database.mybatis.pojo.PageThreadLocalParam
 import com.github.chenlijia1111.utils.list.Lists;
 import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -121,11 +118,13 @@ public class PagePlugin implements Interceptor {
             if (parameterObject instanceof Map) {
                 //参数是map  用@Params 注解注入的也是以map的形式传参的
                 Map parameterMap = (Map) parameterObject;
-                Object pageObject = parameterMap.get(PAGE_FIELD_NAME);
-                Object limitObject = parameterMap.get(LIMIT_FIELD_NAME);
-                if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
-                    page = Page.startPage((Integer) pageObject, (Integer) limitObject);
-                    PageThreadLocalParameter.setPageParameter(page);
+                if (parameterMap.containsKey(PAGE_FIELD_NAME) && parameterMap.containsKey(LIMIT_FIELD_NAME)) {
+                    Object pageObject = parameterMap.get(PAGE_FIELD_NAME);
+                    Object limitObject = parameterMap.get(LIMIT_FIELD_NAME);
+                    if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
+                        page = Page.startPage((Integer) pageObject, (Integer) limitObject);
+                        PageThreadLocalParameter.setPageParameter(page);
+                    }
                 }
             } else {
                 //查找分页字段
@@ -137,14 +136,14 @@ public class PagePlugin implements Interceptor {
                         PageThreadLocalParameter.setPageParameter(page);
                     }
                 } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
+                    //没有这个属性,不用分页
                 }
             }
         } else {
             //如果page 不为空的话,需要判断是否已经分过一次页了,
             //如果前面已经分过一次页了,那么后面的查询即使没有被消费掉,也不应该再次分页了,
             //这样消费线程变量参数就不需要紧跟查询了
-            if (Objects.nonNull(page.getCount())) {
+            if (Objects.nonNull(page) && Objects.nonNull(page.getCount())) {
                 return null;
             }
         }
@@ -192,9 +191,11 @@ public class PagePlugin implements Interceptor {
         sqlStringBuilder.append("SELECT COUNT(*) FROM (");
         sqlStringBuilder.append(sql);
         sqlStringBuilder.append(") temp");
-        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString());
+        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(),boundSql.getParameterMappings());
 
-        MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_COUNT_ID_SUFFIX);
+
+
+        MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_COUNT_ID_SUFFIX, parameterObject);
         return mappedStatement;
     }
 
@@ -221,9 +222,10 @@ public class PagePlugin implements Interceptor {
         sqlStringBuilder.append(",");
         sqlStringBuilder.append(pageParameter.getLimit());
 
-        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString());
+        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(),boundSql.getParameterMappings());
 
-        MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_ID_SUFFIX);
+        MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_ID_SUFFIX, parameterObject);
+
         return mappedStatement;
     }
 
@@ -233,10 +235,11 @@ public class PagePlugin implements Interceptor {
      *
      * @param ms
      * @param sqlSource
-     * @param suffix    查询id后缀 通过这个判断是统计的还是查询列表的
+     * @param suffix          查询id后缀 通过这个判断是统计的还是查询列表的
+     * @param parameterObject 参数
      * @return
      */
-    private MappedStatement newMappedStatement(MappedStatement ms, SqlSource sqlSource, String suffix) {
+    private MappedStatement newMappedStatement(MappedStatement ms, SqlSource sqlSource, String suffix, Object parameterObject) {
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(),
                 sqlSource, ms.getSqlCommandType());
 
@@ -282,6 +285,11 @@ public class PagePlugin implements Interceptor {
         builder.databaseId(ms.getDatabaseId());
         builder.fetchSize(ms.getFetchSize());
         builder.flushCacheRequired(ms.isFlushCacheRequired());
+
+        if (Objects.nonNull(parameterObject) && parameterObject instanceof ParameterMap) {
+            ParameterMap parameterMap = (ParameterMap) parameterObject;
+            builder.parameterMap(parameterMap);
+        }
         return builder.build();
     }
 

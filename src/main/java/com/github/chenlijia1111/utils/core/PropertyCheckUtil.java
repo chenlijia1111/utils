@@ -136,7 +136,9 @@ public class PropertyCheckUtil {
      **/
     private static Result checkProperty(Object object, List<String> checkFieldList, List<String> ignoreFieldList) {
 
-        AssertUtil.isTrue(Objects.nonNull(object), "数据为空");
+        if(Objects.isNull(object)){
+            return Result.failure("数据为空");
+        }
 
         //初始化，防止空指针
         checkFieldList = null == checkFieldList ? new ArrayList<>() : checkFieldList;

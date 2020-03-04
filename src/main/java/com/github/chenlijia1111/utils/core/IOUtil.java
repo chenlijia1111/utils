@@ -176,6 +176,7 @@ public class IOUtil {
 
     /**
      * 读取输入流内容
+     * 如果要读取压缩文件的内容 如 .gz .zip 请传入 {@link java.util.zip.GZIPInputStream}
      *
      * @param inputStream 1
      * @return java.lang.String
@@ -184,11 +185,11 @@ public class IOUtil {
     public static String readToString(InputStream inputStream) {
         AssertUtil.isTrue(null != inputStream, "输入流为空");
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, CharSetType.UTF8.name()))) {
             StringBuilder sb = new StringBuilder();
             String s = reader.readLine();
             while (s != null) {
-                sb.append(reader.readLine());
+                sb.append(s);
                 sb.append("\r\n");
                 s = reader.readLine();
             }

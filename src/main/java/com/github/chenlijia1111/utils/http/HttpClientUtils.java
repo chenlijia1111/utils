@@ -199,7 +199,7 @@ public class HttpClientUtils {
      * @author chenlijia
      * @since 上午 10:30 2019/8/20 0020
      **/
-    public HttpClientUtils putParams(String key, String value) {
+    public HttpClientUtils putParams(String key, Object value) {
         this.params.put(key, value);
         return this;
     }
@@ -210,7 +210,7 @@ public class HttpClientUtils {
      * @param map
      * @return
      */
-    public HttpClientUtils putParams(Map<String, String> map) {
+    public HttpClientUtils putParams(Map<String, Object> map) {
         if (null != map && map.size() > 0) {
             this.params.putAll(map);
         }
@@ -313,7 +313,13 @@ public class HttpClientUtils {
             //参数拼接成的字符串
             String paramsString = entries.stream().map(e -> {
                 try {
-                    return URLEncoder.encode(e.getKey(), CharSetType.UTF8.getType()) + "=" + URLEncoder.encode(e.getValue().toString(), CharSetType.UTF8.getType());
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(URLEncoder.encode(e.getKey(), CharSetType.UTF8.getType()));
+                    sb.append("=");
+                    if (Objects.nonNull(e.getValue())) {
+                        sb.append(URLEncoder.encode(e.getValue().toString(), CharSetType.UTF8.getType()));
+                    }
+                    return sb.toString();
                 } catch (UnsupportedEncodingException ex) {
                     ex.printStackTrace();
                 }
@@ -405,7 +411,7 @@ public class HttpClientUtils {
                 //以表单的形式请求
                 ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
                 for (Map.Entry<String, Object> entry : params.entrySet()) {
-                    nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                    nameValuePairs.add(new BasicNameValuePair(entry.getKey(), Objects.nonNull(entry.getValue()) ? entry.getValue().toString() : null));
                 }
                 UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(nameValuePairs, CharSetType.UTF8.getType());
                 httpPost.setEntity(formEntity);
@@ -499,6 +505,17 @@ public class HttpClientUtils {
         }
         return this;
     }
+
+    /**
+     * 返回结果
+     *
+     * @return
+     * @since 下午 2:12 2019/10/18 0018
+     **/
+    public HttpResponse toResponse() {
+        return response;
+    }
+
 
     /**
      * 返回结果为字符串

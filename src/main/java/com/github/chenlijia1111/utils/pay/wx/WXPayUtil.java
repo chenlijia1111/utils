@@ -97,7 +97,7 @@ public class WXPayUtil {
             if (Objects.equals(PayType.JSAPI, payType)) {
                 Object prepay_id = map.get("prepay_id");
                 //二次签名
-                TreeMap<String, String> treeMap = new TreeMap<>();
+                TreeMap<String, Object> treeMap = new TreeMap<>();
                 treeMap.put("appId", appId);
                 treeMap.put("package", "prepay_id=" + prepay_id.toString());
                 treeMap.put("signType", "MD5");
@@ -490,7 +490,7 @@ public class WXPayUtil {
      * @param partnerKey 密钥
      * @return 签名后的数据
      */
-    public static String createSign(Map<String, String> params, String partnerKey) {
+    public static String createSign(Map params, String partnerKey) {
         // 生成签名前先去除sign
         params.remove("sign");
         String tempStr = HttpClientUtils.getInstance().putParams(params).paramsToString(true);

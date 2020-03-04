@@ -75,9 +75,10 @@ public class OauthTest {
         System.out.println(claims.getIssuedAt());
         System.out.println(claims.getExpiration());
 
-        JWTCheckUtil.refreshSeconds = 0;
+        JWTCheckUtil jwtCheckUtil = new JWTCheckUtil();
+        jwtCheckUtil.setRefreshSeconds(0);
         //校验token是否需要刷新
-        Result result = JWTCheckUtil.checkToken(jwtToken, "123456");
+        Result result = jwtCheckUtil.checkToken(jwtToken, "123456");
         System.out.println(result);
         if (Objects.nonNull(result.getData())) {
             String newToken = result.getData().toString();

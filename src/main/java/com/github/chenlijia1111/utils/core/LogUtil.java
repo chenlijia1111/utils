@@ -41,9 +41,10 @@ public class LogUtil implements Logger {
      * @return
      */
     private StringBuilder currentLocationInfo() {
+        //方法栈
         StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-        //0下标是当前位置 1就是上一个位置也就是打log的地方
-        StackTraceElement stackTraceElement = stackTrace[1];
+        //0下标是当前位置 1就是调用本方法的位置 2才是真实方法的位置
+        StackTraceElement stackTraceElement = stackTrace[2];
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("行数:");
         stringBuilder.append(stackTraceElement.getLineNumber());

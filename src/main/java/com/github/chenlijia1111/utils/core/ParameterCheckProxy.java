@@ -57,9 +57,7 @@ public class ParameterCheckProxy {
                 //方法有注解(表示特殊对待,每个参数需要单独带上注解才会进行校验)
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
-                if (!result.getSuccess()) {
-                    return result;
-                }
+                return result;
 
             }
             //类没有注解,方法也没有注解,进不来
@@ -70,9 +68,7 @@ public class ParameterCheckProxy {
                 //方法有注解(表示特殊对待,每个参数需要单独带上注解才会进行校验)
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
-                if (!result.getSuccess()) {
-                    return result;
-                }
+                return result;
             } else {
                 //在类上有注解(导致对每一个方法都切中了)
                 //直接每个参数都进行校验

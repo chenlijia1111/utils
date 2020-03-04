@@ -6,6 +6,7 @@ import com.github.chenlijia1111.utils.list.Lists;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -255,6 +256,22 @@ public class StringUtils {
             return Pattern.matches(regex, str);
         }
         return false;
+    }
+
+
+    /**
+     * 比较两个字符串是否相等
+     * null 与 空字符串直接相等
+     *
+     * @param str1
+     * @param str2
+     * @return
+     */
+    public static boolean equalsIgnoreBlank(String str1, String str2) {
+        if (StringUtils.isEmpty(str1) && StringUtils.isEmpty(str2)) {
+            return true;
+        }
+        return Objects.equals(str1, str2);
     }
 
 }

@@ -129,13 +129,13 @@ public class XmlUtil {
      * @param map
      * @return
      */
-    public static String parseMapToXml(Map<String, Object> map) {
+    public static String parseMapToXml(Map<String, ? extends Object> map) {
         StringBuilder sb = new StringBuilder("<xml>");
         if (null != map && map.size() > 0) {
-            Set<Map.Entry<String, Object>> entries = map.entrySet();
-            Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
+            Set<? extends Map.Entry<String, ?>> entries = map.entrySet();
+            Iterator<? extends Map.Entry<String, ?>> iterator = entries.iterator();
             while (iterator.hasNext()) {
-                Map.Entry<String, Object> next = iterator.next();
+                Map.Entry<String, ?> next = iterator.next();
                 String key = next.getKey();
                 Object value = next.getValue();
                 sb.append("<" + key + ">");
