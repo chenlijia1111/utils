@@ -60,6 +60,15 @@ public @interface PropertyCheck {
      **/
     Class<? extends Predicate> checkFunction() default DefaultPredicate.class;
 
+    /**
+     * 是否忽略 null 默认否
+     * 即如果为true 不校验 null
+     * 只有有值的情况才会进一步校验
+     * 如 手机号字段 可以不传 但是传了就必须符合手机号的规则
+     * @return
+     */
+    boolean ignoreNull() default false;
+
 
     /**
      * 默认的校验方法

@@ -180,6 +180,12 @@ public class PropertyCheckUtil {
                 try {
 
                     Object fieldValue = PropertyUtil.getFieldValue(object, aClass, fieldName);
+
+                    //判断是否忽略null值
+                    if(propertyCheck.ignoreNull() && Objects.isNull(fieldValue)){
+                        continue;
+                    }
+
                     //判断有没有申明校验类型
                     PropertyCheckType propertyCheckType = propertyCheck.checkType();
                     if (null != propertyCheck && !Objects.equals(propertyCheck, PropertyCheckType.NO_CHECK)) {

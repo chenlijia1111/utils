@@ -103,7 +103,7 @@ public class ParameterCheckProxy {
                 PropertyCheck parameterAnnotation = parameter.getAnnotation(PropertyCheck.class);
                 if (Objects.nonNull(parameterAnnotation)) {
                     //参数需要校验
-                    if (Objects.isNull(args[i])) {
+                    if (!parameterAnnotation.ignoreNull() && Objects.isNull(args[i])) {
                         return Result.failure("参数" + parameterAnnotation.name() + "不合法");
                     }
                     //判断需要校验的属性
