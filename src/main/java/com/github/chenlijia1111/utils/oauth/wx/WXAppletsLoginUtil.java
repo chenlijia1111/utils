@@ -123,30 +123,29 @@ public class WXAppletsLoginUtil {
 
 
     /**
-     * 获取用户信息
+     * 获取openId和sessionKey
      * <p>
      * {
-     * "openid":" OPENID",
-     * " nickname": NICKNAME,
-     * "sex":"1",
-     * "province":"PROVINCE"
-     * "city":"CITY",
-     * "country":"COUNTRY",
-     * "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
-     * "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
-     * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * "session_key":"0ZGnG\/fQFVwXmMLndr0fYw==",
+     * "openid":"omoOI5CQZ8Ha_LNFovBpLgDXG9zQ"
      * }
      *
-     * @param accessToken 1
-     * @param openId      2
+     * @param appId
+     * @param secret
+     * @param jsCode
      * @return java.util.Map
      * @since 下午 4:46 2019/11/12 0012
      **/
-    public Map userInfo(String accessToken, String openId) {
-        Map map = HttpClientUtils.getInstance().putParams("openid", openId).
-                putParams("access_token", accessToken).
-                putParams("lang", "zh_CN").
-                doGet("https://api.weixin.qq.com/sns/userinfo").toMap();
+    public Map jscode2session(String appId,String secret,String jsCode) {
+
+        //请求地址
+        //'https://api.weixin.qq.com/sns/jscode2session?
+        // appid=wx00c16777c69e16d3&secret=2aff2c72e7d0d14adcad7d861ccb4181&js_code=' + res.code + '&grant_type=authorization_code'
+        Map map = HttpClientUtils.getInstance().putParams("appid", appId).
+                putParams("secret", secret).
+                putParams("js_code", jsCode).
+                putParams("grant_type", "authorization_code").
+                doGet("https://api.weixin.qq.com/sns/jscode2session").toMap();
         return map;
     }
 
