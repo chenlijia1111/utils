@@ -16,7 +16,7 @@ public enum EmailHostType {
     SINA("smtp.sina.com.cn", "465"), //新浪邮箱
     SINA_VIP("smtp.vip.sina.com", "465"), //新浪VIP邮箱
     SOHU("smtp.sohu.com", "465"), //搜狐邮箱
-    GMAIL("smtp.gmail.com", "587") //谷歌邮箱
+    GMAIL("smtp.gmail.com", "587"), //谷歌邮箱
     ;
 
     /**
