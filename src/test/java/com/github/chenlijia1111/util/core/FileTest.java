@@ -56,4 +56,10 @@ public class FileTest {
         }
     }
 
+    @Test
+    public void testFileLength() {
+        File file = new File("D:\\公司资料\\社交商城小程序\\项目代码\\adminHtml.zip");
+        System.out.println(file.length());
+    }
+
 }

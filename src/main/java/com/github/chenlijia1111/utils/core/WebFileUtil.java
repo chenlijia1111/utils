@@ -78,7 +78,8 @@ public class WebFileUtil {
             }
 
             //如果是图片,对图片进行压缩
-            if (Lists.asList(".jpg", ".png", ".gif").contains(suffixName)) {
+            //判断图片大小,如果大于1M就进行压缩
+            if (Lists.asList(".jpg", ".png", ".gif").contains(suffixName) && destFile.length() > 1 * 1024 * 1024) {
                 //多线程执行,这个操作耗时比较长
                 new Thread(() -> ReduceImageUtil.reduceImage(destFile)).start();
             }

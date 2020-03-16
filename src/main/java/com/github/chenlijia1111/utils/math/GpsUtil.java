@@ -26,7 +26,7 @@ public class GpsUtil {
      * @param lat1 第一点的纬度
      * @param lon1 第二点的经度
      * @param lat2 第二点的纬度
-     * @return 返回的距离，单位km
+     * @return 返回的距离，单位m
      */
     public static double GetDistance(double lon1, double lat1, double lon2, double lat2) {
         double radLat1 = rad(lat1);
@@ -36,7 +36,6 @@ public class GpsUtil {
         double s = 2 * Math.asin(Math.sqrt(
                 Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
         s = s * EARTH_RADIUS;
-        // s = Math.round(s * 10000) / 10000;
         return s;
 
     }

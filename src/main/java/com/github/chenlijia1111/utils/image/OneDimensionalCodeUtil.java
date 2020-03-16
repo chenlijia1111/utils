@@ -1,7 +1,5 @@
 package com.github.chenlijia1111.utils.image;
 
-import com.github.chenlijia1111.utils.core.IOUtil;
-import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
