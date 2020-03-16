@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * xml 工具类
- * CDATA 标签 xml转移内容 有些特殊内容需要转译 需要用这个标签包裹 如 > <
+ * CDATA 标签 xml转译内容 有些特殊内容需要转译 需要用这个标签包裹 如 > <
  * 用法 <return_code><![CDATA[SUCCESS]]></return_code>
  *
  * @author 陈礼佳
