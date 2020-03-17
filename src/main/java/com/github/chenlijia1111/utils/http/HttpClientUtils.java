@@ -13,15 +13,18 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.URLEncoder;
@@ -93,12 +96,50 @@ public class HttpClientUtils {
     }
 
     /**
+     * 创建一个信任所有网站的HttpClient
+     * @return
+     */
+    private static CloseableHttpClient createTruestAllHttpClient() {
+        try {
+            //使用 loadTrustMaterial() 方法实现一个信任策略，信任所有证书
+            SSLContext sslcontext = SSLContexts.custom()
+                    //忽略掉对服务器端证书的校验
+                    .loadTrustMaterial((chain, authType) -> true)
+                    .build();
+            //NoopHostnameVerifier类:  作为主机名验证工具，实质上关闭了主机名验证，它接受任何
+            //有效的SSL会话并匹配到目标主机。
+            HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+            SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslcontext, hostnameVerifier);
+            return HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        return HttpClients.createDefault();
+
+    }
+
+    /**
      * 初始化
      *
      * @author chenlijia
      * @since 10:21 2019/8/20
      **/
     public static HttpClientUtils getInstance() {
+        return getInstance(false);
+    }
+
+    /**
+     * 初始化
+     *
+     * @param truestAll 是否信任所有网站
+     * @author chenlijia
+     * @since 10:21 2019/8/20
+     **/
+    public static HttpClientUtils getInstance(boolean truestAll) {
         HttpClientUtils httpClientUtils = new HttpClientUtils();
         //通过 treeMap 可以很方便的进行构建签名操作
         //一般都需要把参数通过字典排序进行签名
@@ -107,9 +148,14 @@ public class HttpClientUtils {
         httpClientUtils.fileByteParams = new HashMap<>();
         httpClientUtils.fileInputStreamParams = new HashMap<>();
         httpClientUtils.headers = new HashMap<>();
-        httpClientUtils.httpClient = HttpClients.createDefault();
+        if (truestAll) {
+            httpClientUtils.httpClient = createTruestAllHttpClient();
+        } else {
+            httpClientUtils.httpClient = HttpClients.createDefault();
+        }
         return httpClientUtils;
     }
+
 
     /**
      * 初始化 SSL httpClient
