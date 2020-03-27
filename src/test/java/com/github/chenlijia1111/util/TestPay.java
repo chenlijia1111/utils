@@ -10,12 +10,17 @@ import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
 import com.github.chenlijia1111.utils.core.RandomUtil;
+import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
+import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.pay.ali.ALiPayUtil;
 import com.github.chenlijia1111.utils.pay.wx.PayType;
 import com.github.chenlijia1111.utils.pay.wx.WXPayUtil;
 import org.junit.Test;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Map;
 
@@ -138,14 +143,40 @@ public class TestPay {
     @Test
     public void test10() {
 
-        String appId = "wxd3fdb22474bdd195";
-        String appSecret = "a3563455b057a976230c0cb5a828659f";
-        String mchId = "1553017211";
-        String partnerKey = "XfenDefeEYdtv7jHrWx0es2wJMTI7T7i";
-        Map map = WXPayUtil.fieldRSAPublicKey(mchId,
-                "D:\\java\\projects\\jiuyou\\src\\main\\resources\\libs\\apiclient_cert.p12",
+        String appId = "wx5caed73a638f7765";
+        String appSecret = "888d775ffecafd367e8b65f24fb970eb";
+        String mchId = "1580913951";
+        String partnerKey = "MGzfLBacu3Jfdw3Wf3jqqYPsAortu2ZT";
+        /*Map map = WXPayUtil.fieldRSAPublicKey(mchId,
+                "D:\\公司资料\\乔迪课堂\\代码\\qiaodiJava\\jody-app\\src\\main\\resources\\wechatFiles\\apiclient_cert.p12",
                 partnerKey);
-        System.out.println(map);
+        System.out.println(map);*/
+
+        //应付金额 假定一块钱
+        Double payable = 1.0;
+        //商家订单号  商户订单号要保存起来，可以存在订单里，到时候回调的时候根据商户订单号去查询支付信息
+        String outTradeNo = RandomUtil.createRandomName();
+        //转为分为单位
+        payable = payable * 100;
+        //回调地址
+//        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+        String requestUrlPrefix = "http://127.0.0.1/test";
+        //改的时候记得改回调地址，回调地址不要设拦截器，要放开
+        String notifyUrl = requestUrlPrefix + "/wxPay/payNotify";
+        String body = "乔迪课堂";
+        Map preOrder = WXPayUtil.createPreOrder(appId, mchId, body, partnerKey, payable.intValue(), notifyUrl, PayType.APP, null, outTradeNo, null);
+        System.out.println(preOrder);
+
+        //appid=wx5caed73a638f7765&body=乔迪课堂&mch_id=1580913951&nonce_str=ae3dfd48644c44c6bae0cf44e4194cec&notify_url=http://127.0.0.1/test/wxPay/payNotify&out_trade_no=440496050314940416&sign_type=MD5&spbill_create_ip=127.0.0.1&total_fee=100&trade_type=APP
+        //appid=wx5caed73a638f7765&body=乔迪课堂&mch_id=1580913951&nonce_str=ae3dfd48644c44c6bae0cf44e4194cec&notify_url=http://127.0.0.1/test/wxPay/payNotify&out_trade_no=440496050314940416&sign_type=MD5&spbill_create_ip=127.0.0.1&total_fee=100&trade_type=APP&key=1580913951
+    }
+
+
+    @Test
+    public void test11(){
+        String str = "appid=wx5caed73a638f7765&body=乔迪课堂&mch_id=1580913951&nonce_str=ae3dfd48644c44c6bae0cf44e4194cec&notify_url=http://127.0.0.1/test/wxPay/payNotify&out_trade_no=440496050314940416&sign_type=MD5&spbill_create_ip=127.0.0.1&total_fee=100&trade_type=APP&key=MGzfLBacu3Jfdw3Wf3jqqYPsAortu2ZT";
+        String s = MD5EncryptUtil.MD5StringToHexString(str);
+        System.out.println(s);
     }
 
 }

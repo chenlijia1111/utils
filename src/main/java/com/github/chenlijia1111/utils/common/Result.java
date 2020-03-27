@@ -158,6 +158,9 @@ public class Result {
 
     /**
      * 读取国际化properties文件
+     * 比如，切换到英文环境就读取 static/en.properties
+     * 比如，切换到法文环境就读取 static/fa.properties
+     * 比如，切换到中文环境就置空
      *
      * @param transferPropertyRelativeFilePath 相对项目位置,存放国际化 properties文件 如: static/test1.properties
      */

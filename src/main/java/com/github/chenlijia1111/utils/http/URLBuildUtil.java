@@ -1,14 +1,8 @@
 package com.github.chenlijia1111.utils.http;
 
-import com.github.chenlijia1111.utils.core.enums.CharSetType;
-import com.github.chenlijia1111.utils.list.Maps;
+import com.github.chenlijia1111.utils.core.StringUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * url 构建工具
@@ -26,7 +20,7 @@ public class URLBuildUtil {
     /**
      * 请求参数
      */
-    private Map<String, String> params;
+    private Map<String, Object> params;
 
 
     public URLBuildUtil(String baseUrl) {
@@ -54,59 +48,54 @@ public class URLBuildUtil {
      * @return
      */
     public URLBuildUtil putParams(Map<String, String> params) {
-        params.putAll(params);
+        this.params.putAll(params);
         return this;
     }
 
 
     public String paramsToString() {
-        StringBuilder sb = new StringBuilder(this.baseUrl);
-        if (Maps.isNotEmpty(this.params)) {
-            sb.append("?");
-        }
+        return paramsToString(true);
+    }
 
-        Set<Map.Entry<String, String>> entries = params.entrySet();
-        Iterator<Map.Entry<String, String>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> next = iterator.next();
-            sb.append(next.getKey() + "=" + next.getValue());
-            if (iterator.hasNext()) {
-                sb.append("&");
+    public String paramsToString(boolean ignoreNull) {
+        StringBuilder sb = new StringBuilder();
+        if (params.size() > 0) {
+            Set<Map.Entry<String, Object>> entries = params.entrySet();
+            Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Object> next = iterator.next();
+                String key = next.getKey();
+                Object value = next.getValue();
+                if (ignoreNull && (Objects.isNull(value) || StringUtils.isEmpty(value.toString()))) {
+                    continue;
+                }
+                sb.append(key + "=" + value);
+                if (iterator.hasNext()) {
+                    sb.append("&");
+                }
             }
         }
-
-        String string = sb.toString();
-        if (string.endsWith("&")) {
-            string = string.substring(0, string.length() - 1);
+        //去掉最后一个 &
+        if (sb.toString().endsWith("&")) {
+            sb.delete(sb.length() - 1, sb.length());
         }
-        try {
-            //进行 URLEncode 编码 防止有中文
-            string = URLEncoder.encode(string, CharSetType.UTF8.getType());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return string;
+        return sb.toString();
     }
 
     /**
-     * 构建请求参数字符串
-     * key=value&key=value
+     * 构建Get请求参数字符串
+     * http://127.0.0.1:80/key=value&key=value
      *
      * @return
      */
     public String build() {
         StringBuilder sb = new StringBuilder();
-
-        Set<Map.Entry<String, String>> entries = params.entrySet();
-        Iterator<Map.Entry<String, String>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> next = iterator.next();
-            sb.append(next.getKey() + "=" + next.getValue());
-            if (iterator.hasNext()) {
-                sb.append("&");
-            }
+        sb.append(baseUrl);
+        String paramsToString = paramsToString();
+        if (StringUtils.isNotEmpty(paramsToString)) {
+            sb.append("?");
+            sb.append(paramsToString);
         }
-
         String string = sb.toString();
         return string;
     }

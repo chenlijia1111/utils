@@ -71,8 +71,8 @@ public class WXPayUtil {
 
         //获取到 prepay_id 预支付id 在通过签名 把预支付id返回给前端调起支付
         //如果是native 支付的话 直接就返回一个二维码的请求地址,不用进行二次签名
-        if (Objects.equals(map.get("return_code"), "SUCCESS") &&
-                Objects.equals(map.get("result_code"), "SUCCESS")) {
+        if (Objects.equals(map.get("return_code").toString(), "SUCCESS") &&
+                Objects.equals(map.get("result_code").toString(), "SUCCESS")) {
             //app 进行二次签名 调起微信支付
             if (Objects.equals(PayType.APP, payType)) {
                 Object prepay_id = map.get("prepay_id");
@@ -84,7 +84,6 @@ public class WXPayUtil {
                 treeMap.put("package", "Sign=WXPay");
                 treeMap.put("noncestr", RandomUtil.createUUID());
                 treeMap.put("timestamp", (System.currentTimeMillis() / 1000) + "");
-
                 //创建请求参数
                 String paramsToString = new URLBuildUtil("").putParams(treeMap).paramsToString();
                 //进行签名
