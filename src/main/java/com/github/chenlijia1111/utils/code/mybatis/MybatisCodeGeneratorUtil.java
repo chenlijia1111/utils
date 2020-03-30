@@ -4,6 +4,7 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.LogUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
+import com.github.chenlijia1111.utils.http.HttpUtils;
 import io.swagger.annotations.ApiModel;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.*;
@@ -218,7 +219,20 @@ public class MybatisCodeGeneratorUtil {
         return connectionUrl;
     }
 
+    /**
+     * 这里可是被坑惨了
+     * {@link com.mysql.cj.jdbc.DatabaseMetaDataUsingInfoSchema#getColumnPrivileges(String, String, String, String)}
+     * {@link com.mysql.cj.jdbc.DatabaseMetaData#getDatabase(String, String)} 根据这个参数 nullDatabaseMeansCurrent 来决定返回的数据库是不是null
+     * @param connectionUrl
+     * @return
+     */
     public MybatisCodeGeneratorUtil setConnectionUrl(String connectionUrl) {
+        //处理url，这里可真实被坑惨了
+        if(connectionUrl.contains("?")){
+            connectionUrl = connectionUrl + "&nullCatalogMeansCurrent=true";
+        }else {
+            connectionUrl = connectionUrl + "?nullCatalogMeansCurrent=true";
+        }
         this.connectionUrl = connectionUrl;
         return this;
     }
@@ -358,6 +372,7 @@ public class MybatisCodeGeneratorUtil {
         Configuration config = new Configuration();
         Context context = new Context(ModelType.CONDITIONAL);
         context.setId("context1");
+        context.setTargetRuntime("MyBatis3");
 
         CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
         commentGeneratorConfiguration.addProperty("suppressDate", "true");
@@ -378,12 +393,18 @@ public class MybatisCodeGeneratorUtil {
 
         //数据库连接配置
         JDBCConnectionConfiguration jdbcConnectionConfiguration = new JDBCConnectionConfiguration();
+        logger.info("数据库连接url：" + this.connectionUrl);
         jdbcConnectionConfiguration.setConnectionURL(this.connectionUrl);
         jdbcConnectionConfiguration.setDriverClass(this.driverClass);
         jdbcConnectionConfiguration.setUserId(this.userId);
         jdbcConnectionConfiguration.setPassword(this.password);
         //生成dao代码 ...ByPrimaryKey的方法
         jdbcConnectionConfiguration.addProperty("useInformationSchema", "true");
+        //数据库名
+        String url = this.connectionUrl.substring(0, this.connectionUrl.indexOf("?"));
+        String databaseName = url.substring(url.lastIndexOf("/") + 1);
+        logger.info("数据库名" + databaseName);
+        jdbcConnectionConfiguration.addProperty("runtimeSchema", databaseName);
         context.setJdbcConnectionConfiguration(jdbcConnectionConfiguration);
 
         //生成模型设置
@@ -423,6 +444,7 @@ public class MybatisCodeGeneratorUtil {
             tableConfiguration.setInsertStatementEnabled(commonCode);
             //不管怎样,都留一个逐渐查询的方法,不然不生成xml以及resultMap
             tableConfiguration.setSelectByPrimaryKeyStatementEnabled(true);
+            tableConfiguration.setSchema(databaseName);
 
             context.addTableConfiguration(tableConfiguration);
         }

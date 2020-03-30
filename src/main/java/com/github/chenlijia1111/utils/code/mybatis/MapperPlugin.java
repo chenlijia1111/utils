@@ -21,7 +21,7 @@ public class MapperPlugin extends MapperAnnotationPlugin {
 
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         //取entity的路径
         String targetEntityPackage = MybatisCodeGeneratorUtil.getInstance().getTargetEntityPackage();
         //截取路径,开始处理

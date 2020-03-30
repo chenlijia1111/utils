@@ -18,40 +18,40 @@ public class CodeTest {
     private static MybatisCodeGeneratorUtil mybatisCodeGeneratorUtil = MybatisCodeGeneratorUtil.getInstance();
 
     static {
+
         mybatisCodeGeneratorUtil.setCommentGeneratorType(CommonMapperCommentGenerator.class.getName())
-                .setConnectionUrl("jdbc:mysql://58.250.17.31:33306/haiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
+                .setConnectionUrl("jdbc:mysql://cdb-lob0ggj0.bj.tencentcdb.com:10048/toutoumai?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
-                setUserId("root").setPassword("1015tqljsw")
+                setUserId("root").setPassword("clj123456@")
                 .setTargetProjectPath("D:\\java\\projects\\utils\\src\\test\\java").
-                setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").
-                setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
+                setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
                 setTargetXMLPackage("com.github.chenlijia1111.util.code.mapper").
                 setTargetControllerPackage("com.github.chenlijia1111.util.code.controller").
                 setTargetBizPackage("com.github.chenlijia1111.util.code.biz").
                 setTargetServicePackage("com.github.chenlijia1111.util.code.service")
                 .setAuthor("chenLiJia");
 
+        mybatisCodeGeneratorUtil.setExampleCode(false);
+        mybatisCodeGeneratorUtil.setCommonCode(false);
+
         Map<String, String> tableToDomain = mybatisCodeGeneratorUtil.getTableToDoMain();
-        tableToDomain.put("announce", "Announce");
+        tableToDomain.put("m_product_append", "ProductAppend");
 
         List<String> ignoreDoMainToBusiness = mybatisCodeGeneratorUtil.getIgnoreDoMainToBusiness();
-//        ignoreDoMainToBusiness.add("FightGroupItem");
-//        ignoreDoMainToBusiness.add("FightGroupItemClient");
-//        ignoreDoMainToBusiness.add("ShopFightGroup");
+
     }
 
 
     //生成entity,mapper,dao
     @Test
     public void test1WithChen() {
-        mybatisCodeGeneratorUtil.setExampleCode(false);
-        mybatisCodeGeneratorUtil.setCommonCode(false);
         mybatisCodeGeneratorUtil.generateCode();
     }
 
     //生成controller,biz,service
     @Test
     public void test2WithChen() {
+
         mybatisCodeGeneratorUtil.generateWithBusinssCode();
     }
 
