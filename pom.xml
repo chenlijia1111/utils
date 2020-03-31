@@ -197,7 +197,7 @@
             <version>${swagger-annotations.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!--用于代码生成 mybatis-->
+        <!--用于代码生成 mybatis 调用者需要保持版本一致，不然可能会导致生成的代码有问题-->
         <dependency>
             <groupId>org.mybatis.generator</groupId>
             <artifactId>mybatis-generator-core</artifactId>

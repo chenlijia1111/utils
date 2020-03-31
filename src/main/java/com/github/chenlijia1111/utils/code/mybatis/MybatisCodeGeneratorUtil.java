@@ -372,7 +372,7 @@ public class MybatisCodeGeneratorUtil {
         Configuration config = new Configuration();
         Context context = new Context(ModelType.CONDITIONAL);
         context.setId("context1");
-        context.setTargetRuntime("MyBatis3");
+        context.setTargetRuntime("MyBatis3Simple");
 
         CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
         commentGeneratorConfiguration.addProperty("suppressDate", "true");

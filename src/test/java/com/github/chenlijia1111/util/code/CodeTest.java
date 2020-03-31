@@ -20,7 +20,7 @@ public class CodeTest {
     static {
 
         mybatisCodeGeneratorUtil.setCommentGeneratorType(CommonMapperCommentGenerator.class.getName())
-                .setConnectionUrl("jdbc:mysql://cdb-lob0ggj0.bj.tencentcdb.com:10048/toutoumai?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
+                .setConnectionUrl("jdbc:mysql://cdb-lob0ggj0.bj.tencentcdb.com:10048/socialMall?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8").
                 setDriverClass("com.mysql.jdbc.Driver").
                 setUserId("root").setPassword("clj123456@")
                 .setTargetProjectPath("D:\\java\\projects\\utils\\src\\test\\java").
@@ -35,7 +35,7 @@ public class CodeTest {
         mybatisCodeGeneratorUtil.setCommonCode(false);
 
         Map<String, String> tableToDomain = mybatisCodeGeneratorUtil.getTableToDoMain();
-        tableToDomain.put("m_product_append", "ProductAppend");
+        tableToDomain.put("m_carousel", "Carousel");
 
         List<String> ignoreDoMainToBusiness = mybatisCodeGeneratorUtil.getIgnoreDoMainToBusiness();
 
