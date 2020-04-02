@@ -22,3 +22,8 @@ server:
   port: 8090
   servlet:
     context-path: /toutoumai
+    names:
+    -名字1
+    -名字2
+    -名字3
+    -名字4

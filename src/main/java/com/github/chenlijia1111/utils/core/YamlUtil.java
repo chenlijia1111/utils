@@ -44,7 +44,7 @@ public class YamlUtil {
             if (Lists.isNotEmpty(spiltStrToList)) {
                 for (String lineStr : spiltStrToList) {
                     String[] split = lineStr.split(":");
-                    if (split.length >= 1) {
+                    if (split.length >= 1 && lineStr.contains(":")) {
                         YamlNode yamlNode = new YamlNode();
                         String key = split[0];
                         //计算前面的空格数量
@@ -55,6 +55,23 @@ public class YamlUtil {
                             yamlNode.value = lineStr.substring(key.length() + 2);
                         }
                         yamlNodeList.add(yamlNode);
+                    }else {
+                        //如果是以 -开头的就是数组
+                        String trim = lineStr.trim();
+                        if(trim.startsWith("-") && yamlNodeList.size() > 0){
+                            //是数组，放到他的上一行里面去
+                            YamlNode lastYamlNode = yamlNodeList.get(yamlNodeList.size() - 1);
+                            String value = lastYamlNode.value;
+                            if(Objects.isNull(value)){
+                                //说明他是第一个元素
+                                lastYamlNode.value = JSONUtil.objToStr(Lists.asList(trim.substring(1)));
+                            }else {
+                                //说明不是一个元素
+                                List<String> originList = JSONUtil.strToList(lastYamlNode.value, ArrayList.class, String.class);
+                                originList.add(trim.substring(1));
+                                lastYamlNode.value = JSONUtil.objToStr(originList);
+                            }
+                        }
                     }
 
                 }
