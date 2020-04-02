@@ -1,7 +1,6 @@
 package com.github.chenlijia1111.utils.core;
 
 
-import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.core.annos.PropertyCheck;
 import com.github.chenlijia1111.utils.core.enums.PropertyCheckType;
