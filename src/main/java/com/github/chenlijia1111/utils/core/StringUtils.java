@@ -29,6 +29,26 @@ public class StringUtils {
         return null == str || str.length() == 0;
     }
 
+    /**
+     * 判断是否为空
+     * 有一个为空就返回true
+     *
+     * @param strArray 1
+     * @author chenlijia
+     * @since 下午 1:12 2019/9/3 0003
+     **/
+    public static boolean isEmpty(String... strArray) {
+        if(null != strArray){
+            for (int i = 0; i < strArray.length; i++) {
+                if(isEmpty(strArray[i])){
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 判断非空
@@ -39,6 +59,26 @@ public class StringUtils {
      **/
     public static boolean isNotEmpty(String str) {
         return !isEmpty(str);
+    }
+
+    /**
+     * 判断非空
+     * 全部都是非空才返回true
+     *
+     * @param strArray 1
+     * @author chenlijia
+     * @since 下午 1:13 2019/9/3 0003
+     **/
+    public static boolean isNotEmpty(String... strArray) {
+        if(null != strArray){
+            for (int i = 0; i < strArray.length; i++) {
+                if(isEmpty(strArray[i])){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
 

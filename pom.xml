@@ -53,6 +53,7 @@
         <mybatis.version>3.5.3</mybatis.version>
         <tk.mybatis.version>4.1.5</tk.mybatis.version>
         <spring-web.version>5.2.0.RELEASE</spring-web.version>
+        <io.netty.version>4.1.48.Final</io.netty.version>
     </properties>
 
     <!--只对常用应用做显示引用,其他如office操作,支付宝支付等都需要自行引入依赖,以免加载大量不需要的jar-->
@@ -266,6 +267,13 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${io.netty.version}</version>
             <scope>provided</scope>
         </dependency>
 
