@@ -16,6 +16,8 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 
+import java.util.Objects;
+
 /**
  * 自定义webSocket处理器
  *
@@ -31,13 +33,17 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
     /**
      * 接收消息
-     *
+     * 客户端主动断开连接或者关闭窗口或者没网都会触发关闭，都会接收到一个 CloseWebSocketFrame
+     * 所以不用关心掉线处理
      * @param ctx
      * @param msg
      * @throws Exception
      */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+
+//        log.info("收到消息，类型是：" + msg.getClass().getName());
+
         try {
             if (msg instanceof FullHttpRequest) {
                 //以http请求形式接入，但是走的是websocket
@@ -63,7 +69,7 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         //添加连接
-        log.debug("客户端加入连接");
+//        log.debug("客户端加入连接");
     }
 
     /**
@@ -75,7 +81,7 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //断开连接
-        log.debug("客户端断开连接");
+//        log.debug("客户端断开连接");
         MessageDealService.getInstance().removeChannel(ctx.channel());
     }
 
