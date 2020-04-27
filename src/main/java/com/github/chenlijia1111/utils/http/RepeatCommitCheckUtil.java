@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 请求重复提交校验工具
@@ -59,16 +60,6 @@ public class RepeatCommitCheckUtil {
         return repeatCommitCheckUtil;
     }
 
-    /**
-     * 根据token校验是否有重复提交数据
-     *
-     * @param tokenWithHeaderName token在header中的名字
-     * @param request
-     * @return 返回true 表明重复提交了 返回false 表明没有重复提交
-     */
-    public boolean checkWithToken(String tokenWithHeaderName, HttpServletRequest request) {
-        return checkWithToken(tokenWithHeaderName, request, null);
-    }
 
     /**
      * 根据token校验是否有重复提交数据
@@ -97,8 +88,8 @@ public class RepeatCommitCheckUtil {
             String url = request.getRequestURI();
             //请求类型
             String requestMethod = request.getMethod();
-            //如果指定了校验的方法，就只校验指定的方法
-            if (null != methods && !Lists.asList(methods).contains(requestMethod)) {
+            //如果指定了校验的方法，就只校验指定的方法  统一比较小写
+            if (null != methods && !Lists.asList(methods).stream().map(e -> e.toLowerCase()).collect(Collectors.toList()).contains(requestMethod.toLowerCase())) {
                 return false;
             }
             //请求参数
@@ -122,15 +113,6 @@ public class RepeatCommitCheckUtil {
         return false;
     }
 
-    /**
-     * 根据token校验是否有重复提交数据
-     *
-     * @param request
-     * @return 返回true 表明重复提交了 返回false 表明没有重复提交
-     */
-    public boolean checkWithSession(HttpServletRequest request) {
-        return checkWithSession(request, null);
-    }
 
     /**
      * 根据token校验是否有重复提交数据

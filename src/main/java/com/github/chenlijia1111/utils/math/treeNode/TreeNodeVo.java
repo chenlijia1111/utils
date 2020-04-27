@@ -1,5 +1,7 @@
 package com.github.chenlijia1111.utils.math.treeNode;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,9 @@ public class TreeNodeVo {
 
     /**
      * 子节点集合
+     * 返回前端的时候隐藏它，好看点
      */
+    @JsonIgnore
     private List<TreeNodeVo> childTreeNodeList;
 
     public TreeNodeVo() {

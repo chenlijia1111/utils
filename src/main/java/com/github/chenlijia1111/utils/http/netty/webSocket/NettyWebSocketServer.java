@@ -16,10 +16,11 @@ import org.slf4j.Logger;
 /**
  * netty webSocket服务
  * 利用netty 的nio特性搭建高可用的websocket服务
+ * 需要异步启动，不然会阻塞当前调用的主线程
  * @author 陈礼佳
  * @since 2020/4/4 11:48
  */
-public class NettyWebSocketServer {
+public class NettyWebSocketServer extends Thread {
 
     private static final Logger log = new LogUtil(NettyWebSocketServer.class);
 
@@ -33,7 +34,8 @@ public class NettyWebSocketServer {
     /**
      * 启动方法
      */
-    public void start(){
+    @Override
+    public void run(){
         log.info("netty webSocket 启动，端口：" + port);
         //用于接收请求
         NioEventLoopGroup boss = new NioEventLoopGroup();
@@ -67,4 +69,5 @@ public class NettyWebSocketServer {
             log.info("netty webSocket 已关闭");
         }
     }
+
 }

@@ -24,11 +24,7 @@ public class CodeTest {
                 setDriverClass("com.mysql.jdbc.Driver").
                 setUserId("root").setPassword("clj123456@")
                 .setTargetProjectPath("D:\\java\\projects\\utils\\src\\test\\java").
-                setTargetDAOPackage("com.github.chenlijia1111.util.code.dao").setTargetEntityPackage("com.github.chenlijia1111.util.code.entity").
-                setTargetXMLPackage("com.github.chenlijia1111.util.code.mapper").
-                setTargetControllerPackage("com.github.chenlijia1111.util.code.controller").
-                setTargetBizPackage("com.github.chenlijia1111.util.code.biz").
-                setTargetServicePackage("com.github.chenlijia1111.util.code.service")
+                setTargetBasePackage("com.github.chenlijia1111.util.code")
                 .setAuthor("chenLiJia");
 
         mybatisCodeGeneratorUtil.setExampleCode(false);
@@ -51,8 +47,7 @@ public class CodeTest {
     //生成controller,biz,service
     @Test
     public void test2WithChen() {
-
-        mybatisCodeGeneratorUtil.generateWithBusinssCode();
+        mybatisCodeGeneratorUtil.generateWithBusinessCode();
     }
 
 

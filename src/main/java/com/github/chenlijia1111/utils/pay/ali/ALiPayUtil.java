@@ -5,6 +5,7 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayResponse;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.*;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.*;
 import com.alipay.api.response.AlipayFundTransToaccountTransferResponse;
 import com.alipay.api.response.AlipayFundTransTobankTransferResponse;
@@ -336,11 +337,11 @@ public class ALiPayUtil {
 
     /**
      * 处理回调
-     * <p>
+     * 验证签名是否正确
      * boolean verifyResult = AlipaySignature.rsaCheckV1(params, publicKey,
      * "UTF-8", "RSA2");
      * if (verifyResult) {
-     * // TODO 商户的业务逻辑程序代码
+     *
      * //支付成功 获取流水号信息
      * String outTradeNo = params.get("out_trade_no");
      * String transactionId = params.get("trade_no");

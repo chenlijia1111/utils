@@ -38,12 +38,43 @@ xml:xml工具
 jar包已上传至maven中央仓库
 
 仓库地址
-
+稳定版地址
 ~~~xml
 <dependency>
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
     <version>1.1.9-RELEASE</version>
 </dependency>
+~~~
+
+快照版地址
+~~~xml
+<dependency>
+    <groupId>com.github.chenlijia1111</groupId>
+    <artifactId>utils</artifactId>
+    <version>1.1.9-SNAPSHOT</version>
+</dependency>
+~~~
+如果要下载快照版jar报需要加上快照仓库
+~~~xml
+<!-- 配置阿里云中央仓库下载 国内加快下载速度 -->
+<repositories>
+    <repository>
+        <id>maven-ali</id>
+        <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+    </repository>
+    <!--下载快照版本-->
+    <repository>
+        <id>snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+    </repository>
+</repositories>
 ~~~
 

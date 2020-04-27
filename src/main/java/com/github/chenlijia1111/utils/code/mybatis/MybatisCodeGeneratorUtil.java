@@ -4,14 +4,12 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.LogUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
-import com.github.chenlijia1111.utils.http.HttpUtils;
 import io.swagger.annotations.ApiModel;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.*;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -20,6 +18,18 @@ import java.util.*;
 
 /**
  * mybatis 代码生成工具类
+ *
+ * 如果不想生成controller代码 可以把 {@link #targetControllerPackage} 设为空
+ * 同理 service biz 也是如此
+ *
+ * 可以通过设置基础包名来设置每个模块的包名，每个模块都有缺省包名
+ * {@link #targetBasePackage}
+ * {@link #targetControllerPackage}
+ * {@link #targetBizPackage}
+ * {@link #targetServicePackage}
+ * {@link #targetXMLPackage}
+ * {@link #targetDAOPackage}
+ * {@link #targetEntityPackage}
  *
  * @author chenlijia
  * @version 1.0
@@ -89,13 +99,21 @@ public class MybatisCodeGeneratorUtil {
     private String targetProjectPath;
 
     /**
+     * 包名前缀
+     * 如 com.chenlijia
+     * 设置了前缀之后，如果没有设置其他包对应的包名，就是使用默认值进行拼接
+     * 否则使用设置的其他包名进行拼接
+     */
+    private String targetBasePackage;
+
+    /**
      * 对应的 dao 的包名地址  com.chenlijia.dao
      *
      * @author chenlijia
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetDAOPackage;
+    private String targetDAOPackage = "dao";
 
     /**
      * 对应的 mapper 的包名地址  com.chenlijia.mapper
@@ -104,7 +122,7 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetXMLPackage;
+    private String targetXMLPackage = "mapper";
 
 
     /**
@@ -114,7 +132,7 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetEntityPackage;
+    private String targetEntityPackage = "entity";
 
 
     /**
@@ -124,7 +142,7 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetControllerPackage;
+    private String targetControllerPackage = "controller";
 
 
     /**
@@ -134,7 +152,7 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetBizPackage;
+    private String targetBizPackage = "biz";
 
 
     /**
@@ -144,7 +162,7 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 2:27 2019/7/6 0006
      **/
-    private String targetServicePackage;
+    private String targetServicePackage = "service";
 
 
     /**
@@ -223,14 +241,15 @@ public class MybatisCodeGeneratorUtil {
      * 这里可是被坑惨了
      * {@link com.mysql.cj.jdbc.DatabaseMetaDataUsingInfoSchema#getColumnPrivileges(String, String, String, String)}
      * {@link com.mysql.cj.jdbc.DatabaseMetaData#getDatabase(String, String)} 根据这个参数 nullDatabaseMeansCurrent 来决定返回的数据库是不是null
+     *
      * @param connectionUrl
      * @return
      */
     public MybatisCodeGeneratorUtil setConnectionUrl(String connectionUrl) {
         //处理url，这里可真实被坑惨了
-        if(connectionUrl.contains("?")){
+        if (connectionUrl.contains("?")) {
             connectionUrl = connectionUrl + "&nullCatalogMeansCurrent=true";
-        }else {
+        } else {
             connectionUrl = connectionUrl + "?nullCatalogMeansCurrent=true";
         }
         this.connectionUrl = connectionUrl;
@@ -274,6 +293,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetDAOPackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetDAOPackage;
+        }
         return targetDAOPackage;
     }
 
@@ -283,6 +305,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetXMLPackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetXMLPackage;
+        }
         return targetXMLPackage;
     }
 
@@ -292,6 +317,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetEntityPackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetEntityPackage;
+        }
         return targetEntityPackage;
     }
 
@@ -319,6 +347,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetControllerPackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetControllerPackage;
+        }
         return targetControllerPackage;
     }
 
@@ -328,6 +359,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetBizPackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetBizPackage;
+        }
         return targetBizPackage;
     }
 
@@ -337,6 +371,9 @@ public class MybatisCodeGeneratorUtil {
     }
 
     public String getTargetServicePackage() {
+        if (StringUtils.isNotEmpty(this.targetBasePackage)) {
+            return this.targetBasePackage + "." + targetServicePackage;
+        }
         return targetServicePackage;
     }
 
@@ -345,12 +382,19 @@ public class MybatisCodeGeneratorUtil {
         return this;
     }
 
-    public void setExampleCode(boolean exampleCode) {
+    public MybatisCodeGeneratorUtil setExampleCode(boolean exampleCode) {
         this.exampleCode = exampleCode;
+        return this;
     }
 
-    public void setCommonCode(boolean commonCode) {
+    public MybatisCodeGeneratorUtil setCommonCode(boolean commonCode) {
         this.commonCode = commonCode;
+        return this;
+    }
+
+    public MybatisCodeGeneratorUtil setTargetBasePackage(String targetBasePackage) {
+        this.targetBasePackage = targetBasePackage;
+        return this;
     }
 
     public void generateCode() {
@@ -360,9 +404,9 @@ public class MybatisCodeGeneratorUtil {
         AssertUtil.hasText(userId, "数据库用户名为空");
 //        Assert.hasText(password,"数据库密码为空");
         AssertUtil.hasText(targetProjectPath, "生成代码对应的顶级目录为空");
-        AssertUtil.hasText(targetDAOPackage, "对应的 dao 的包名地址为空");
-        AssertUtil.hasText(targetXMLPackage, "对应的 mapper 的包名地址为空");
-        AssertUtil.hasText(targetEntityPackage, "对应的 entity 的包名地址为空");
+        AssertUtil.hasText(getTargetDAOPackage(), "对应的 dao 的包名地址为空");
+        AssertUtil.hasText(getTargetXMLPackage(), "对应的 mapper 的包名地址为空");
+        AssertUtil.hasText(getTargetEntityPackage(), "对应的 entity 的包名地址为空");
 
         AssertUtil.isTrue(Objects.nonNull(tableToDoMain) && tableToDoMain.size() > 0, "数据库表名 以及对应的实体名称映射为空");
 
@@ -403,19 +447,19 @@ public class MybatisCodeGeneratorUtil {
 
         //生成模型设置
         JavaModelGeneratorConfiguration javaModelGeneratorConfiguration = new JavaModelGeneratorConfiguration();
-        javaModelGeneratorConfiguration.setTargetPackage(this.targetEntityPackage);
+        javaModelGeneratorConfiguration.setTargetPackage(getTargetEntityPackage());
         javaModelGeneratorConfiguration.setTargetProject(this.targetProjectPath);
         context.setJavaModelGeneratorConfiguration(javaModelGeneratorConfiguration);
 
         //mapper
         SqlMapGeneratorConfiguration sqlMapGeneratorConfiguration = new SqlMapGeneratorConfiguration();
-        sqlMapGeneratorConfiguration.setTargetPackage(this.targetXMLPackage);
+        sqlMapGeneratorConfiguration.setTargetPackage(getTargetXMLPackage());
         sqlMapGeneratorConfiguration.setTargetProject(this.targetProjectPath);
         context.setSqlMapGeneratorConfiguration(sqlMapGeneratorConfiguration);
 
         //dao mapper
         JavaClientGeneratorConfiguration javaClientGeneratorConfiguration = new JavaClientGeneratorConfiguration();
-        javaClientGeneratorConfiguration.setTargetPackage(this.targetDAOPackage);
+        javaClientGeneratorConfiguration.setTargetPackage(getTargetDAOPackage());
         javaClientGeneratorConfiguration.setTargetProject(this.targetProjectPath);
         javaClientGeneratorConfiguration.setConfigurationType("XMLMAPPER");
         context.setJavaClientGeneratorConfiguration(javaClientGeneratorConfiguration);
@@ -472,18 +516,20 @@ public class MybatisCodeGeneratorUtil {
      * @Description TODO
      * @Date 下午 1:03 2019/7/1 0001
      **/
-    public void generateWithBusinssCode() {
+    public void generateWithBusinessCode() {
 
         if (Objects.nonNull(this.tableToDoMain) && this.tableToDoMain.size() > 0) {
 
+            //要生成的业务层代码的实体类
             ArrayList<Class> classes = new ArrayList<>();
             for (Map.Entry<String, String> stringStringEntry : tableToDoMain.entrySet()) {
                 String value = stringStringEntry.getValue();
                 try {
                     //判断是否需要忽略该实体
-                    if (ignoreDoMainToBusiness.contains(value))
+                    if (ignoreDoMainToBusiness.contains(value)) {
                         continue;
-                    Class<?> aClass = Class.forName(targetEntityPackage + "." + value);
+                    }
+                    Class<?> aClass = Class.forName(getTargetEntityPackage() + "." + value);
                     classes.add(aClass);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -521,7 +567,7 @@ public class MybatisCodeGeneratorUtil {
     private void generateBiz(Class[] entityClassArray) {
 
 
-        String absoluteBizPackagePath = StringUtils.isNotEmpty(targetBizPackage) ? targetBizPackage.replaceAll("\\.", "/") : "";
+        String absoluteBizPackagePath = StringUtils.isNotEmpty(getTargetBizPackage()) ? getTargetBizPackage().replaceAll("\\.", "/") : "";
         //biz绝对路径
         absoluteBizPackagePath = StringUtils.isNotEmpty(absoluteBizPackagePath) ? (targetProjectPath + "/" + absoluteBizPackagePath) : targetProjectPath;
 
@@ -537,7 +583,7 @@ public class MybatisCodeGeneratorUtil {
                 File controllerFile = new File(absoluteBizPackagePath + "/" + entityClassName + "Biz.java");
                 try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(controllerFile))) {
                     //controller包路径
-                    printWriter.println("package " + targetBizPackage + ";");
+                    printWriter.println("package " + getTargetBizPackage() + ";");
                     printWriter.println();
                     //导包
                     printWriter.println("import org.springframework.stereotype.Service;");
@@ -570,7 +616,7 @@ public class MybatisCodeGeneratorUtil {
     private void generateService(Class[] entityClassArray) {
 
 
-        String absoluteServicePackagePath = StringUtils.isNotEmpty(targetServicePackage) ? targetServicePackage.replaceAll("\\.", "/") : "";
+        String absoluteServicePackagePath = StringUtils.isNotEmpty(getTargetServicePackage()) ? getTargetServicePackage().replaceAll("\\.", "/") : "";
         //控制器绝对路径
         absoluteServicePackagePath = StringUtils.isNotEmpty(absoluteServicePackagePath) ? (targetProjectPath + "/" + absoluteServicePackagePath) : targetProjectPath;
 
@@ -605,7 +651,7 @@ public class MybatisCodeGeneratorUtil {
 
         try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(serviceFile))) {
             //controller包路径
-            printWriter.println("package " + targetServicePackage + ";");
+            printWriter.println("package " + getTargetServicePackage() + ";");
             printWriter.println();
             //导入Result
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");
@@ -657,7 +703,7 @@ public class MybatisCodeGeneratorUtil {
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
-            printWriter.println("    List<"+entityClassName+"> listByCondition(" + entityClassName + " condition);");
+            printWriter.println("    List<" + entityClassName + "> listByCondition(" + entityClassName + " condition);");
             printWriter.println();
 
             printWriter.println();
@@ -678,15 +724,15 @@ public class MybatisCodeGeneratorUtil {
         //生成impl
         try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(serviceImplFile))) {
             //serviceImpl包路径
-            printWriter.println("package " + targetServicePackage + ".impl;");
+            printWriter.println("package " + getTargetServicePackage() + ".impl;");
             printWriter.println();
             //导包
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");//Result
             printWriter.println("import com.github.chenlijia1111.utils.core.PropertyCheckUtil;");//参数校验
 
             printWriter.println("import " + entityFullName + ";");//实体
-            printWriter.println("import " + targetDAOPackage + "." + entityClassName + "Mapper;");//dao 接口
-            printWriter.println("import " + targetServicePackage + "." + entityClassName + "ServiceI;");//service接口
+            printWriter.println("import " + getTargetDAOPackage() + "." + entityClassName + "Mapper;");//dao 接口
+            printWriter.println("import " + getTargetServicePackage() + "." + entityClassName + "ServiceI;");//service接口
             printWriter.println("import org.springframework.stereotype.Service;");//@Service接口
             printWriter.println();
             printWriter.println("import javax.annotation.Resource;");//Resource注解
@@ -763,7 +809,7 @@ public class MybatisCodeGeneratorUtil {
                     "     **/");
             //方法
             printWriter.println("    @Override");
-            printWriter.println("    public List<"+entityClassName+"> listByCondition(" + entityClassName + " condition){");
+            printWriter.println("    public List<" + entityClassName + "> listByCondition(" + entityClassName + " condition){");
             printWriter.println("    ");
             printWriter.println("        PropertyCheckUtil.transferObjectNotNull(condition, true);");
             printWriter.println("        return " + daoName + ".select(condition);");
@@ -789,7 +835,7 @@ public class MybatisCodeGeneratorUtil {
      **/
     private void generateController(Class[] entityClassArray) {
 
-        String absoluteControllerPackagePath = StringUtils.isNotEmpty(targetControllerPackage) ? targetControllerPackage.replaceAll("\\.", "/") : "";
+        String absoluteControllerPackagePath = StringUtils.isNotEmpty(getTargetControllerPackage()) ? getTargetControllerPackage().replaceAll("\\.", "/") : "";
         //控制器绝对路径
         absoluteControllerPackagePath = StringUtils.isNotEmpty(absoluteControllerPackagePath) ? (targetProjectPath + "/" + absoluteControllerPackagePath) : targetProjectPath;
 
@@ -805,7 +851,7 @@ public class MybatisCodeGeneratorUtil {
                 File controllerFile = new File(absoluteControllerPackagePath + "/" + entityClassName + "Controller.java");
                 try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(controllerFile))) {
                     //controller包路径
-                    printWriter.println("package " + targetControllerPackage + ";");
+                    printWriter.println("package " + getTargetControllerPackage() + ";");
                     printWriter.println();
                     //导包
                     printWriter.println("import org.springframework.web.bind.annotation.RestController;");
