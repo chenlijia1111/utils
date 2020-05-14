@@ -61,7 +61,12 @@ public class CommonMapperCommentGenerator extends DefaultCommentGenerator {
         if (Lists.isNotEmpty(primaryKeyColumns) &&
                 primaryKeyColumns.stream().map(e -> e.getActualColumnName()).collect(Collectors.toSet()).contains(introspectedColumn.getActualColumnName())) {
             field.addAnnotation("@Id");
+            //判断是否是主键自增
+            if(introspectedColumn.isAutoIncrement()){
+                field.addAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+            }
         }
+
         //Column注解
         field.addAnnotation("@Column(name = \"" + introspectedColumn.getActualColumnName() + "\")");
     }

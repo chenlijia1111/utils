@@ -48,6 +48,10 @@ public class CommentGenerator extends DefaultCommentGenerator {
         sb.append(introspectedColumn.getRemarks());
         field.addJavaDocLine(sb.toString().replace("\n", " "));
         field.addJavaDocLine(" */");
+        //判断是否是主键自增
+        if(introspectedColumn.isAutoIncrement()){
+            field.addAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        }
         //添加swagger注解
         field.addAnnotation("@ApiModelProperty(\"" + introspectedColumn.getRemarks() + "\")");
         field.addAnnotation("@PropertyCheck(name = \"" + introspectedColumn.getRemarks() + "\")");

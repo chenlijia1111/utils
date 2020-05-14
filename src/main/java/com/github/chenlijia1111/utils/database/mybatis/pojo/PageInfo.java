@@ -66,6 +66,21 @@ public class PageInfo<E> {
         PageThreadLocalParameter.removePageParameter();
     }
 
+    /**
+     * 自定义构建分页数据，不使用sql分页
+     * @param page
+     * @param limit
+     * @param count
+     * @param list
+     */
+    public PageInfo(Integer page, Integer limit, Integer count, List<E> list) {
+        this.page = page;
+        this.limit = limit;
+        this.count = count;
+        this.list = list;
+        //计算总页数
+        this.allPage = (count + limit - 1) / limit;
+    }
 
     public Integer getCount() {
         return count;

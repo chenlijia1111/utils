@@ -18,10 +18,10 @@ import java.util.*;
 
 /**
  * mybatis 代码生成工具类
- *
+ * <p>
  * 如果不想生成controller代码 可以把 {@link #targetControllerPackage} 设为空
  * 同理 service biz 也是如此
- *
+ * <p>
  * 可以通过设置基础包名来设置每个模块的包名，每个模块都有缺省包名
  * {@link #targetBasePackage}
  * {@link #targetControllerPackage}
@@ -30,6 +30,25 @@ import java.util.*;
  * {@link #targetXMLPackage}
  * {@link #targetDAOPackage}
  * {@link #targetEntityPackage}
+ * <p>
+ * <p>
+ * 关于生成的Mapper
+ * 通用Mapper默认只继承了 {@link tk.mybatis.mapper.common.Mapper} 接口，这个接口拥有了基本的增删改查的功能
+ * 如果想要增加一些通用功能，可以直接继承一些已经写好的Mapper接口，如下：
+ * {@link tk.mybatis.mapper.additional.idlist.IdListMapper} 对于id批量操作的Mapper，
+ * 根据id集合批量以及批量删除
+ * {@link tk.mybatis.mapper.common.special.InsertListMapper} 批量插入，但是要求必须是主键自增的，
+ * 且id的字段名必须是id
+ * {@link tk.mybatis.mapper.additional.insert.InsertListMapper} 批量插入，主键需要自己设置好，不自动生成主键
+ * <p>
+ * 通用Mapper中Example相关的方法都挺好用的，基本上单表查询有他就不用自己写sql了，用法如下：
+ * {@code
+ * public void testQueryExample(){
+ * Example example = Example.builder(Carousel.class).andWhere(Sqls.custom().
+ * andEqualTo("name", "名字1")).build();
+ * carouselMapper.selectByExample(example);
+ * }
+ * }
  *
  * @author chenlijia
  * @version 1.0
@@ -656,6 +675,8 @@ public class MybatisCodeGeneratorUtil {
             //导入Result
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");
             printWriter.println("import java.util.List;");
+            //导入Example
+            printWriter.println("import tk.mybatis.mapper.entity.Example;");
             //导入实体
             printWriter.println("import " + entityFullName + ";");
             printWriter.println();
@@ -670,7 +691,6 @@ public class MybatisCodeGeneratorUtil {
                     "     *\n" +
                     "     * @param params      1\n" +
                     "     * @return com.github.chenlijia1111.utils.common.Result\n" +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
@@ -681,15 +701,27 @@ public class MybatisCodeGeneratorUtil {
             //方法注释
             printWriter.println("" +
                     "    /**\n" +
-                    "     * 添加\n" +
+                    "     * 编辑\n" +
                     "     *\n" +
                     "     * @param params      1\n" +
                     "     * @return com.github.chenlijia1111.utils.common.Result\n" +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
             printWriter.println("    Result update(" + entityClassName + " params);");
+            printWriter.println();
+
+            //编辑方法 按条件编辑
+            //方法注释
+            printWriter.println(
+                    "   /**\n" +
+                    "     * 按条件编辑\n" +
+                    "     * @param entity\n" +
+                    "     * @param condition\n" +
+                    "     * @return\n" +
+                    "     */");
+            //方法
+            printWriter.println("    Result update(" + entityClassName + " entity,Example condition);");
             printWriter.println();
 
             //条件查询方法
@@ -698,12 +730,24 @@ public class MybatisCodeGeneratorUtil {
                     "     * 条件查询\n" +
                     "     *\n" +
                     "     * @param condition      1\n" +
-                    "     * @return " +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
+                    "     * @return \n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
             printWriter.println("    List<" + entityClassName + "> listByCondition(" + entityClassName + " condition);");
+            printWriter.println();
+
+            //example 条件查询方法
+            printWriter.println("" +
+                    "    /**\n" +
+                    "     * 条件查询\n" +
+                    "     *\n" +
+                    "     * @param condition      1\n" +
+                    "     * @return \n" +
+                    "     * @since " + fetchCurrentTimeStr() + "\n" +
+                    "     **/");
+            //方法
+            printWriter.println("    List<" + entityClassName + "> listByCondition(Example condition);");
             printWriter.println();
 
             printWriter.println();
@@ -729,6 +773,8 @@ public class MybatisCodeGeneratorUtil {
             //导包
             printWriter.println("import com.github.chenlijia1111.utils.common.Result;");//Result
             printWriter.println("import com.github.chenlijia1111.utils.core.PropertyCheckUtil;");//参数校验
+            //导入Example
+            printWriter.println("import tk.mybatis.mapper.entity.Example;");
 
             printWriter.println("import " + entityFullName + ";");//实体
             printWriter.println("import " + getTargetDAOPackage() + "." + entityClassName + "Mapper;");//dao 接口
@@ -737,6 +783,8 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println();
             printWriter.println("import javax.annotation.Resource;");//Resource注解
             printWriter.println("import java.util.List;");
+            printWriter.println("import java.util.ArrayList;");
+            printWriter.println("import java.util.Objects;");
             printWriter.println();
             //注释
             printComment(printWriter, comment);
@@ -763,7 +811,6 @@ public class MybatisCodeGeneratorUtil {
                     "     *\n" +
                     "     * @param params      添加参数\n" +
                     "     * @return com.github.chenlijia1111.utils.common.Result\n" +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
@@ -783,7 +830,6 @@ public class MybatisCodeGeneratorUtil {
                     "     *\n" +
                     "     * @param params      编辑参数\n" +
                     "     * @return com.github.chenlijia1111.utils.common.Result\n" +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
@@ -795,6 +841,27 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println("    }");
             printWriter.println();
 
+            //编辑 按条件编辑
+            //方法注释
+            printWriter.println(
+                    "    /**\n" +
+                    "     * 按条件编辑\n" +
+                    "     * @param entity\n" +
+                    "     * @param condition\n" +
+                    "     * @return\n" +
+                    "     */");
+            //方法
+            printWriter.println(
+                    "    @Override\n" +
+                    "    public Result update(" + entityClassName + " entity, Example condition) {\n" +
+                    "        if(Objects.nonNull(entity) && Objects.nonNull(condition)){\n" +
+                    "            int i = " + daoName + ".updateByExampleSelective(entity, condition);\n" +
+                    "            return i > 0 ? Result.success(\"操作成功\") : Result.failure(\"操作失败\");\n" +
+                    "        }\n" +
+                    "        return Result.success(\"操作成功\");\n" +
+                    "    }");
+            printWriter.println();
+
 
             //条件查询方法
             //方法注释
@@ -804,7 +871,6 @@ public class MybatisCodeGeneratorUtil {
                     "     *\n" +
                     "     * @param condition  \n" +
                     "     * @return \n" +
-                    "     * @author " + (StringUtils.isNotEmpty(author) ? author : "chenLiJia") + "\n" +
                     "     * @since " + fetchCurrentTimeStr() + "\n" +
                     "     **/");
             //方法
@@ -813,6 +879,28 @@ public class MybatisCodeGeneratorUtil {
             printWriter.println("    ");
             printWriter.println("        PropertyCheckUtil.transferObjectNotNull(condition, true);");
             printWriter.println("        return " + daoName + ".select(condition);");
+            printWriter.println("    }");
+            printWriter.println();
+
+            //example条件查询方法
+            //方法注释
+            printWriter.println("" +
+                    "    /**\n" +
+                    "     * 条件查询\n" +
+                    "     *\n" +
+                    "     * @param condition  \n" +
+                    "     * @return \n" +
+                    "     * @since " + fetchCurrentTimeStr() + "\n" +
+                    "     **/");
+            //方法
+            printWriter.println("    @Override");
+            printWriter.println("    public List<" + entityClassName + "> listByCondition(Example condition){");
+            printWriter.println("    ");
+            printWriter.println("        if (null != condition) {");
+            printWriter.println("           List<" + entityClassName + "> list = " + daoName + ".selectByExample(condition);");
+            printWriter.println("           return list;");
+            printWriter.println("        }");
+            printWriter.println("        return new ArrayList<>();");
             printWriter.println("    }");
             printWriter.println();
 

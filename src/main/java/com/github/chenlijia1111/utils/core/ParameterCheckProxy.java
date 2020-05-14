@@ -57,7 +57,9 @@ public class ParameterCheckProxy {
                 //方法有注解(表示特殊对待,每个参数需要单独带上注解才会进行校验)
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
-                return result;
+                if (!result.getSuccess()) {
+                    return result;
+                }
 
             }
             //类没有注解,方法也没有注解,进不来
@@ -68,7 +70,9 @@ public class ParameterCheckProxy {
                 //方法有注解(表示特殊对待,每个参数需要单独带上注解才会进行校验)
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
-                return result;
+                if (!result.getSuccess()) {
+                    return result;
+                }
             } else {
                 //在类上有注解(导致对每一个方法都切中了)
                 //直接每个参数都进行校验
@@ -105,6 +109,10 @@ public class ParameterCheckProxy {
                     //参数需要校验
                     if (!parameterAnnotation.ignoreNull() && Objects.isNull(args[i])) {
                         return Result.failure("参数" + parameterAnnotation.name() + "不合法");
+                    }
+                    //允许为空
+                    if (parameterAnnotation.ignoreNull() && Objects.isNull(args[i])) {
+                        return Result.success("检测通过");
                     }
                     //判断需要校验的属性
                     Result result = PropertyCheckUtil.checkProperty(args[i]);
