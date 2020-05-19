@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.util.core;
 
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -7,14 +8,13 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- *
  * 正则测试
+ *
  * @author chenlijia
  * @version 1.0
  * @since 2019/9/27 0027 下午 12:00
  **/
 public class TestReg {
-
 
 
     public static boolean isIDNumber(String IDNumber) {
@@ -87,7 +87,7 @@ public class TestReg {
     }
 
     @Test
-    public void test1(){
+    public void test1() {
         String s = "362321199706101018";
         boolean idNumber = isIDNumber(s);
         System.out.println(idNumber);
@@ -96,6 +96,5 @@ public class TestReg {
         int maximumValue = DateTime.now().dayOfMonth().getMaximumValue();
         System.out.println(maximumValue);
     }
-
 
 }

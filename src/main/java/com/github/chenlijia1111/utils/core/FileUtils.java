@@ -37,13 +37,13 @@ public class FileUtils {
         commonDownLoadContentType.put(".jpeg", "image/jpeg");
         commonDownLoadContentType.put(".jpg", "image/jpeg");
         commonDownLoadContentType.put(".jpe", "image/jpeg");
-        commonDownLoadContentType.put(".mp4", "video/mpeg4");
+        commonDownLoadContentType.put(".mp4", "video/mp4");
         commonDownLoadContentType.put(".ppt", "application/x-ppt");
         commonDownLoadContentType.put(".apk", "application/vnd.android.package-archive");
         commonDownLoadContentType.put(".css", "text/css");
         commonDownLoadContentType.put(".dll", "application/x-msdownload");
         commonDownLoadContentType.put(".htm", "text/html");
-        commonDownLoadContentType.put(".mp3", "audio/mp3");
+        commonDownLoadContentType.put(".mp3", "audio/mpeg");
         commonDownLoadContentType.put(".pdf", "application/pdf");
         commonDownLoadContentType.put(".png", "image/png");
         commonDownLoadContentType.put(".txt", "text/plain");

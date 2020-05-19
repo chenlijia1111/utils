@@ -125,6 +125,7 @@ public class WebFileUtil {
         String fileSuffix = FileUtils.getFileSuffix(file).toLowerCase();
         String s = FileUtils.commonDownLoadContentType.get(fileSuffix);
         response.setContentType(StringUtils.isNotEmpty(s) ? s : "APPLICATION/OCTET-STREAM");
+
         //检测是否断点续传
         checkGoingDown(file, request, response);
 
@@ -141,7 +142,7 @@ public class WebFileUtil {
             }
             byte[] buffer = new byte[2048];
             //起始读取位置
-            Integer startPosition = findDownLoadStartPosition(request);
+            Long startPosition = findDownLoadStartPosition(request);
             inputStream.skip(startPosition);
             int read;
             while ((read = inputStream.read(buffer)) != -1) {
@@ -177,11 +178,17 @@ public class WebFileUtil {
         long length = file.length();
         String range = request.getHeader("range");
         if (StringUtils.isNotEmpty(range)) {
-            Integer start = findDownLoadStartPosition(request);
-            response.setHeader("Content-Range", "bytes " + start + "-" + length + "/" + length);
+            Long start = findDownLoadStartPosition(request);
+            //分片下载 8M为1片
+            Long end = start + 1024 * 1024 * 8;
+            //最大下标为length-1 判断是否超出
+            if (end > length - 1) {
+                end = length - 1;
+            }
+            response.setHeader("Content-Range", "bytes " + start + "-" + (end > length ? length - 1 : end) + "/" + length);
             response.setStatus(206);
             //文件大小
-            response.setContentLengthLong(file.length() - start);
+            response.setContentLengthLong(end - start + 1);
         } else {
             //文件大小
             response.setContentLengthLong(file.length());
@@ -197,9 +204,9 @@ public class WebFileUtil {
      * @author chenlijia
      * @since 下午 4:41 2019/7/23 0023
      **/
-    public static Integer findDownLoadStartPosition(HttpServletRequest request) {
+    public static Long findDownLoadStartPosition(HttpServletRequest request) {
 
-        int start = 0;
+        long start = 0;
         String range = request.getHeader("range"); //Range: bytes=2001-4932
         if (StringUtils.isNotEmpty(range)) {
             String[] split = range.split("=");
@@ -207,13 +214,12 @@ public class WebFileUtil {
             if (StringUtils.isNotEmpty(s)) {
                 String[] split1 = s.split("-");
                 if (null != split1 && split1.length > 0) {
-                    start = Integer.valueOf(split1[0]);
+                    start = Long.valueOf(split1[0]);
                 }
             }
         }
         return start;
     }
-
 
     /**
      * 返回项目根目录
