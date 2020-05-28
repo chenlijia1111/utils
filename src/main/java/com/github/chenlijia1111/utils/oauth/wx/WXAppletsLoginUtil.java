@@ -136,7 +136,7 @@ public class WXAppletsLoginUtil {
      * @return java.util.Map
      * @since 下午 4:46 2019/11/12 0012
      **/
-    public Map jscode2session(String appId,String secret,String jsCode) {
+    public Map jscode2session(String appId, String secret, String jsCode) {
 
         //请求地址
         //'https://api.weixin.qq.com/sns/jscode2session?

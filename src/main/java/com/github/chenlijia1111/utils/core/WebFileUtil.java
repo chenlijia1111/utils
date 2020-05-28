@@ -154,6 +154,9 @@ public class WebFileUtil {
         } catch (IOException e) {
             log.error("文件下载异常:" + e.getMessage());
 //            e.printStackTrace();
+            //可能出现的原因，客户端断开连接
+            //如加载视频时，浏览器会先发送一个请求，但是不会获取数据，只是看下整体文件大小
+            //然后通过range的形式来请求数据。
         } finally {
             if (isDelete)
                 file.delete();

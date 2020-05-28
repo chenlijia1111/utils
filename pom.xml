@@ -54,6 +54,10 @@
         <tk.mybatis.version>4.1.5</tk.mybatis.version>
         <spring-web.version>5.2.0.RELEASE</spring-web.version>
         <io.netty.version>4.1.48.Final</io.netty.version>
+        <!--用于截取视频第一帧 opencv与ffmpeg需要配套-->
+        <javacv.version>1.4.2</javacv.version>
+        <javacv.opencv.version>3.4.2-${javacv.version}</javacv.opencv.version>
+        <javacv.ffmpeg.version>4.0.1-${javacv.version}</javacv.ffmpeg.version>
     </properties>
 
     <!--只对常用应用做显示引用,其他如office操作,支付宝支付等都需要自行引入依赖,以免加载大量不需要的jar-->
@@ -274,6 +278,80 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <version>${io.netty.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- javacv用于截取视频第一帧，opencv与ffmpeg需要配套版本 -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>${javacv.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>flycapture</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>libdc1394</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>libfreenect</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>libfreenect2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>librealsense</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>videoinput</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>artoolkitplus</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>artoolkitplus</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bytedeco.javacpp-presets</groupId>
+                    <artifactId>flandmark</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${javacv.opencv.version}</version>
+            <classifier>linux-x86_64</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${javacv.opencv.version}</version>
+            <classifier>windows-x86_64</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${javacv.ffmpeg.version}</version>
+            <classifier>windows-x86_64</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>${javacv.ffmpeg.version}</version>
+            <classifier>linux-x86_64</classifier>
             <scope>provided</scope>
         </dependency>
 

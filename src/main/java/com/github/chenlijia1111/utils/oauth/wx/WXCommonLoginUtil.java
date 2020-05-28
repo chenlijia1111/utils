@@ -12,7 +12,14 @@ import java.util.Objects;
  * 微信APP登陆工具类
  * 微信 app js 公众号
  * 获取accessToken 的请求路径都是一样的
- * 小程序获取 accessToken 请转至 {@link}
+ * 小程序可以直接获取用户信息以及openId
+ *
+ *
+ * 第三方登录的基本流程大概都是一样的，一般步骤都是：
+ * 1.获取code
+ * 2.换取accessToken
+ * 3.获取openId
+ * 4.获取用户信息登录
  *
  * @author 陈礼佳
  * @since 2019/9/14 10:59
@@ -31,6 +38,7 @@ public class WXCommonLoginUtil {
 
 
     /**
+     * app 获取accessToken
      * 获取 accessToken
      * 如果accessToken 还没过期就不用去重新调用获取的接口了
      * 只需要调用刷新的接口即可
@@ -38,13 +46,15 @@ public class WXCommonLoginUtil {
      * @param appId
      * @param secret
      * @param code
-     * @return {
-     * "access_token":"ACCESS_TOKEN", 接口调用凭证
-     * "expires_in":7200, access_token接口调用凭证超时时间，单位（秒）
-     * "refresh_token":"REFRESH_TOKEN", 用户刷新access_token
-     * "openid":"OPENID", 授权用户唯一标识
-     * "scope":"SCOPE", 用户授权的作用域，使用逗号（,）分隔
-     * "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL" 当且仅当该移动应用已获得该用户的userinfo授权时，才会出现该字段
+     * @return {@code
+     *   {
+     *     "access_token":"ACCESS_TOKEN", 接口调用凭证
+     *     "expires_in":7200, access_token接口调用凭证超时时间，单位（秒）
+     *     "refresh_token":"REFRESH_TOKEN", 用户刷新access_token
+     *     "openid":"OPENID", 授权用户唯一标识
+     *     "scope":"SCOPE", 用户授权的作用域，使用逗号（,）分隔
+     *     "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL" 当且仅当该移动应用已获得该用户的userinfo授权时，才会出现该字段
+     *      * }
      * }
      */
     public Map accessToken(String appId, String secret, String code) {

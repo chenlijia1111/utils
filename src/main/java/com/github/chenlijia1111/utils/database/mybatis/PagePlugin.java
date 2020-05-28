@@ -6,6 +6,7 @@ import com.github.chenlijia1111.utils.database.mybatis.pojo.Page;
 import com.github.chenlijia1111.utils.database.mybatis.pojo.PageThreadLocalParameter;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.apache.ibatis.builder.StaticSqlSource;
+import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.*;
@@ -42,7 +43,12 @@ import java.util.Properties;
  * @see com.github.chenlijia1111.utils.database.mybatis.pojo.PageInfo 分页对象
  * @since 2019/12/25
  */
-@Intercepts(value = {@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
+@Intercepts(
+        {
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
+        }
+)
 public class PagePlugin implements Interceptor {
 
     //分页统计id后缀
@@ -81,21 +87,39 @@ public class PagePlugin implements Interceptor {
         Object[] args = invocation.getArgs();
         MappedStatement mappedStatement = (MappedStatement) args[0];
         Object parameterObject = args[1];
+        RowBounds rowBounds = (RowBounds) args[2];
+        ResultHandler resultHandler = (ResultHandler) args[3];
+
+        Executor executor = (Executor) invocation.getTarget();
+        CacheKey cacheKey;
+        BoundSql boundSql;
+        //由于逻辑关系，只会进入一次
+        if (args.length == 4) {
+            //4 个参数时
+            boundSql = mappedStatement.getBoundSql(parameterObject);
+            cacheKey = executor.createCacheKey(mappedStatement, parameterObject, rowBounds, boundSql);
+        } else {
+            //6 个参数时
+            cacheKey = (CacheKey) args[4];
+            boundSql = (BoundSql) args[5];
+        }
 
         //获取分页参数
         Page page = findCurrentPageParameter(parameterObject);
         if (Objects.nonNull(page)) {
             //进行分页操作
-            //构造统计 MappedStatement
-            args[0] = createCountMappedStatement(mappedStatement, parameterObject);
-            List<Integer> proceed = (List<Integer>) invocation.proceed();
-            Integer count = proceed.get(0);
-            page.setCount(count);
+            //创建一个MappedStatement
+            String countMsId = mappedStatement.getId() + PAGE_COUNT_ID_SUFFIX;
+            MappedStatement countMappedStatement = MSUtils.newCountMappedStatement(mappedStatement, countMsId);
+            Long autoCount = ExecutorUtil.executeAutoCount(executor, countMappedStatement, parameterObject, boundSql, rowBounds, resultHandler);
+            page.setCount(autoCount.intValue());
             //重新赋值线程变量
             PageThreadLocalParameter.setPageParameter(page);
 
             //设置新的MappedStatement 加上分页
-            args[0] = createPageMappedStatement(mappedStatement, parameterObject);
+            List resultList = ExecutorUtil.pageQuery(executor,
+                    mappedStatement, parameterObject, rowBounds, resultHandler, boundSql, cacheKey);
+            return resultList;
         }
 
         return invocation.proceed();
@@ -191,8 +215,7 @@ public class PagePlugin implements Interceptor {
         sqlStringBuilder.append("SELECT COUNT(*) FROM (");
         sqlStringBuilder.append(sql);
         sqlStringBuilder.append(") temp");
-        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(),boundSql.getParameterMappings());
-
+        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(), boundSql.getParameterMappings());
 
 
         MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_COUNT_ID_SUFFIX, parameterObject);
@@ -222,7 +245,7 @@ public class PagePlugin implements Interceptor {
         sqlStringBuilder.append(",");
         sqlStringBuilder.append(pageParameter.getLimit());
 
-        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(),boundSql.getParameterMappings());
+        StaticSqlSource staticSqlSource = new StaticSqlSource(ms.getConfiguration(), sqlStringBuilder.toString(), boundSql.getParameterMappings());
 
         MappedStatement mappedStatement = newMappedStatement(ms, staticSqlSource, PAGE_ID_SUFFIX, parameterObject);
 
