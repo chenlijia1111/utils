@@ -13,13 +13,23 @@ import java.util.Objects;
  * 微信 app js 公众号
  * 获取accessToken 的请求路径都是一样的
  * 小程序可以直接获取用户信息以及openId
- *
- *
+ * <p>
+ * <p>
  * 第三方登录的基本流程大概都是一样的，一般步骤都是：
  * 1.获取code
  * 2.换取accessToken
  * 3.获取openId
  * 4.获取用户信息登录
+ * <p>
+ * accessToken 是用户的操作凭证，与用户绑定，如果有后续操作的话，应存到数据库中去
+ * 每个用户的accessToken不一样
+ *
+ *
+ * 微信返回错误信息格式：
+ * {@code
+ *      { "errcode": 40030, "errmsg": "invalid refresh_token" }
+ * }
+ * 通过errorcode判断是否有错误信息
  *
  * @author 陈礼佳
  * @since 2019/9/14 10:59
@@ -29,6 +39,14 @@ public class WXCommonLoginUtil {
 
     private String accessToken;
 
+    /**
+     * refresh_token 拥有较长的有效期（30 天），当 refresh_token 失效的后，需要用户重新授权。
+     * 可以对accessToken进行续期
+     * 如果已经请求过accessToken了，后面再请求accessToken就直接用refreshToken去请求
+     * 1. 若access_token已超时，那么进行refresh_token会获取一个新的access_token，新的超时时间；
+     * 2. 若access_token未超时，那么进行refresh_token不会改变access_token，但超时时间会刷新，相当于续期access_token。
+     *
+     */
     private String refreshToken;
 
     /**
@@ -36,25 +54,52 @@ public class WXCommonLoginUtil {
      */
     private Date expireTime;
 
+    public WXCommonLoginUtil() {
+    }
+
+    public WXCommonLoginUtil(String accessToken, String refreshToken, Date expireTime) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expireTime = expireTime;
+    }
 
     /**
      * app 获取accessToken
      * 获取 accessToken
      * 如果accessToken 还没过期就不用去重新调用获取的接口了
      * 只需要调用刷新的接口即可
+     * <p>
+     * 正确返回结果:
+     * {@code
+     * {
+     * "access_token": "ACCESS_TOKEN",
+     * "expires_in": 7200,
+     * "refresh_token": "REFRESH_TOKEN",
+     * "openid": "OPENID",
+     * "scope": "SCOPE",
+     * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * }
+     * }
+     * 错误的返回结果：
+     * {@code
+     * {
+     * "errcode":40029,
+     * "errmsg":"invalid code"
+     * }
+     * }
      *
      * @param appId
      * @param secret
      * @param code
      * @return {@code
-     *   {
-     *     "access_token":"ACCESS_TOKEN", 接口调用凭证
-     *     "expires_in":7200, access_token接口调用凭证超时时间，单位（秒）
-     *     "refresh_token":"REFRESH_TOKEN", 用户刷新access_token
-     *     "openid":"OPENID", 授权用户唯一标识
-     *     "scope":"SCOPE", 用户授权的作用域，使用逗号（,）分隔
-     *     "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL" 当且仅当该移动应用已获得该用户的userinfo授权时，才会出现该字段
-     *      * }
+     * {
+     * "access_token":"ACCESS_TOKEN", 接口调用凭证
+     * "expires_in":7200, access_token接口调用凭证超时时间，单位（秒）
+     * "refresh_token":"REFRESH_TOKEN", 用户刷新access_token
+     * "openid":"OPENID", 授权用户唯一标识
+     * "scope":"SCOPE", 用户授权的作用域，使用逗号（,）分隔
+     * "unionid":"o6_bmasdasdsad6_2sgVt7hMZOPfL" 当且仅当该移动应用已获得该用户的userinfo授权时，才会出现该字段
+     * * }
      * }
      */
     public Map accessToken(String appId, String secret, String code) {
@@ -119,22 +164,23 @@ public class WXCommonLoginUtil {
 
     /**
      * 获取用户信息
-     *
+     * <p>
      * {
-     *   "openid":" OPENID",
-     *   " nickname": NICKNAME,
-     *   "sex":"1",
-     *   "province":"PROVINCE"
-     *   "city":"CITY",
-     *   "country":"COUNTRY",
-     *   "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
-     *   "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
-     *   "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     *  "openid":" OPENID",
+     *  " nickname": NICKNAME,
+     *  "sex":"1",
+     *  "province":"PROVINCE"
+     *  "city":"CITY",
+     *  "country":"COUNTRY",
+     *  "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+     *  "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
+     *  "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
      * }
-     * @since 下午 4:46 2019/11/12 0012
+     *
      * @param accessToken 1
-     * @param openId 2
+     * @param openId      2
      * @return java.util.Map
+     * @since 下午 4:46 2019/11/12 0012
      **/
     public Map userInfo(String accessToken, String openId) {
         Map map = HttpClientUtils.getInstance().putParams("openid", openId).
@@ -144,5 +190,18 @@ public class WXCommonLoginUtil {
         return map;
     }
 
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+
+    public Date getExpireTime() {
+        return expireTime;
+    }
 
 }

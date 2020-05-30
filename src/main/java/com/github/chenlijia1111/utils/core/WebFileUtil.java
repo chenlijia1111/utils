@@ -16,6 +16,8 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * web文件工具类
@@ -31,6 +33,26 @@ public class WebFileUtil {
     //log 日志
     private static final Logger log = new LogUtil(WebFileUtil.class);
 
+    /**
+     * 线程池
+     */
+    private static volatile Executor threadPool = null;
+
+    /**
+     * 获取线程池 用于压缩图片
+     *
+     * @return
+     */
+    public static Executor getThreadPool() {
+        if (Objects.isNull(threadPool)) {
+            synchronized (FileUtils.class) {
+                if (Objects.isNull(threadPool)) {
+                    threadPool = Executors.newFixedThreadPool(4);
+                }
+            }
+        }
+        return threadPool;
+    }
 
     /**
      * 上传文件之后返回相对接口路径,不返回绝对url 方便迁移文件
@@ -81,7 +103,7 @@ public class WebFileUtil {
             //判断图片大小,如果大于1M就进行压缩
             if (Lists.asList(".jpg", ".png", ".gif").contains(suffixName) && destFile.length() > 1 * 1024 * 1024) {
                 //多线程执行,这个操作耗时比较长
-                new Thread(() -> ReduceImageUtil.reduceImage(destFile)).start();
+                getThreadPool().execute(() -> ReduceImageUtil.reduceImage(destFile));
             }
         } catch (IOException e) {
             log.error("文件上传失败");

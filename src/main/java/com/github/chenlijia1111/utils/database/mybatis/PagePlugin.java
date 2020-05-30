@@ -39,6 +39,9 @@ import java.util.Properties;
  * 然后消费线程变量 {@link com.github.chenlijia1111.utils.database.mybatis.pojo.PageInfo}
  * PageInfo<Product> pageInfo = new PageInfo<>(products);
  *
+ *
+ * 参考PageOffice进行实现
+ *
  * @author Chen LiJia
  * @see com.github.chenlijia1111.utils.database.mybatis.pojo.PageInfo 分页对象
  * @since 2019/12/25
