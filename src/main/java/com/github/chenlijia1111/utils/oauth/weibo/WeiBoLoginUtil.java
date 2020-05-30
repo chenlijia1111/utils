@@ -3,6 +3,7 @@ package com.github.chenlijia1111.utils.oauth.weibo;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 
@@ -16,6 +17,27 @@ import java.util.Objects;
  * @since 2020/5/30
  */
 public class WeiBoLoginUtil {
+
+    /**
+     * 微博用户id
+     */
+    private Integer uid;
+
+    private String accessToken;
+
+    /**
+     * 过期时间
+     */
+    private Date expireTime;
+
+    public WeiBoLoginUtil() {
+    }
+
+    public WeiBoLoginUtil(Integer uid, String accessToken, Date expireTime) {
+        this.uid = uid;
+        this.accessToken = accessToken;
+        this.expireTime = expireTime;
+    }
 
     /**
      * 获取accessToken
@@ -48,7 +70,7 @@ public class WeiBoLoginUtil {
      * @param redirect_uri  回调地址，需需与注册应用里的回调地址一致。
      * @return
      */
-    public static Map accessToken(String client_id, String client_secret, String code, String redirect_uri) {
+    public Map accessToken(String client_id, String client_secret, String code, String redirect_uri) {
         AssertUtil.hasText(client_id, "client_id为空");
         AssertUtil.hasText(client_secret, "client_secret为空");
         AssertUtil.hasText(code, "code为空");
@@ -62,6 +84,18 @@ public class WeiBoLoginUtil {
                 putParams("redirect_uri", redirect_uri).
                 doPost("https://api.weibo.com/oauth2/access_token").
                 toMap();
+
+        if(Objects.nonNull(map) && !map.containsKey("error_code")){
+            //没报错，进行赋值
+            Object access_token = map.get("access_token");
+            Object expires_in = map.get("expires_in");
+            Object uid = map.get("uid");
+            this.uid = Integer.valueOf(uid.toString());
+            this.accessToken = access_token.toString();
+            //判断过期时间
+            Integer expireSeconds = Integer.valueOf(expires_in.toString());
+            this.expireTime = new Date(System.currentTimeMillis() + expireSeconds * 1000);
+        }
         return map;
     }
 
@@ -94,13 +128,23 @@ public class WeiBoLoginUtil {
      * @param access_token
      * @return
      */
-    public static Map getTokenInfo(String access_token) {
+    public Map getTokenInfo(String access_token) {
         AssertUtil.hasText(access_token, "access_token为空");
 
         Map map = HttpClientUtils.getInstance().
                 putParams("access_token", access_token).
                 doPost("https://api.weibo.com/oauth2/get_token_info").
                 toMap();
+        if(Objects.nonNull(map) && !map.containsKey("error_code")){
+            //没报错，进行赋值
+            Object expires_in = map.get("expires_in");
+            Object uid = map.get("uid");
+            this.uid = Integer.valueOf(uid.toString());
+            this.accessToken = access_token;
+            //判断过期时间
+            Integer expireSeconds = Integer.valueOf(expires_in.toString());
+            this.expireTime = new Date(System.currentTimeMillis() + expireSeconds * 1000);
+        }
         return map;
     }
 
@@ -168,7 +212,7 @@ public class WeiBoLoginUtil {
      * @param uid
      * @return
      */
-    public static Map userInfo(String access_token, Integer uid) {
+    public Map userInfo(String access_token, Integer uid) {
         AssertUtil.hasText(access_token,"access_token为空");
         AssertUtil.isTrue(Objects.nonNull(uid),"uid为空");
 
@@ -180,4 +224,15 @@ public class WeiBoLoginUtil {
         return map;
     }
 
+    public Integer getUid() {
+        return uid;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public Date getExpireTime() {
+        return expireTime;
+    }
 }

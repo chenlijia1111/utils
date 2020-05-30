@@ -23,11 +23,11 @@ import java.util.Objects;
  * <p>
  * accessToken 是用户的操作凭证，与用户绑定，如果有后续操作的话，应存到数据库中去
  * 每个用户的accessToken不一样
- *
- *
+ * <p>
+ * <p>
  * 微信返回错误信息格式：
  * {@code
- *      { "errcode": 40030, "errmsg": "invalid refresh_token" }
+ * { "errcode": 40030, "errmsg": "invalid refresh_token" }
  * }
  * 通过errorcode判断是否有错误信息
  *
@@ -36,6 +36,10 @@ import java.util.Objects;
  */
 public class WXCommonLoginUtil {
 
+    /**
+     * 微信应用对应唯一id
+     */
+    private String openId;
 
     private String accessToken;
 
@@ -45,7 +49,6 @@ public class WXCommonLoginUtil {
      * 如果已经请求过accessToken了，后面再请求accessToken就直接用refreshToken去请求
      * 1. 若access_token已超时，那么进行refresh_token会获取一个新的access_token，新的超时时间；
      * 2. 若access_token未超时，那么进行refresh_token不会改变access_token，但超时时间会刷新，相当于续期access_token。
-     *
      */
     private String refreshToken;
 
@@ -57,7 +60,8 @@ public class WXCommonLoginUtil {
     public WXCommonLoginUtil() {
     }
 
-    public WXCommonLoginUtil(String accessToken, String refreshToken, Date expireTime) {
+    public WXCommonLoginUtil(String openId, String accessToken, String refreshToken, Date expireTime) {
+        this.openId = openId;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expireTime = expireTime;
@@ -119,7 +123,8 @@ public class WXCommonLoginUtil {
             return map1;
         }
 
-        Map map = HttpClientUtils.getInstance().putParams("appid", appId).
+        Map map = HttpClientUtils.getInstance().
+                putParams("appid", appId).
                 putParams("secret", secret).
                 putParams("code", code).
                 putParams("grant_type", "authorization_code").
@@ -130,18 +135,21 @@ public class WXCommonLoginUtil {
         if (Objects.isNull(errcode)) {
             //没有发生错误
             //主动刷新过期时间
+            Object openid = map.get("openid");
             Object refresh_token = map.get("refresh_token");
             Object accessToken = map.get("access_token");
             Object expiresIn = map.get("expires_in");
             Long aLong = Long.valueOf(expiresIn.toString());
+
+            this.openId = openid.toString();
             this.refreshToken = refresh_token.toString();
             this.accessToken = accessToken.toString();
             this.expireTime = new Date(System.currentTimeMillis() + aLong * 1000);
 
             Map map1 = refreshAccessToken(appId, this.refreshToken);
-            return map1;
+            //把map1的内容覆盖原返回数据，保留unionId
+            map.putAll(map1);
         }
-
         return map;
     }
 
@@ -153,11 +161,28 @@ public class WXCommonLoginUtil {
      * @param refreshToken 请求accessToken的时候返回的
      * @return
      */
-    private Map refreshAccessToken(String appId, String refreshToken) {
+    public Map refreshAccessToken(String appId, String refreshToken) {
         Map map = HttpClientUtils.getInstance().putParams("appid", appId).
                 putParams("grant_type", "refresh_token").
                 putParams("refresh_token", refreshToken).
                 doGet("https://api.weixin.qq.com/sns/oauth2/refresh_token").toMap();
+
+        //判断是否成功
+        Object errcode = map.get("errcode");
+        if (Objects.isNull(errcode)) {
+            //没有发生错误
+            //主动刷新过期时间
+            Object openid = map.get("openid");
+            Object refresh_token = map.get("refresh_token");
+            Object accessToken = map.get("access_token");
+            Object expiresIn = map.get("expires_in");
+            Long aLong = Long.valueOf(expiresIn.toString());
+
+            this.openId = openid.toString();
+            this.refreshToken = refresh_token.toString();
+            this.accessToken = accessToken.toString();
+            this.expireTime = new Date(System.currentTimeMillis() + aLong * 1000);
+        }
         return map;
     }
 
@@ -166,15 +191,15 @@ public class WXCommonLoginUtil {
      * 获取用户信息
      * <p>
      * {
-     *  "openid":" OPENID",
-     *  " nickname": NICKNAME,
-     *  "sex":"1",
-     *  "province":"PROVINCE"
-     *  "city":"CITY",
-     *  "country":"COUNTRY",
-     *  "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
-     *  "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
-     *  "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * "openid":" OPENID",
+     * " nickname": NICKNAME,
+     * "sex":"1",
+     * "province":"PROVINCE"
+     * "city":"CITY",
+     * "country":"COUNTRY",
+     * "headimgurl":       "http://thirdwx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/46",
+     * "privilege":[ "PRIVILEGE1" "PRIVILEGE2"     ],
+     * "unionid": "o6_bmasdasdsad6_2sgVt7hMZOPfL"
      * }
      *
      * @param accessToken 1
@@ -204,4 +229,7 @@ public class WXCommonLoginUtil {
         return expireTime;
     }
 
+    public String getOpenId() {
+        return openId;
+    }
 }

@@ -13,20 +13,20 @@ import java.util.Map;
 public class TestWeiBo {
 
     @Test
-    public void testAccessToken(){
-        Map map = WeiBoLoginUtil.accessToken("195395370", "7f2b359fc44e44811ed58cdfdd5b8024", "12", "121");
+    public void testAccessToken() {
+        Map map = new WeiBoLoginUtil().accessToken("195395370", "7f2b359fc44e44811ed58cdfdd5b8024", "12", "121");
         System.out.println(JSONUtil.objToStr(map));
     }
 
     @Test
-    public void testCheckAccessToken(){
-        Map map = WeiBoLoginUtil.getTokenInfo("195395370");
+    public void testCheckAccessToken() {
+        Map map = new WeiBoLoginUtil().getTokenInfo("195395370");
         System.out.println(JSONUtil.objToStr(map));
     }
 
     @Test
-    public void testUserInfo(){
-        Map map = WeiBoLoginUtil.userInfo("195395370",12);
+    public void testUserInfo() {
+        Map map = new WeiBoLoginUtil().userInfo("195395370", 12);
         System.out.println(JSONUtil.objToStr(map));
     }
 
