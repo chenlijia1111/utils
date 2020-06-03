@@ -57,6 +57,13 @@ public class URLBuildUtil {
         return paramsToString(true);
     }
 
+    /**
+     * 将参数以字典排序，构成字符串
+     * 如：key1:value1&key2&value2
+     *
+     * @param ignoreNull
+     * @return
+     */
     public String paramsToString(boolean ignoreNull) {
         StringBuilder sb = new StringBuilder();
         if (params.size() > 0) {
@@ -77,7 +84,7 @@ public class URLBuildUtil {
         }
         //去掉最后一个 &
         if (sb.toString().endsWith("&")) {
-            sb.delete(sb.length() - 1, sb.length());
+            sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
     }
@@ -99,4 +106,13 @@ public class URLBuildUtil {
         String string = sb.toString();
         return string;
     }
+
+    /**
+     * 获取请求参数
+     * @return
+     */
+    public Map getParams() {
+        return this.params;
+    }
+
 }

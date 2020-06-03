@@ -10,6 +10,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -51,6 +53,25 @@ public class FileUtils {
         commonDownLoadContentType.put(".pdf", "application/pdf");
         commonDownLoadContentType.put(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         commonDownLoadContentType.put(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    /**
+     * 根据contentType获取文件后缀
+     *
+     * @param contentType
+     * @return
+     */
+    public static String findFileSuffixWithContentType(String contentType) {
+        if (StringUtils.isNotEmpty(contentType)) {
+            contentType = contentType.toLowerCase();
+            Set<Map.Entry<String, String>> entries = commonDownLoadContentType.entrySet();
+            for (Map.Entry<String, String> entry : entries) {
+                if (Objects.equals(entry.getValue(), contentType)) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return null;
     }
 
 

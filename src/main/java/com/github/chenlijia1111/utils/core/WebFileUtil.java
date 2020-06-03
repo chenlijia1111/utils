@@ -2,9 +2,12 @@ package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.Result;
 import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
+import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.image.ReduceImageUtil;
 import com.github.chenlijia1111.utils.list.Lists;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -259,6 +262,59 @@ public class WebFileUtil {
         String contextPath = request.getContextPath();
         String url = scheme + "://" + serverName + ":" + serverPort + contextPath;
         return url;
+    }
+
+
+    /**
+     * 将网络图片保存到本地
+     *
+     * @param imageUrl
+     * @param saveLocalImageDirectory 保存到本地的文件夹
+     * @return 返回文件名
+     */
+    public static Result httpImageToLocalImage(String imageUrl, String saveLocalImageDirectory) {
+
+        if (StringUtils.isEmpty(imageUrl)) {
+            return Result.failure("网络图片URL为空");
+        }
+        if (StringUtils.isEmpty(saveLocalImageDirectory)) {
+            return Result.failure("保存文件夹为空");
+        }
+
+        //进行请求
+        try {
+            HttpResponse response = HttpClientUtils.getInstance().
+                    doGet(imageUrl).toResponse();
+            InputStream content = response.getEntity().getContent();
+
+            //判断文件夹是否存在，不存在就创建
+            File saveLocalImageDirectoryFile = new File(saveLocalImageDirectory);
+            if (!saveLocalImageDirectoryFile.exists()) {
+                saveLocalImageDirectoryFile.mkdirs();
+            }
+
+            //判断文件的后缀
+            //默认后缀设置为.png
+            String fileSuffix = ".png";
+            Header contentType = response.getFirstHeader("Content-Type");
+            if (Objects.nonNull(contentType)) {
+                String fileSuffixWithContentType = FileUtils.findFileSuffixWithContentType(contentType.getValue());
+                if (StringUtils.isNotEmpty(fileSuffixWithContentType)) {
+                    fileSuffix = fileSuffixWithContentType;
+                }
+            }
+            //生成文件名
+            String fileName = RandomUtil.createRandomName() + fileSuffix;
+            File file = new File(saveLocalImageDirectory + "/" + fileName);
+            //判断input
+            IOUtil.writeInputStream(content, new FileOutputStream(file));
+
+            //返回文件名
+            return Result.success("操作成功", fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Result.failure("操作失败");
     }
 
 }
