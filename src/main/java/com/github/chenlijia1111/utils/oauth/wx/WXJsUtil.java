@@ -1,15 +1,21 @@
 package com.github.chenlijia1111.utils.oauth.wx;
 
+import com.github.chenlijia1111.utils.core.LogUtil;
 import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.encrypt.SHA1EncryptUtil;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.URLBuildUtil;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * 微信公众号工具类
@@ -22,6 +28,8 @@ import java.util.Objects;
  * @since 2020/6/3
  */
 public class WXJsUtil {
+
+    private static final Logger log = new LogUtil(WXJsUtil.class);
 
     private String appId;
 
@@ -40,6 +48,48 @@ public class WXJsUtil {
         this.secret = secret;
         accessToken(appId, secret);
     }
+
+
+    /**
+     * 验证消息的确来自微信服务器
+     * 若确认此次GET请求来自微信服务器，请原样返回echostr参数内容
+     *
+     * @param signature 微信加密签名，signature结合了开发者填写的token参数和请求中的timestamp参数、nonce参数。
+     * @param timestamp 时间戳
+     * @param nonce     随机数
+     * @param echostr   随机字符串 校验成功之后返回微信这个参数内容
+     * @param token     微信公众号设置的token
+     * @param response
+     */
+    public void checkSignature(String signature, String timestamp, String nonce,
+                               String echostr, String token, HttpServletResponse response) {
+        if (StringUtils.isNotEmpty(signature) && StringUtils.isNotEmpty(timestamp) &&
+                StringUtils.isNotEmpty(nonce) && StringUtils.isNotEmpty(echostr) &&
+                StringUtils.isNotEmpty(token) && Objects.nonNull(response)) {
+
+            log.info("signature:{},timestamp:{},nonce:{},echostr:{}", signature, timestamp, nonce, echostr);
+
+            //校验
+            TreeSet<String> treeSet = new TreeSet<>();
+            treeSet.add(token);
+            treeSet.add(timestamp);
+            treeSet.add(nonce);
+            String tempStr = treeSet.stream().collect(Collectors.joining());
+            //sha1加密
+            tempStr = SHA1EncryptUtil.SHA1StringToHexString(tempStr).toLowerCase();
+            //比较是否一致
+            if (Objects.equals(tempStr, signature)) {
+                //说明是微信发来的
+                try {
+                    log.info("校验微信发来的消息通过");
+                    response.getWriter().print(echostr);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
     /**
      * 获取accessToken
@@ -133,17 +183,23 @@ public class WXJsUtil {
         String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
         StringBuilder sb = new StringBuilder();
         URLBuildUtil urlBuildUtil = new URLBuildUtil(null);
-        String paramsToString = urlBuildUtil.
-                putParams("noncestr", noncestr).
-                putParams("jsapi_ticket", getTicket()).
-                putParams("timestamp", timeStamp).
-                putParams("url", url).paramsToString();
+        String ticket = getTicket();
+        //获取不到jsTicket 可能是ip没有设置白名单的问题
+        if (StringUtils.isNotEmpty(ticket)) {
+            String paramsToString = urlBuildUtil.
+                    putParams("noncestr", noncestr).
+                    putParams("jsapi_ticket", getTicket()).
+                    putParams("timestamp", timeStamp).
+                    putParams("url", url).paramsToString();
 
-        //sha1签名
-        String signature = SHA1EncryptUtil.SHA1StringToHexString(paramsToString).toLowerCase();
+            //sha1签名
+            String signature = SHA1EncryptUtil.SHA1StringToHexString(paramsToString).toLowerCase();
 
-        urlBuildUtil.putParams("signature", signature);
-        return urlBuildUtil.getParams();
+            urlBuildUtil.putParams("signature", signature);
+            urlBuildUtil.putParams("appId", this.appId);
+            return urlBuildUtil.getParams();
+        }
+        return null;
     }
 
 }

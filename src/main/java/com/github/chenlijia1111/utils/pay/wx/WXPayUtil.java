@@ -35,7 +35,7 @@ public class WXPayUtil {
      * @param signKey    签名加盐的key key设置路径：微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
      * @param notifyUrl  回调地址
      * @param payType    支付客户端类型
-     * @param openId     当支付类型为 {@link PayType#JSAPI} 需要传openId
+     * @param openId     当支付类型为 {@link PayType#JSAPI} 需要传openId 此参数为微信用户在商户对应appid下的唯一标识
      * @param outTradeNo 商户订单号
      * @param request
      * @return
@@ -208,10 +208,14 @@ public class WXPayUtil {
      * 回调处理
      * 解析回调参数
      * 注意，调用者需要返回微信表明已取到数据
+     * 微信希望最终返回数据格式
      * <xml>
      * <return_code><![CDATA[SUCCESS]]></return_code>
      * <return_msg><![CDATA[OK]]></return_msg>
      * </xml>
+     *
+     * 这里只是获取回调的参数，具体的校验需要另外做，防止恶意请求
+     * 可以通过 {@link #createSign(Map, String)} 进行校验
      *
      * @param request
      * @return

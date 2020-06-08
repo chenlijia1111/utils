@@ -84,6 +84,12 @@ public class HttpClientUtils {
      */
     private HttpClient httpClient;
 
+    /**
+     * 请求体
+     * 调用者可直接赋值请求体
+     */
+    private HttpEntity httpEntity;
+
 
     /**
      * 请求的响应
@@ -97,6 +103,7 @@ public class HttpClientUtils {
 
     /**
      * 创建一个信任所有网站的HttpClient
+     *
      * @return
      */
     private static CloseableHttpClient createTruestAllHttpClient() {
@@ -311,12 +318,17 @@ public class HttpClientUtils {
      * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putHeader(String key, String value) {
-        this.headers.put(key, value);
+        //不需要手动添加 contentLength httpClient 会判断body的长度自动加上  如果自己加了反而会报错
+        if(StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && !Objects.equals(key.toLowerCase(),"content-length")){
+            this.headers.put(key, value);
+        }
         return this;
     }
 
     /**
      * 添加请求头
+     * 不建议这种方式进行添加请求头
+     * 请用 {@link #putHeader(String, String)}
      *
      * @param map 1
      * @author chenlijia
@@ -343,6 +355,10 @@ public class HttpClientUtils {
         return this;
     }
 
+    public HttpClientUtils setHttpEntity(HttpEntity httpEntity) {
+        this.httpEntity = httpEntity;
+        return this;
+    }
 
     /**
      * 发送 get 请求
@@ -382,6 +398,7 @@ public class HttpClientUtils {
                 httpGet.addHeader(key, value);
             }
         }
+
         try {
             this.response = httpClient.execute(httpGet);
         } catch (IOException e) {
@@ -463,7 +480,10 @@ public class HttpClientUtils {
                 httpPost.setEntity(formEntity);
             }
 
-
+            //如果调用者直接设置了请求体，那么直接赋值，之前的参数直接失效
+            if (Objects.nonNull(httpEntity)) {
+                httpPost.setEntity(httpEntity);
+            }
             this.response = httpClient.execute(httpPost);
         } catch (IOException e) {
             e.printStackTrace();
@@ -518,6 +538,10 @@ public class HttpClientUtils {
 
             }
 
+            //如果调用者直接设置了请求体，那么直接赋值，之前的参数直接失效
+            if (Objects.nonNull(httpEntity)) {
+                httpPut.setEntity(httpEntity);
+            }
             this.response = httpClient.execute(httpPut);
         } catch (IOException e) {
             e.printStackTrace();

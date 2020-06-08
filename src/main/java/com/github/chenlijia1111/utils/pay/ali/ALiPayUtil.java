@@ -349,6 +349,13 @@ public class ALiPayUtil {
      * <p>
      * }
      *
+     * 需要返回支付宝 success/failure
+     *
+     * 这里只是解析了返回的参数
+     * 调用者需要自己校验数据的合法性，防止恶意请求
+     * {@link AlipaySignature#rsaCheckV1(Map, String, String, String)}
+     * 需要传入signType参数，因为在请求的时候传了signType参数为RSA2
+     *
      * @param request
      * @return
      */
