@@ -8,7 +8,7 @@ import com.alipay.api.domain.*;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.image.QRCodeUtil;
 
@@ -93,6 +93,55 @@ public class ALiPayUtil {
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
                 appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
+        AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
+
+        AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+        model.setBody(body);
+        model.setSubject(body);
+        model.setTotalAmount(orderAmount);
+        model.setPassbackParams("1");
+        model.setOutTradeNo(orderNo);
+        model.setProductCode("QUICK_WAP_PAY");
+        try {
+            AlipayTradeWapPayRequest aliPayRequest = new AlipayTradeWapPayRequest();
+            aliPayRequest.setReturnUrl(returnUrl);
+            aliPayRequest.setNotifyUrl(notifyUrl);
+            aliPayRequest.setBizModel(model);
+
+            AlipayTradeWapPayResponse alipayTradeWapPayResponse = alipayClient.pageExecute(request);
+            String form = alipayTradeWapPayResponse.getBody();
+            response.setContentType("text/html;charset=" + CharSetType.UTF8.getType());
+            PrintWriter out = response.getWriter();
+            out.write(form);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * PC支付
+     * 返回页面信息
+     *
+     *
+     * @param appId
+     * @param privateKey
+     * @param publicKey   公钥
+     * @param orderNo     订单id
+     * @param orderAmount 订单金额
+     * @param body        描述
+     * @param returnUrl   支付成功跳转地址
+     * @param notifyUrl   回调地址
+     * @param response
+     */
+    public static void PCPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
+                             String returnUrl, String notifyUrl, HttpServletResponse response) {
+        //实例化客户端
+        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
+                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
+        //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
 
         AlipayTradePagePayModel model = new AlipayTradePagePayModel();
@@ -122,46 +171,20 @@ public class ALiPayUtil {
 
 
     /**
-     * PC支付
-     * 返回二维码地址
-     *
-     * 正确返回数据
-     * {@code
-     *  {
-     *     "alipay_trade_precreate_response": {
-     *         "code": "10000",
-     *         "msg": "Success",
-     *         "out_trade_no": "6823789339978248",
-     *         "qr_code": "https://qr.alipay.com/bavh4wjlxf12tper3a"
-     *     },
-     *     "sign": "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
-     *  }
-     * }
-     *
-     * 错误返回数据
-     * {@code
-     *  {
-     *     "alipay_trade_precreate_response": {
-     *         "code": "20000",
-     *         "msg": "Service Currently Unavailable",
-     *         "sub_code": "isp.unknow-error",
-     *         "sub_msg": "系统繁忙"
-     *     },
-     *     "sign": "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
-     * }
-     * }
+     * 二维码支付
      *
      * @param appId
      * @param privateKey
-     * @param publicKey   公钥
-     * @param orderNo     订单id
+     * @param publicKey
+     * @param orderNo     订单编号
      * @param orderAmount 订单金额
      * @param body        描述
-     * @param returnUrl   支付成功跳转地址
      * @param notifyUrl   回调地址
+     * @param response
      */
-    public static AlipayTradePrecreateResponse PCPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
-                             String returnUrl, String notifyUrl) {
+    public static void QRCodePay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
+                                 String notifyUrl, HttpServletResponse response) {
+
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
                 appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
@@ -169,23 +192,26 @@ public class ALiPayUtil {
         AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
 
         AlipayTradePrecreateModel model = new AlipayTradePrecreateModel();
-
-        model.setOutTradeNo(orderNo);
-        model.setTotalAmount(orderAmount);
         model.setSubject(body);
-        model.setBody(body);
+        model.setTotalAmount(orderAmount);
+        model.setStoreId(appId);
+        model.setTimeoutExpress("5m");
+        model.setOutTradeNo(orderNo);
         try {
-
             request.setBizModel(model);
             request.setNotifyUrl(notifyUrl);
-            request.setReturnUrl(returnUrl);
 
             AlipayTradePrecreateResponse alipayTradePrecreateResponse = alipayClient.execute(request);
-            return alipayTradePrecreateResponse;
+            String qrCode = alipayTradePrecreateResponse.getQrCode();
+            if(alipayTradePrecreateResponse.isSuccess() &&
+                    StringUtils.isNotEmpty(qrCode)){
+                response.setHeader("Cache-Control", "no-store, no-cache");
+                response.setContentType("image/png");
+                new QRCodeUtil().output(qrCode, response.getOutputStream());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
 
