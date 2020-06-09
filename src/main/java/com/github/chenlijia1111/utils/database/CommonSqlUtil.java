@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 数据库工具类
  * @author chenlijia
  * @version 1.0
  * @since 2019/11/14 0014 下午 1:19
@@ -48,6 +49,54 @@ public class CommonSqlUtil {
         }
         return connection;
     }
+
+    /**
+     * 创建mysql连接  单例
+     *
+     * @param url      1
+     * @param userName 2
+     * @param password 3
+     * @param driverClassName 驱动
+     * @return java.sql.Connection
+     * @since 下午 1:19 2019/11/14 0014
+     **/
+    public static Connection createSingleConnection(String url, String userName, String password,String driverClassName) {
+        if (Objects.isNull(connection)) {
+            try {
+                Class.forName(driverClassName);
+                connection = DriverManager.getConnection(url, userName, password);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return connection;
+    }
+
+    /**
+     * 创建mysql连接
+     *
+     * @param url      1
+     * @param userName 2
+     * @param password 3
+     * @param driverClassName 驱动名称
+     * @return java.sql.Connection
+     * @since 下午 1:19 2019/11/14 0014
+     **/
+    public static Connection createConnection(String url, String userName, String password,String driverClassName) {
+        try {
+            Class.forName(driverClassName);
+            Connection connection = DriverManager.getConnection(url, userName, password);
+            return connection;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 创建mysql连接

@@ -7,10 +7,7 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.*;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.*;
-import com.alipay.api.response.AlipayFundTransToaccountTransferResponse;
-import com.alipay.api.response.AlipayFundTransTobankTransferResponse;
-import com.alipay.api.response.AlipayTradeAppPayResponse;
-import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.alipay.api.response.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.image.QRCodeUtil;
@@ -24,6 +21,7 @@ import java.util.Map;
 
 /**
  * 支付宝支付工具
+ * 注意：这里的公钥是支付宝公钥，不是应用公钥，不要弄错了。
  *
  * @author 陈礼佳
  * @since 2019/9/15 17:25
@@ -95,9 +93,9 @@ public class ALiPayUtil {
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
                 appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
 
-        AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+        AlipayTradePagePayModel model = new AlipayTradePagePayModel();
         model.setBody(body);
         model.setSubject(body);
         model.setTotalAmount(orderAmount);
@@ -110,8 +108,8 @@ public class ALiPayUtil {
             aliPayRequest.setNotifyUrl(notifyUrl);
             aliPayRequest.setBizModel(model);
 
-            AlipayTradeAppPayResponse alipayTradeAppPayResponse = alipayClient.pageExecute(request);
-            String form = alipayTradeAppPayResponse.getBody();
+            AlipayTradePagePayResponse alipayTradePagePayResponse = alipayClient.pageExecute(request);
+            String form = alipayTradePagePayResponse.getBody();
             response.setContentType("text/html;charset=" + CharSetType.UTF8.getType());
             PrintWriter out = response.getWriter();
             out.write(form);
@@ -125,6 +123,33 @@ public class ALiPayUtil {
 
     /**
      * PC支付
+     * 返回二维码地址
+     *
+     * 正确返回数据
+     * {@code
+     *  {
+     *     "alipay_trade_precreate_response": {
+     *         "code": "10000",
+     *         "msg": "Success",
+     *         "out_trade_no": "6823789339978248",
+     *         "qr_code": "https://qr.alipay.com/bavh4wjlxf12tper3a"
+     *     },
+     *     "sign": "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
+     *  }
+     * }
+     *
+     * 错误返回数据
+     * {@code
+     *  {
+     *     "alipay_trade_precreate_response": {
+     *         "code": "20000",
+     *         "msg": "Service Currently Unavailable",
+     *         "sub_code": "isp.unknow-error",
+     *         "sub_msg": "系统繁忙"
+     *     },
+     *     "sign": "ERITJKEIJKJHKKKKKKKHJEREEEEEEEEEEE"
+     * }
+     * }
      *
      * @param appId
      * @param privateKey
@@ -134,88 +159,33 @@ public class ALiPayUtil {
      * @param body        描述
      * @param returnUrl   支付成功跳转地址
      * @param notifyUrl   回调地址
-     * @param response
      */
-    public static void PCPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
-                             String returnUrl, String notifyUrl, HttpServletResponse response) {
+    public static AlipayTradePrecreateResponse PCPay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
+                             String returnUrl, String notifyUrl) {
         //实例化客户端
         AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
                 appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
         //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+        AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
 
-        AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+        AlipayTradePrecreateModel model = new AlipayTradePrecreateModel();
 
         model.setOutTradeNo(orderNo);
-        model.setProductCode("FAST_INSTANT_TRADE_PAY");
         model.setTotalAmount(orderAmount);
         model.setSubject(body);
         model.setBody(body);
-        model.setPassbackParams("passback_params");
         try {
 
             request.setBizModel(model);
             request.setNotifyUrl(notifyUrl);
             request.setReturnUrl(returnUrl);
 
-            AlipayTradeAppPayResponse alipayTradeAppPayResponse = alipayClient.pageExecute(request);
-            String form = alipayTradeAppPayResponse.getBody();
-            response.setContentType("text/html;charset=" + CharSetType.UTF8.getType());
-            PrintWriter out = response.getWriter();
-            out.write(form);
-            out.flush();
-            out.close();
+            AlipayTradePrecreateResponse alipayTradePrecreateResponse = alipayClient.execute(request);
+            return alipayTradePrecreateResponse;
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    /**
-     * 二维码支付
-     *
-     * @param appId
-     * @param privateKey
-     * @param publicKey
-     * @param orderNo     订单编号
-     * @param orderAmount 订单金额
-     * @param body        描述
-     * @param notifyUrl   回调地址
-     * @param response
-     */
-    public static void QRCodePay(String appId, String privateKey, String publicKey, String orderNo, String orderAmount, String body,
-                                 String notifyUrl, HttpServletResponse response) {
-
-        //实例化客户端
-        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",
-                appId, privateKey, "json", CharSetType.UTF8.getType(), publicKey, "RSA2");
-        //实例化具体API对应的request类,类名称和接口名称对应,当前调用接口名称：alipay.trade.app.pay
-        AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
-
-        AlipayTradePrecreateModel model = new AlipayTradePrecreateModel();
-        model.setSubject(body);
-        model.setTotalAmount(orderAmount);
-        model.setStoreId(appId);
-        model.setTimeoutExpress("5m");
-        model.setOutTradeNo(orderNo);
-        try {
-            request.setBizModel(model);
-            request.setNotifyUrl(notifyUrl);
-
-            AlipayTradeAppPayResponse execute = alipayClient.execute(request);
-            String resultStr = execute.getBody();
-            ObjectMapper objectMapper = new ObjectMapper();
-            HashMap hashMap = objectMapper.readValue(resultStr, HashMap.class);
-            Map json = (Map) hashMap.get("alipay_trade_precreate_response");
-            if (json.get("code").toString().equals("10000")) {
-                Object qr_code = json.get("qr_code");
-                response.setHeader("Cache-Control", "no-store, no-cache");
-                response.setContentType("image/png");
-                new QRCodeUtil().output(qr_code.toString(), response.getOutputStream());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return null;
     }
 
 
