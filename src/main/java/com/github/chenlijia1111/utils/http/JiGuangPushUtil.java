@@ -85,6 +85,41 @@ import java.util.Objects;
  * }
  * }
  *
+ *
+ * 测试代码如下：
+ * {@code
+ *                 //进行推送消息  逻小维：一会要一起出门玩么？  客户端注意 要截取第一个冒号之后的数据进行展示，
+ *                 String messageContent = sendUserNickName + "：" + params.getMessageContent();
+ *                 //推送目标对象构建
+ *                 Map audience = Maps.mapBuilder(MapType.HASH_MAP).put("alias", aliasNameSet).build();
+ *                 //通知内容 安卓发送通知时添加通知栏大图标 为应用图标
+ *                 String requestPrefixUrl = HttpUtils.currentRequestUrlPrefix(SpringUtil.getCurrentRequest());
+ *                 String bzPushIconUrl = requestPrefixUrl + "/images/icons/bz_push_icon.png";
+ *                 Map androidNotification = Maps.mapBuilder(MapType.HASH_MAP).
+ *                         put("alert", messageContent).
+ *                         put("extras",params).
+ *                         put("large_icon",bzPushIconUrl).
+ *                         build();
+ *                 Map iosNotification = Maps.mapBuilder(MapType.HASH_MAP).
+ *                         put("alert", messageContent).
+ *                         put("extras",params).
+ *                         build();
+ *                 Map notification = Maps.mapBuilder(MapType.HASH_MAP).
+ *                         put("android", androidNotification).
+ *                         put("ios", iosNotification).
+ *                         build();
+ *                 //True 表示推送生产环境，False 表示要推送开发环境
+ *                 Map options = Maps.mapBuilder(MapType.HASH_MAP).
+ *                         put("apns_production", false).
+ *                         build();
+ *                 Map map = new JiGuangPushUtil(Constants.PUSH_APP_KEY, Constants.PUSH_APP_SECRET).
+ *                         platform("all").
+ *                         audience(audience).
+ *                         notification(notification).
+ *                         options(options).
+ *                         push();
+ * }
+ *
  * @author Chen LiJia
  * @since 2020/3/28
  */
