@@ -42,6 +42,13 @@ public class WebFileUtil {
     private static volatile Executor threadPool = null;
 
     /**
+     * 下载视频分片下载每片大小
+     * 单位 byte 字节  默认8M
+     * 优化客户端请求
+     */
+    public static long DOWN_LOAD_VIDEO_PEER_SIZE = 8 * 1024 * 1024L;
+
+    /**
      * 获取线程池 用于压缩图片
      *
      * @return
@@ -208,7 +215,7 @@ public class WebFileUtil {
         if (StringUtils.isNotEmpty(range)) {
             Long start = findDownLoadStartPosition(request);
             //分片下载 8M为1片
-            Long end = start + 1024 * 1024 * 8;
+            Long end = start + DOWN_LOAD_VIDEO_PEER_SIZE;
             //最大下标为length-1 判断是否超出
             if (end > length - 1) {
                 end = length - 1;

@@ -7,6 +7,7 @@ import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.apache.http.protocol.HTTP;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.List;
@@ -228,18 +229,10 @@ public class JiGuangPushUtil {
     public Map push() {
 
         //构建 token
-        byte[] encode = Base64.getEncoder().encode((this.appKey + this.masterSecret).getBytes(Charset.forName(CharSetType.UTF8.name())));
-        String token = String.valueOf(encode);
+        String token = Base64.getEncoder().encodeToString((this.appKey + ":" +this.masterSecret).getBytes(Charset.forName(CharSetType.UTF8.name())));
         httpClientUtils.putHeader("Authorization", "Basic " + token);
         httpClientUtils.putHeader(HTTP.CONTENT_TYPE, ContentTypeConstant.APPLICATION_JSON);
 
-        //cid
-        httpClientUtils.putParams("cid", appKey + RandomUtil.createUUID());
-
-        //判断必填参数
-        if (Objects.isNull(httpClientUtils.getParams().get("platform"))) {
-
-        }
         //校验必填参数
         AssertUtil.isTrue(Objects.nonNull(httpClientUtils.getParams().get("platform")), "推送平台设置不能为空");
         AssertUtil.isTrue(Objects.nonNull(httpClientUtils.getParams().get("audience")), "推送设备指定不能为空");
@@ -249,5 +242,6 @@ public class JiGuangPushUtil {
         Map map = httpClientUtils.doPost(this.baseUrl).toMap();
         return map;
     }
+
 
 }
