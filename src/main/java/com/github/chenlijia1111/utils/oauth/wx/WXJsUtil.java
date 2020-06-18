@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.utils.oauth.wx;
 
+import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.LogUtil;
 import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
@@ -44,6 +45,10 @@ public class WXJsUtil {
     private Date ticketLimitTime;
 
     public WXJsUtil(String appId, String secret) {
+
+        AssertUtil.hasText(appId,"appId不能为空");
+        AssertUtil.hasText(secret,"secret不能为空");
+
         this.appId = appId;
         this.secret = secret;
         accessToken(appId, secret);
@@ -130,6 +135,8 @@ public class WXJsUtil {
             this.limitTime = DateTime.now().plusSeconds(expireSecond).toDate();
             return this.accessToken;
         }
+        //打印错误信息
+        log.error(map.get("errmsg").toString());
         return null;
     }
 
@@ -139,6 +146,10 @@ public class WXJsUtil {
      * @return
      */
     public String getTicket() {
+
+        //刷新accessToken
+        accessToken(this.appId,this.secret);
+
         if (StringUtils.isNotEmpty(accessToken)) {
 
             //判断之前有没有获取过
@@ -146,11 +157,6 @@ public class WXJsUtil {
                     ticketLimitTime.getTime() > System.currentTimeMillis()) {
                 return jsApiTicket;
             }
-
-
-            //有accessToken
-            //判断有没有过期，过期就重新获取
-            accessToken(this.appId, this.secret);
 
             Map map = HttpClientUtils.getInstance().
                     putParams("access_token", this.accessToken).
@@ -165,6 +171,9 @@ public class WXJsUtil {
                 this.ticketLimitTime = DateTime.now().plusSeconds(expireSecond).toDate();
                 return this.jsApiTicket;
             }
+
+            //打印错误信息
+            log.error(map.get("errmsg").toString());
         }
         return null;
     }
