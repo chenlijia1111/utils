@@ -280,6 +280,18 @@ public class WebFileUtil {
      * @return 返回文件名
      */
     public static Result httpImageToLocalImage(String imageUrl, String saveLocalImageDirectory) {
+        return httpImageToLocalImage(imageUrl, saveLocalImageDirectory, null);
+    }
+
+    /**
+     * 将网络图片保存到本地
+     *
+     * @param imageUrl
+     * @param saveLocalImageDirectory 保存到本地的文件夹
+     * @param fileName
+     * @return 返回文件名
+     */
+    public static Result httpImageToLocalImage(String imageUrl, String saveLocalImageDirectory, String fileName) {
 
         if (StringUtils.isEmpty(imageUrl)) {
             return Result.failure("网络图片URL为空");
@@ -311,7 +323,9 @@ public class WebFileUtil {
                 }
             }
             //生成文件名
-            String fileName = RandomUtil.createRandomName() + fileSuffix;
+            if (StringUtils.isEmpty(fileName)) {
+                fileName = RandomUtil.createRandomName() + fileSuffix;
+            }
             File file = new File(saveLocalImageDirectory + "/" + fileName);
             //判断input
             IOUtil.writeInputStream(content, new FileOutputStream(file));

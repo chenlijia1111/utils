@@ -1,7 +1,9 @@
 package com.github.chenlijia1111.utils.pay.wx;
 
+import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
 import com.github.chenlijia1111.utils.core.RandomUtil;
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
 import com.github.chenlijia1111.utils.encrypt.RSAUtils;
@@ -18,6 +20,11 @@ import java.util.TreeMap;
 
 /**
  * 微信支付工具
+ * <p>
+ * 修改-2020-06-23
+ * 微信回调 校验签名好像不对，通过微信官方的签名测试生成的签名也是对不上的，不知道微信是用的哪些参数进行的签名
+ * 但是可以在接收到回调之后查询订单的详情，然后进行校验，查询详情的签名是可以校验成功的
+ * {@link #checkNotify(Map, String)}
  *
  * @author 陈礼佳
  * @since 2019/9/15 12:40
@@ -207,13 +214,35 @@ public class WXPayUtil {
     /**
      * 回调处理
      * 解析回调参数
+     * <p>
+     * {@code
+     * {
+     * transaction_id=4200000599202006232298777759,
+     * nonce_str=0024fccce85e444dbf438879d5f181a0,
+     * bank_type=OTHERS, openid=UesAIQgk7bcGHj_5A,
+     * sign=E9626A483109EA27FE282B5E62668968,
+     * fee_type=CNY,
+     * mch_id=1600453107,
+     * cash_fee=300,
+     * out_trade_no=472820029759164416,
+     * appid=wxaa43502dfae4e166,
+     * total_fee=300,
+     * trade_type=APP,
+     * result_code=SUCCESS,
+     * time_end=20200623145911,
+     * is_subscribe=N,
+     * return_code=SUCCESS
+     * }
+     * }
+     * <p>
+     * <p>
      * 注意，调用者需要返回微信表明已取到数据
      * 微信希望最终返回数据格式
      * <xml>
      * <return_code><![CDATA[SUCCESS]]></return_code>
      * <return_msg><![CDATA[OK]]></return_msg>
      * </xml>
-     *
+     * <p>
      * 这里只是获取回调的参数，具体的校验需要另外做，防止恶意请求
      * 可以通过 {@link #createSign(Map, String)} 进行校验
      *
@@ -234,6 +263,55 @@ public class WXPayUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 校验支付回调信息是否正确
+     *
+     * @param notifyParams 回调参数
+     * @param partnerKey   加密密钥
+     * @return
+     */
+    public static boolean checkNotify(Map notifyParams, String partnerKey) {
+
+        boolean checkResult = false;
+
+        if (Objects.nonNull(notifyParams) &&
+                StringUtils.isNotEmpty(partnerKey) &&
+                notifyParams.containsKey("appid") &&
+                notifyParams.containsKey("mch_id") &&
+                Objects.equals("SUCCESS", notifyParams.get("return_code")) &&
+                Objects.equals("SUCCESS", notifyParams.get("result_code")) &&
+                notifyParams.containsKey("out_trade_no") &&
+                notifyParams.containsKey("transaction_id")) {
+
+            String appid = notifyParams.get("appid").toString();
+            String mch_id = notifyParams.get("mch_id").toString();
+            //商户流水号
+            String outTradeNo = notifyParams.get("out_trade_no").toString();
+            //支付流水号
+            String transactionId = notifyParams.get("transaction_id").toString();
+
+
+            //查询支付订单详情
+            Map orderInoMap = queryOrderInfo(appid, mch_id, partnerKey, transactionId, outTradeNo);
+
+            if (Objects.nonNull(orderInoMap) &&
+                    orderInoMap.containsKey("sign") &&
+                    Objects.equals("SUCCESS", orderInoMap.get("return_code")) &&
+                    Objects.equals("SUCCESS", orderInoMap.get("result_code")) &&
+                    Objects.equals("SUCCESS", orderInoMap.get("trade_state"))) {
+
+                //校验详情的签名是否正确
+                String orderInfoSign = orderInoMap.get("sign").toString();
+                //构建签名
+                String localSign = createSign(orderInoMap, partnerKey);
+
+                checkResult = Objects.equals(orderInfoSign, localSign);
+            }
+        }
+
+        return checkResult;
     }
 
 
@@ -501,5 +579,79 @@ public class WXPayUtil {
         String sign = MD5EncryptUtil.MD5StringToHexString(stringSignTemp);
         return sign;
     }
+
+    /**
+     * 查询订单详情
+     * <p>
+     * {@code
+     * {
+     * "transaction_id":"4200000601202006233274481066",
+     * "nonce_str":"i9lORh3f8khZpIgK",
+     * "trade_state":"REFUND",
+     * "bank_type":"OTHERS",
+     * "openid":"o0LL8wgeaJ-UesAIQgk7bcGHj_5A",
+     * "sign":"C071DF8B3AB0B613DB0C8F370ACDD54B",
+     * "return_msg":"OK",
+     * "fee_type":"CNY",
+     * "mch_id":"1600453107",
+     * "cash_fee":"300",
+     * "out_trade_no":"472834531779153920",
+     * "cash_fee_type":"CNY",
+     * "appid":"wxaa43502dfae4e166",
+     * "total_fee":"300",
+     * "trade_state_desc":"订单发生过退款，退款详情请查询退款单",
+     * "trade_type":"APP",
+     * "result_code":"SUCCESS",
+     * "attach":null,
+     * "time_end":"20200623155648",
+     * "is_subscribe":"N",
+     * "return_code":"SUCCESS"
+     * }
+     * }
+     * <p>
+     * trade_state：SUCCESS—支付成功
+     * REFUND—转入退款
+     * NOTPAY—未支付
+     * CLOSED—已关闭
+     * REVOKED—已撤销（刷卡支付）
+     * USERPAYING--用户支付中
+     * PAYERROR--支付失败(其他原因，如银行返回失败)
+     * 判断支付是否成功可通过 return_code:SUCCESS  result_code:SUCCESS  trade_type:SUCCESS
+     *
+     * @param appId
+     * @param mchId
+     * @param partnerKey    密钥
+     * @param transactionId 微信流水
+     * @param outTradeNo    商家流水
+     * @return
+     */
+    public static Map queryOrderInfo(String appId, String mchId, String partnerKey, String transactionId, String outTradeNo) {
+        //校验参数
+        AssertUtil.hasText(appId, "appId不能为空");
+        AssertUtil.hasText(mchId, "mchId不能为空");
+        AssertUtil.hasText(partnerKey, "partnerKey不能为空");
+        AssertUtil.isTrue(StringUtils.isNotEmpty(transactionId) || StringUtils.isNotEmpty(outTradeNo), "流水号二选一");
+
+        HttpClientUtils httpClientUtils = HttpClientUtils.getInstance();
+        httpClientUtils.putParams("appid", appId).
+                putParams("mch_id", mchId).
+                putParams("nonce_str", RandomUtil.createUUID()).
+                putParams("out_trade_no", "472834531779153920");
+        if (StringUtils.isNotEmpty(transactionId)) {
+            httpClientUtils.putParams("transaction_id", transactionId);
+        }
+        if (StringUtils.isNotEmpty(outTradeNo)) {
+            httpClientUtils.putParams("out_trade_no", outTradeNo);
+        }
+
+        String paramsString = httpClientUtils.paramsToString(true);
+        //签名
+        String sign = MD5EncryptUtil.MD5StringToHexString(paramsString + "&key=" + partnerKey);
+        httpClientUtils.putParams("sign", sign);
+        String s = httpClientUtils.setContentType("text/xml; charset=UTF-8").doPost("https://api.mch.weixin.qq.com/pay/orderquery").toString();
+        Map<String, Object> map = XmlUtil.parseXMLToMap(s);
+        return map;
+    }
+
 
 }

@@ -38,6 +38,13 @@ public class QRCodeUtil {
     //二维码高
     private Integer height = 300;
 
+    /**
+     * 容错率
+     * 容错率最高，越容易识别
+     * 但是可能会不清晰
+     */
+    private ErrorCorrectionLevel errorCorrectionLevel;
+
     public QRCodeUtil(Integer width, Integer height) {
         this.width = width;
         this.height = height;
@@ -55,7 +62,11 @@ public class QRCodeUtil {
         HashMap<EncodeHintType, Object> hashMap = new HashMap<>();
         hashMap.put(EncodeHintType.CHARACTER_SET, "utf-8");
         //纠错等级
-        hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+        if(Objects.nonNull(errorCorrectionLevel)){
+            hashMap.put(EncodeHintType.ERROR_CORRECTION, errorCorrectionLevel);
+        }else {
+            hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+        }
         //图片边距
         hashMap.put(EncodeHintType.MARGIN, 2);
         bitMatrix = new MultiFormatWriter().encode(msg, BarcodeFormat.QR_CODE, width, height, hashMap);
@@ -193,5 +204,12 @@ public class QRCodeUtil {
         return null;
     }
 
-
+    /**
+     * 设置容错率
+     * @param errorCorrectionLevel
+     */
+    public QRCodeUtil setErrorCorrectionLevel(ErrorCorrectionLevel errorCorrectionLevel) {
+        this.errorCorrectionLevel = errorCorrectionLevel;
+        return this;
+    }
 }
