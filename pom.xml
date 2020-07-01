@@ -36,7 +36,7 @@
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <bcprov-jdk15on.version>1.62</bcprov-jdk15on.version>
         <junit.version>4.12</junit.version>
-        <quartz.version>2.3.1</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <javax.mail.version>1.6.2</javax.mail.version>
         <jjwt.version>0.9.1</jjwt.version>
         <alipay-sdk-java.version>3.7.110.ALL</alipay-sdk-java.version>
