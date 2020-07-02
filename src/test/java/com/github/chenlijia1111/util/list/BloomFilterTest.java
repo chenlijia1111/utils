@@ -19,8 +19,17 @@ public class BloomFilterTest {
         System.out.println(email + "是否在列表中： " + bloomDemo.contains(email));
         bloomDemo.add(email);
         System.out.println(email + "是否在列表中： " + bloomDemo.contains(email));
-        email = "zhenlingcn@163.com";
+
+        //移除数据
+        bloomDemo.remove(email);
         System.out.println(email + "是否在列表中： " + bloomDemo.contains(email));
+
+
+        //添加第二个字符串
+        String email2 = "571740367@qq.com";
+        System.out.println(email2 + "是否在列表中： " + bloomDemo.contains(email2));
+        bloomDemo.add(email2);
+        System.out.println(email2 + "是否在列表中： " + bloomDemo.contains(email2));
         swatchStopUtil.stopAndPrint();
     }
 

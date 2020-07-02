@@ -2,6 +2,8 @@ package com.github.chenlijia1111.utils.common;
 
 import com.github.chenlijia1111.utils.core.StringUtils;
 
+import java.util.Objects;
+
 /**
  * 校验数据 抛出异常
  *
@@ -38,6 +40,19 @@ public class AssertUtil {
      **/
     public static void hasText(String text, String msg) {
         if (StringUtils.isEmpty(text)) {
+            throw new IllegalArgumentException(msg);
+        }
+    }
+
+
+    /**
+     * 判断对象是否非空
+     *
+     * @param obj
+     * @param msg
+     */
+    public static void notNull(Object obj, String msg) {
+        if (Objects.isNull(obj)) {
             throw new IllegalArgumentException(msg);
         }
     }
