@@ -35,18 +35,18 @@ public class CacheObject {
      * 初始值为创建时间
      * 以后每请求一次，更新时间
      */
-    private long lastAccessTime = System.currentTimeMillis();
+    private long lastAccessTime;
 
     /**
      * 存活时间
      * 单位 毫秒
      */
-    private final long survivalTime;
+    public final long survivalTime;
 
     /**
      * 数据创建时间
      */
-    private final long createTime = System.currentTimeMillis();
+    public final long createTime;
 
     /**
      * 构造方法
@@ -60,7 +60,6 @@ public class CacheObject {
 
         //判断参数
         AssertUtil.notNull(key, "缓存key不能为空");
-        AssertUtil.notNull(obj, "缓存值不能为空");
         AssertUtil.notNull(survivalTime, "缓存存活时间不能为空");
         AssertUtil.notNull(timeOutTypeEnum, "缓存存活时间类型不能为空");
 
@@ -68,6 +67,11 @@ public class CacheObject {
         this.obj = obj;
         this.survivalTime = survivalTime;
         this.timeOutTypeEnum = timeOutTypeEnum;
+
+        long currentTimeMillis = System.currentTimeMillis();
+        lastAccessTime = currentTimeMillis;
+        createTime = currentTimeMillis;
+
     }
 
     /**
@@ -119,7 +123,9 @@ public class CacheObject {
      */
     public Object getValue() {
         //更新上次请求的时间
-        lastAccessTime = System.currentTimeMillis();
+        long currentTimeMillis = System.currentTimeMillis();
+        lastAccessTime = currentTimeMillis;
+        //返回对象
         return obj;
     }
 

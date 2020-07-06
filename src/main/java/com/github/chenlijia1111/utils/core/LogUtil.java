@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -46,7 +47,13 @@ public class LogUtil implements Logger {
         //0下标是当前位置 1就是调用本方法的位置 2才是真实方法的位置
         StackTraceElement stackTraceElement = stackTrace[2];
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("行数:");
+        //时间
+        stringBuilder.append("时间：" + DateTime.now().toString());
+        stringBuilder.append(" ");
+        stringBuilder.append(stackTraceElement.getClassName());
+        stringBuilder.append(".");
+        stringBuilder.append(stackTraceElement.getMethodName());
+        stringBuilder.append(" 行数:");
         stringBuilder.append(stackTraceElement.getLineNumber());
         stringBuilder.append(" ; log内容:");
         return stringBuilder;
