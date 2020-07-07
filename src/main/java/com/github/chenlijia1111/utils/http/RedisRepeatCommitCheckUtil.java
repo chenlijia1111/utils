@@ -1,18 +1,23 @@
 package com.github.chenlijia1111.utils.http;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.JSONUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.database.redis.IRedisConnect;
 import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
  * 请求重复提交校验工具 redis版本
  * 需要实现 {@link IRedisConnect}
+ *
+ * 详细说明见 {@link RepeatCommitCheckUtil}
  *
  * @author Chen LiJia
  * @since 2020/3/16
@@ -22,6 +27,9 @@ public class RedisRepeatCommitCheckUtil {
 
     //在 200 毫秒内重复请求即表示重复请求
     public static Long repeatTimeLimit = 200L;
+
+    //是否要拦截未登录用户
+    public static boolean filterNotLogin = false;
 
     public static volatile RedisRepeatCommitCheckUtil repeatCommitCheckUtil = null;
 
@@ -71,13 +79,22 @@ public class RedisRepeatCommitCheckUtil {
      */
     public boolean checkWithToken(String tokenWithHeaderName, HttpServletRequest request, String... methods) {
 
-        //md5值构建方式 token + 请求地址 + 请求类型(get/post) + 请求参数
-        //token + url + method + params
+        //md5值构建方式 ip + token + 请求地址 + 请求类型(get/post) + 请求参数
+        //ip + token + url + method + params
         if (StringUtils.isNotEmpty(tokenWithHeaderName) && Objects.nonNull(request)) {
+            //ip地址
+            String ipAddr = HttpUtils.getIpAddr(request);
+
             String token = request.getHeader(tokenWithHeaderName);
             if (StringUtils.isEmpty(token)) {
-                //没有token 赋值 空字符串
-                token = "";
+                //没有token
+                if(filterNotLogin){
+                    //要拦截未登录用户，token 赋值空字符串
+                    token = "";
+                }else {
+                    //不拦截未登陆用户
+                    return true;
+                }
             }
             //请求地址
             String url = request.getRequestURI();
@@ -88,9 +105,10 @@ public class RedisRepeatCommitCheckUtil {
                 return true;
             }
             //请求参数
-            String params = JSONUtil.objToStr(request.getParameterMap());
+            String params = requestToParams(request);
 
             StringBuilder sb = new StringBuilder();
+            sb.append(ipAddr);
             sb.append(token);
             sb.append(url);
             sb.append(requestMethod);
@@ -106,6 +124,27 @@ public class RedisRepeatCommitCheckUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 获取请求参数 params + body
+     * @param request
+     * @return
+     */
+    private String requestToParams(HttpServletRequest request){
+        StringBuilder sb = new StringBuilder();
+        String params = JSONUtil.objToStr(request.getParameterMap());
+        sb.append(params);
+        try {
+            ServletInputStream inputStream = request.getInputStream();
+            if(Objects.nonNull(inputStream)){
+                String s = IOUtil.readToString(inputStream);
+                sb.append(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     /**
@@ -127,13 +166,22 @@ public class RedisRepeatCommitCheckUtil {
      */
     public boolean checkWithSession(HttpServletRequest request, String... methods) {
 
-        //md5值构建方式 token + 请求地址 + 请求类型(get/post) + 请求参数
-        //sessionId + url + method + params
+        //md5值构建方式 ip + token + 请求地址 + 请求类型(get/post) + 请求参数
+        //ip + sessionId + url + method + params
         if (Objects.nonNull(request)) {
+            //ip
+            String ipAddr = HttpUtils.getIpAddr(request);
+
             String sessionId = request.getSession().getId();
             if (StringUtils.isEmpty(sessionId)) {
-                //没有sessionId 赋值空字符串
-                sessionId = "";
+                //没有sessionId
+                if(filterNotLogin){
+                    //要拦截未登录用户，sessionId 赋值空字符串
+                    sessionId = "";
+                }else {
+                    //不拦截未登陆用户
+                    return true;
+                }
             }
             //请求地址
             String url = request.getRequestURI();
@@ -144,9 +192,10 @@ public class RedisRepeatCommitCheckUtil {
                 return false;
             }
             //请求参数
-            String params = JSONUtil.objToStr(request.getParameterMap());
+            String params = requestToParams(request);
 
             StringBuilder sb = new StringBuilder();
+            sb.append(ipAddr);
             sb.append(sessionId);
             sb.append(url);
             sb.append(requestMethod);

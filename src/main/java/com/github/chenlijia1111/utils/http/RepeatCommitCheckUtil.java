@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.utils.http;
 
+import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.JSONUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.cache.CacheObject;
@@ -8,7 +9,9 @@ import com.github.chenlijia1111.utils.core.cache.TimeOutTypeEnum;
 import com.github.chenlijia1111.utils.encrypt.MD5EncryptUtil;
 import com.github.chenlijia1111.utils.list.Lists;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,52 @@ import java.util.stream.Collectors;
  *
  * 一般给到一个请求 200ms 即可
  *
+ *
+ * 另外：一般对于不需要用户登陆即可访问的接口，不需要做校验，
+ * 因为可能会有同一个外网下的局域网用于访问，这样有可能拦截到不应该拦截的请求
+ * 所以默认如果用户未登陆，不拦截接口
+ *
+ *
+ * 注意：因为这里读取了 request 的输入流，后面的流程如果还需要使用输入流就会造成输入流不可用，必须自定义实现 request 包装
+ * {@link com.github.chenlijia1111.utils.http.request.RequestWrapper}
+ *
+ * {@code
+ *      @WebFilter(filterName = "myFilter", urlPatterns = "/*")
+ * public class MyFilter implements Filter {
+ *
+ *     private Logger log = new LogUtil(this.getClass());
+ *
+ *     @Override
+ *     public void init(FilterConfig filterConfig) throws ServletException {
+ *         log.info("myFilter 跨域过滤器初始化");
+ *     }
+ *
+ *     @Override
+ *     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+ *
+ *         HttpServletRequest request = (HttpServletRequest) servletRequest;
+ *         HttpServletResponse response = (HttpServletResponse) servletResponse;
+ *
+ *         //包装 request
+ *         RequestWrapper requestWrapper = new RequestWrapper(request);
+ *
+ *         //拦截所有请求，判断请求间隔
+ *         boolean check = RepeatCommitCheckUtil.getInstance().checkWithToken(Constants.TOKEN, request);
+ *         if (!check) {
+ *             ResponseUtil.printRest(Result.failure("请求频率过于频繁，请稍后进行操作"), response);
+ *             return;
+ *         }
+ *
+ *         filterChain.doFilter(requestWrapper, servletResponse);
+ *     }
+ *
+ *     @Override
+ *     public void destroy() {
+ *
+ *     }
+ * }
+ * }
+ *
  * @author Chen LiJia
  * @since 2020/3/16
  */
@@ -35,6 +84,9 @@ public class RepeatCommitCheckUtil {
 
     //单例
     private static volatile RepeatCommitCheckUtil repeatCommitCheckUtil = null;
+
+    //是否要拦截未登录用户
+    public static boolean filterNotLogin = false;
 
     private RepeatCommitCheckUtil() {
 
@@ -67,13 +119,22 @@ public class RepeatCommitCheckUtil {
      */
     public boolean checkWithToken(String tokenWithHeaderName, HttpServletRequest request, String... methods) {
 
-        //md5值构建方式 token + 请求地址 + 请求类型(get/post) + 请求参数
-        //token + url + method + params
+        //md5值构建方式 ip +  token + 请求地址 + 请求类型(get/post) + 请求参数
+        //ip + token + url + method + params
         if (StringUtils.isNotEmpty(tokenWithHeaderName) && Objects.nonNull(request)) {
+            //ip 地址
+            String ipAddr = HttpUtils.getIpAddr(request);
+
             String token = request.getHeader(tokenWithHeaderName);
             if (StringUtils.isEmpty(token)) {
-                //没有token 赋值空字符串
-                token = "";
+                //没有token
+                if(filterNotLogin){
+                    //要拦截未登录用户，token 赋值空字符串
+                    token = "";
+                }else {
+                    //不拦截未登陆用户
+                    return true;
+                }
             }
             //请求地址
             String url = request.getRequestURI();
@@ -84,9 +145,10 @@ public class RepeatCommitCheckUtil {
                 return true;
             }
             //请求参数
-            String params = JSONUtil.objToStr(request.getParameterMap());
+            String params = requestToParams(request);
 
             StringBuilder sb = new StringBuilder();
+            sb.append(ipAddr);
             sb.append(token);
             sb.append(url);
             sb.append(requestMethod);
@@ -111,6 +173,28 @@ public class RepeatCommitCheckUtil {
 
 
     /**
+     * 获取请求参数 params + body
+     * @param request
+     * @return
+     */
+    private String requestToParams(HttpServletRequest request){
+        StringBuilder sb = new StringBuilder();
+        String params = JSONUtil.objToStr(request.getParameterMap());
+        sb.append(params);
+        try {
+            ServletInputStream inputStream = request.getInputStream();
+            if(Objects.nonNull(inputStream)){
+                String s = IOUtil.readToString(inputStream);
+                sb.append(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+
+    /**
      * 根据 session 校验是否有重复提交数据
      *
      * @param request
@@ -119,13 +203,23 @@ public class RepeatCommitCheckUtil {
      */
     public boolean checkWithSession(HttpServletRequest request, String... methods) {
 
-        //md5值构建方式 sessionId + 请求地址 + 请求类型(get/post) + 请求参数
-        //sessionId + url + method + params
+        //md5值构建方式 ip + sessionId + 请求地址 + 请求类型(get/post) + 请求参数
+        //ip + sessionId + url + method + params
         if (Objects.nonNull(request)) {
+
+            //ip
+            String ipAddr = HttpUtils.getIpAddr(request);
+
             String sessionId = request.getSession().getId();
             if (StringUtils.isEmpty(sessionId)) {
-                //没有sessionId 赋值空字符串
-                sessionId = "";
+                //没有sessionId
+                if(filterNotLogin){
+                    //要拦截未登录用户，sessionId 赋值空字符串
+                    sessionId = "";
+                }else {
+                    //不拦截未登陆用户
+                    return true;
+                }
             }
             //请求地址
             String url = request.getRequestURI();
@@ -136,9 +230,10 @@ public class RepeatCommitCheckUtil {
                 return true;
             }
             //请求参数
-            String params = JSONUtil.objToStr(request.getParameterMap());
+            String params = requestToParams(request);
 
             StringBuilder sb = new StringBuilder();
+            sb.append(ipAddr);
             sb.append(sessionId);
             sb.append(url);
             sb.append(requestMethod);
