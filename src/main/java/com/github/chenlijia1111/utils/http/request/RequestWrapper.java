@@ -73,7 +73,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public RequestWrapper(HttpServletRequest request)  {
         super(request);
         try {
-            //先取参数
+            //先解析参数
             parameterMap = request.getParameterMap();
             //后取流
             requestBody = StreamUtils.copyToByteArray(request.getInputStream());
@@ -98,6 +98,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
                 return true;
             }
 
+
             @Override
             public void setReadListener(ReadListener readListener) {
 
@@ -110,9 +111,17 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         };
     }
 
+    /**
+     * 注意：这个 BufferedReader 的 ready() 方法是返回 false 的
+     * 所以不要用 ready 判断是否有内容
+     * 直接根据 readLine 是否有值来进行判断就行了
+     * @return
+     * @throws IOException
+     */
     @Override
     public BufferedReader getReader() throws IOException {
-        return new BufferedReader(new InputStreamReader(getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream()));
+        return reader;
     }
 
     @Override

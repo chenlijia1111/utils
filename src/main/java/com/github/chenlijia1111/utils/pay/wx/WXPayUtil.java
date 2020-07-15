@@ -253,8 +253,9 @@ public class WXPayUtil {
         try {
             BufferedReader reader = request.getReader();
             StringBuilder sb = new StringBuilder();
-            while (reader.ready()) {
-                sb.append(reader.readLine());
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
             }
 
             Map<String, Object> map = XmlUtil.parseXMLToMap(new ByteArrayInputStream(sb.toString().getBytes(CharSetType.UTF8.getType())));

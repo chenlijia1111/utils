@@ -132,7 +132,8 @@ public class WXJsUtil {
             Object expires_in = map.get("expires_in");
             this.accessToken = access_token.toString();
             Integer expireSecond = (Integer) expires_in;
-            this.limitTime = DateTime.now().plusSeconds(expireSecond).toDate();
+            //减去三百秒，防止超时
+            this.limitTime = DateTime.now().plusSeconds(expireSecond - 300).toDate();
             return this.accessToken;
         }
         //打印错误信息
@@ -168,10 +169,12 @@ public class WXJsUtil {
                 Object expires_in = map.get("expires_in");
                 this.jsApiTicket = ticket.toString();
                 Integer expireSecond = (Integer) expires_in;
-                this.ticketLimitTime = DateTime.now().plusSeconds(expireSecond).toDate();
+                //减去三百秒，防止超时
+                this.ticketLimitTime = DateTime.now().plusSeconds(expireSecond - 300).toDate();
                 return this.jsApiTicket;
             }
 
+            //获取报错了，重新获取一次，可能是其他的客户端也获取了accessToken 导致这个不是最新的
             //打印错误信息
             log.error(map.get("errmsg").toString());
         }

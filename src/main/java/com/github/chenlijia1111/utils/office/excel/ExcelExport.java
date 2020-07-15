@@ -2,6 +2,7 @@ package com.github.chenlijia1111.utils.office.excel;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.constant.TimeConstant;
+import com.github.chenlijia1111.utils.core.FileUtils;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
@@ -10,6 +11,7 @@ import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +49,7 @@ public class ExcelExport {
     /**
      * 工作薄对象
      */
-    private HSSFWorkbook workbook;
+    private Workbook workbook;
 
     /**
      * 工作表对象
@@ -135,13 +137,20 @@ public class ExcelExport {
     }
 
 
+    /**
+     * 默认后缀名为 xlsx
+     *
+     * @param exportFileName
+     * @return
+     */
     public ExcelExport setExportFileName(String exportFileName) {
         if (StringUtils.isEmpty(exportFileName)) {
-            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME) + ".xls";
-        } else if (!(exportFileName.toLowerCase().endsWith(".xls")
-                || exportFileName.toLowerCase().endsWith(".xlsx"))) {
-            this.exportFileName = exportFileName + ".xls";
+            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME) + ".xlsx";
+        } else if (!FileUtils.checkFileSuffix(exportFileName,"xls","xlsx")) {
+            //非法文件名 加默认后缀
+            this.exportFileName = exportFileName + ".xlsx";
         } else {
+            //合法后缀名
             this.exportFileName = exportFileName;
         }
         return this;
@@ -169,7 +178,12 @@ public class ExcelExport {
      **/
     public void exportData(HttpServletRequest request, HttpServletResponse response) {
 
-        workbook = new HSSFWorkbook();
+        if (this.exportFileName.toLowerCase().endsWith("xls")) {
+            workbook = new HSSFWorkbook();
+        } else {
+            workbook = new XSSFWorkbook();
+        }
+
         sheet = workbook.createSheet();
 
         //可以导出空数据,但是对象导出对象以及集合不能为空 否则无法确定表头
