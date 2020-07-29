@@ -9,6 +9,7 @@ import com.github.chenlijia1111.utils.list.Lists;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -219,10 +220,10 @@ public class PropertyCheckUtil {
                             }
                         }
 
-                    } else if (List.class.isAssignableFrom(fieldClass)) {
-                        //说明是list集合
-                        List list = (List) PropertyUtil.getFieldValue(object, aClass, fieldName);
-                        if (null == list || list.size() == 0)
+                    } else if (Collection.class.isAssignableFrom(fieldClass)) {
+                        //说明是集合  包含 list set 等
+                        Collection collection = (Collection) PropertyUtil.getFieldValue(object, aClass, fieldName);
+                        if (null == collection || collection.size() == 0)
                             return Result.failure(name + "不能为空");
                     } else {
                         Object o = PropertyUtil.getFieldValue(object, aClass, fieldName);
