@@ -101,6 +101,11 @@ public class ExcelExport {
     private List<String> exportFieldList;
 
     /**
+     * 忽略导出的字段
+     */
+    private List<String> ignoreFieldList;
+
+    /**
      * 导出的文件名称
      * 如果没有设置
      * 默认以当前时间为文件名称
@@ -115,6 +120,11 @@ public class ExcelExport {
 
     public ExcelExport setTransferMap(Map<String, Function> transferMap) {
         this.transferMap = transferMap;
+        return this;
+    }
+
+    public ExcelExport setIgnoreFieldList(List<String> ignoreFieldList) {
+        this.ignoreFieldList = ignoreFieldList;
         return this;
     }
 
@@ -146,7 +156,7 @@ public class ExcelExport {
     public ExcelExport setExportFileName(String exportFileName) {
         if (StringUtils.isEmpty(exportFileName)) {
             this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME) + ".xlsx";
-        } else if (!FileUtils.checkFileSuffix(exportFileName,"xls","xlsx")) {
+        } else if (!FileUtils.checkFileSuffix(exportFileName, "xls", "xlsx")) {
             //非法文件名 加默认后缀
             this.exportFileName = exportFileName + ".xlsx";
         } else {
@@ -275,14 +285,14 @@ public class ExcelExport {
                         Object fieldValue = PropertyUtil.getFieldValue(o, exportClass, fieldName);
                         if (null != fieldValue) {
                             //判断有没有转换器
-                            if (null != transferMap && transferMap.get(fieldName) != null) {
+                            Function function = finFieldConvert(fieldName);
+                            if(Objects.nonNull(function)){
                                 //有转换器
-                                Function function = transferMap.get(fieldName);
                                 Object apply = function.apply(fieldValue);
                                 Cell cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(apply.toString());
                                 cell.setCellStyle(simpleCellStyle(workbook));
-                            } else {
+                            }else {
                                 Cell cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(fieldValue.toString());
                                 cell.setCellStyle(simpleCellStyle(workbook));
@@ -292,16 +302,15 @@ public class ExcelExport {
 
                     } catch (NoSuchFieldException e) {
                         //如果没有这个属性,那就是自定义的属性，需要单独处理
-                        //判断有没有转换器
-                        //判断有没有转换器,直接对对象进行转换操作
-                        if (null != transferMap && transferMap.get(fieldName) != null) {
+                        //判断有没有转换器,直接对传进来的对象进行转换操作
+                        Function function = finFieldConvert(fieldName);
+                        if(Objects.nonNull(function)){
                             //有转换器
-                            Function function = transferMap.get(fieldName);
                             Object apply = function.apply(o);
                             Cell cell = row.createCell(currentColumnIndex);
                             cell.setCellValue(apply.toString());
                             cell.setCellStyle(simpleCellStyle(workbook));
-                        } else {
+                        }else {
                             Cell cell = row.createCell(currentColumnIndex);
                             cell.setCellValue("");
                             cell.setCellStyle(simpleCellStyle(workbook));
@@ -313,6 +322,44 @@ public class ExcelExport {
             }
         }
 
+    }
+
+    /**
+     * 获取字段的转换器
+     *
+     * @param fieldName
+     * @return
+     */
+    private Function finFieldConvert(String fieldName) {
+
+        Function function = null;
+
+        if (StringUtils.isNotEmpty(fieldName)) {
+            //先判断有没有在 transferMap 定义转换器
+            if (Objects.nonNull(transferMap)) {
+                function = transferMap.get(fieldName);
+            }
+            //如果没有，再去注解中寻找有没有定义转换器
+            if (Objects.isNull(function)) {
+                try {
+                    Field field = this.exportClass.getDeclaredField(fieldName);
+                    if (Objects.nonNull(field)) {
+                        ExcelExportField excelExportField = field.getAnnotation(ExcelExportField.class);
+                        if (Objects.nonNull(excelExportField)) {
+                            Class<? extends Function> convert = excelExportField.convert();
+                            if (!Objects.equals(convert, ExcelExportField.NoConvert.class)) {
+                                function = convert.newInstance();
+                            }
+                        }
+                    }
+                } catch (NoSuchFieldException e) {
+                } catch (IllegalAccessException e) {
+                } catch (InstantiationException e) {
+                }
+            }
+        }
+
+        return function;
     }
 
 
@@ -338,6 +385,11 @@ public class ExcelExport {
                 ArrayList<ExcelExportHeadInfo> headInfoArrayList = new ArrayList<>();
                 for (int i = 0; i < allFields.size(); i++) {
                     Field field = allFields.get(i);
+                    String fieldName = field.getName();
+                    //判断是否要忽略这个字段
+                    if (Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName)) {
+                        continue;
+                    }
                     ExcelExportField annotation = field.getAnnotation(ExcelExportField.class);
                     if (null != annotation) {
                         String titleHeadName = annotation.titleHeadName();

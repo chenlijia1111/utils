@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.Function;
 
 /**
  * excel 导出字段注解
@@ -40,6 +41,25 @@ public @interface ExcelExportField {
      * @since 上午 10:55 2019/9/4 0004
      **/
     int sort();
+
+    /**
+     * 默认不做转换
+     *
+     * @return
+     */
+    Class<? extends Function> convert() default NoConvert.class;
+
+
+    /**
+     * 默认转换器，默认不做转换
+     */
+    class NoConvert implements Function<Object, Object> {
+
+        @Override
+        public Object apply(Object o) {
+            return o;
+        }
+    }
 
 
 }

@@ -46,10 +46,8 @@ public class PinYinUtil {
                     badHanyuPinyinOutputFormatCombination.printStackTrace();
                 }
                 if (null != strings && strings.length > 0) {
-                    for (int j = 0; j < strings.length; j++) {
-                        //只取第一个就好
-                        sb.append(strings[0]);
-                    }
+                    //如果是多音字，那么就取第一个音为准
+                    sb.append(strings[0]);
                 } else {
                     //不是汉字，转不了,原文转出
                     sb.append(aChar);
@@ -138,10 +136,8 @@ public class PinYinUtil {
                     badHanyuPinyinOutputFormatCombination.printStackTrace();
                 }
                 if (null != strings && strings.length > 0) {
-                    for (int j = 0; j < strings.length; j++) {
-                        //只取第一个首字母就好
-                        sb.append(strings[0].toCharArray()[0]);
-                    }
+                    //如果是多音字，只取第一个音首字母就好
+                    sb.append(strings[0].toCharArray()[0]);
                 } else {
                     //不是汉字，转不了,原文转出
                     sb.append(aChar);
