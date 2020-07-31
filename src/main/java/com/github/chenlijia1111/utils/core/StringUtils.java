@@ -38,9 +38,9 @@ public class StringUtils {
      * @since 下午 1:12 2019/9/3 0003
      **/
     public static boolean isEmpty(String... strArray) {
-        if(null != strArray){
+        if (null != strArray) {
             for (int i = 0; i < strArray.length; i++) {
-                if(isEmpty(strArray[i])){
+                if (isEmpty(strArray[i])) {
                     return true;
                 }
             }
@@ -70,9 +70,9 @@ public class StringUtils {
      * @since 下午 1:13 2019/9/3 0003
      **/
     public static boolean isNotEmpty(String... strArray) {
-        if(null != strArray){
+        if (null != strArray) {
             for (int i = 0; i < strArray.length; i++) {
-                if(isEmpty(strArray[i])){
+                if (isEmpty(strArray[i])) {
                     return false;
                 }
             }
@@ -312,6 +312,42 @@ public class StringUtils {
             return true;
         }
         return Objects.equals(str1, str2);
+    }
+
+    /**
+     * html 进行编码，防止标签攻击
+     * 如 a 标签
+     * script 标签等
+     *
+     * 将半角转为全角显示，因为正常打字都是打半角的
+     * 如果转为 &gt; 或者 unicode 编码的话，虽然解决了问题，但是显示的内容变了，
+     * 不是很友好
+     * @param str
+     * @return
+     */
+    public static String htmlEncode(String str) {
+        String result = str;
+        if (StringUtils.isNotEmpty(result)) {
+            //开始转换
+            result = result.replaceAll("<", "＜");
+            result = result.replaceAll(">", "＞");
+        }
+        return result;
+    }
+
+    /**
+     * html 进行解码
+     * @param str
+     * @return
+     */
+    public static String htmlDecode(String str) {
+        String result = str;
+        if (StringUtils.isNotEmpty(result)) {
+            //开始转换
+            result = result.replaceAll("＜", "<");
+            result = result.replaceAll("＞", ">");
+        }
+        return result;
     }
 
 }

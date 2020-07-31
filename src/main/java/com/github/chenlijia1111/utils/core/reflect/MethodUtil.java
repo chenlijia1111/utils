@@ -1,12 +1,13 @@
 package com.github.chenlijia1111.utils.core.reflect;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 反射 方法工具类
@@ -47,6 +48,8 @@ public class MethodUtil {
 
     /**
      * 获取字段的 get 方法
+     * <p>
+     * boolean 的 get 方法比较特殊 is 开头的
      *
      * @param fieldName 1
      * @param cls       2
@@ -54,12 +57,28 @@ public class MethodUtil {
      * @since 上午 10:18 2019/9/29 0029
      **/
     public static Method fieldReadMethod(String fieldName, Class cls) {
-        try {
-            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, cls);
-            Method readMethod = propertyDescriptor.getReadMethod();
-            return readMethod;
-        } catch (IntrospectionException e) {
-            e.printStackTrace();
+        if (StringUtils.isNotEmpty(fieldName) && Objects.nonNull(cls)) {
+            //get 方法
+            try {
+                Field declaredField = cls.getDeclaredField(fieldName);
+                Class<?> fieldType = declaredField.getType();
+                StringBuilder sb = new StringBuilder();
+                if (Objects.equals(boolean.class, fieldType)) {
+                    sb.append("is");
+                } else {
+                    sb.append("get");
+                }
+                sb.append(fieldName.substring(0, 1).toUpperCase());
+                sb.append(fieldName.substring(1));
+                //方法名称
+                String methodName = sb.toString();
+                Method method = cls.getMethod(methodName);
+                return method;
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -67,6 +86,7 @@ public class MethodUtil {
 
     /**
      * 获取字段的 set 方法
+     * <p>
      *
      * @param fieldName 1
      * @param cls       2
@@ -75,10 +95,19 @@ public class MethodUtil {
      **/
     public static Method fieldWriteMethod(String fieldName, Class cls) {
         try {
-            PropertyDescriptor propertyDescriptor = new PropertyDescriptor(fieldName, cls);
-            Method readMethod = propertyDescriptor.getWriteMethod();
-            return readMethod;
-        } catch (IntrospectionException e) {
+            Field declaredField = cls.getDeclaredField(fieldName);
+            Class<?> fieldType = declaredField.getType();
+            StringBuilder sb = new StringBuilder();
+            sb.append("set");
+            sb.append(fieldName.substring(0, 1).toUpperCase());
+            sb.append(fieldName.substring(1));
+            //方法名称
+            String methodName = sb.toString();
+            Method method = cls.getMethod(methodName, fieldType);
+            return method;
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
         return null;
