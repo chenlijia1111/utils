@@ -7,12 +7,8 @@ import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
@@ -36,6 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * 网络请求
+ * 请求结束之后，主动调用 {@link #close()} 方法关闭连接
  *
  * @author chenlijia
  * @version 1.0
@@ -82,7 +79,7 @@ public class HttpClientUtils {
     /**
      * 请求工具
      */
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
 
     /**
      * 请求体
@@ -96,7 +93,7 @@ public class HttpClientUtils {
      *
      * @since 下午 1:46 2019/10/18 0018
      **/
-    private HttpResponse response;
+    private CloseableHttpResponse response;
 
     private HttpClientUtils() {
     }
@@ -319,7 +316,7 @@ public class HttpClientUtils {
      **/
     public HttpClientUtils putHeader(String key, String value) {
         //不需要手动添加 contentLength httpClient 会判断body的长度自动加上  如果自己加了反而会报错
-        if(StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && !Objects.equals(key.toLowerCase(),"content-length")){
+        if (StringUtils.isNotEmpty(key) && StringUtils.isNotEmpty(value) && !Objects.equals(key.toLowerCase(), "content-length")) {
             this.headers.put(key, value);
         }
         return this;
@@ -672,6 +669,26 @@ public class HttpClientUtils {
             sb.delete(sb.length() - 1, sb.length());
         }
         return sb.toString();
+    }
+
+    /**
+     * 关闭连接
+     */
+    public void close() {
+        if (Objects.nonNull(response)) {
+            try {
+                response.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (Objects.nonNull(httpClient)) {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

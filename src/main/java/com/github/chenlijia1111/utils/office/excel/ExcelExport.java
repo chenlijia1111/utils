@@ -11,12 +11,14 @@ import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -39,6 +41,11 @@ import java.util.function.Function;
  * 当属性不存在时，会默认以对象的数据来进行转换
  * <p>
  * 自定义导出暂时没有宽度的设置,后期可以加
+ * <p>
+ * <p>
+ * <p>
+ * TODO 参考 easyExcel 优化
+ * 2020-08-10 修改表格样式为只生成一次
  *
  * @author chenlijia
  * @version 1.0
@@ -166,6 +173,13 @@ public class ExcelExport {
         return this;
     }
 
+    public Map<String, Function> getTransferMap() {
+        if (Objects.isNull(transferMap)) {
+            transferMap = new HashMap<>();
+        }
+        return transferMap;
+    }
+
     /**
      * 构造方法
      *
@@ -191,7 +205,12 @@ public class ExcelExport {
         if (this.exportFileName.toLowerCase().endsWith("xls")) {
             workbook = new HSSFWorkbook();
         } else {
-            workbook = new XSSFWorkbook();
+            //判断数据量，如果数据量大于500条，使用 SXSSFWorkbook 进行导出
+            if (this.dataList.size() >= 1000) {
+                workbook = new SXSSFWorkbook();
+            } else {
+                workbook = new XSSFWorkbook();
+            }
         }
 
         sheet = workbook.createSheet();
@@ -228,6 +247,76 @@ public class ExcelExport {
             workbook.write(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+
+
+            if (workbook instanceof SXSSFWorkbook) {
+                ((SXSSFWorkbook) workbook).dispose();
+            }
+
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    /**
+     * 初始化数据
+     * 校验 exportFieldList 如果没有手动设置要导出的字段，则取对象里的导出属性
+     *
+     * @return void
+     * @since 下午 9:08 2019/9/3 0003
+     **/
+    public void exportData(OutputStream outputStream) {
+
+        if (this.exportFileName.toLowerCase().endsWith("xls")) {
+            workbook = new HSSFWorkbook();
+        } else {
+            //判断数据量，如果数据量大于500条，使用 SXSSFWorkbook 进行导出
+            if (this.dataList.size() >= 1000) {
+                workbook = new SXSSFWorkbook();
+            } else {
+                workbook = new XSSFWorkbook();
+            }
+        }
+
+        sheet = workbook.createSheet();
+
+        //可以导出空数据,但是对象导出对象以及集合不能为空 否则无法确定表头
+        AssertUtil.isTrue(null != dataList, "导出的数据集合为null");
+        AssertUtil.isTrue(null != exportClass, "导出的数据Class 对象为null");
+        AssertUtil.isTrue(null != outputStream, "输出流为空");
+
+        //初始化表头数据
+        initHeadTitle();
+
+        //初始化表格数据
+        checkData();
+
+        //校验是否设置了导出文件名
+        if (StringUtils.isEmpty(this.exportFileName)) {
+            //设置默认名城
+            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME);
+        }
+
+        //导出
+        try {
+            workbook.write(outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (workbook instanceof SXSSFWorkbook) {
+                ((SXSSFWorkbook) workbook).dispose();
+            }
+
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -246,13 +335,16 @@ public class ExcelExport {
 
         AssertUtil.isTrue(null != exportClass, "导出的数据Class 对象为null");
 
+        //表格样式
+        CellStyle cellStyle = simpleCellStyle(workbook);
+
         //导出表头
         LinkedHashMap<String, String> exportTitleHeadNameMap = this.exportTitleHeadNameMap;
         Row headRow = sheet.createRow(0);
         //第一列 序号
         Cell serialCell = headRow.createCell(0);
         serialCell.setCellValue("序号");
-        serialCell.setCellStyle(simpleCellStyle(workbook));
+        serialCell.setCellStyle(cellStyle);
         int currentHeadIndex = 1;
 
         Set<Map.Entry<String, String>> entries = exportTitleHeadNameMap.entrySet();
@@ -262,19 +354,19 @@ public class ExcelExport {
             String headName = next.getValue();
             Cell cell = headRow.createCell(currentHeadIndex);
             cell.setCellValue(headName);
-            cell.setCellStyle(simpleCellStyle(workbook));
+            cell.setCellStyle(cellStyle);
 
             currentHeadIndex++;
         }
 
-
         if (dataList.size() > 0) {
             for (int i = 0; i < dataList.size(); i++) {
+
                 //第一列 序号
                 Row row = sheet.createRow(i + 1);
                 Cell serialCellValue = row.createCell(0);
                 serialCellValue.setCellValue(i + 1);
-                serialCellValue.setCellStyle(simpleCellStyle(workbook));
+                serialCellValue.setCellStyle(cellStyle);
 
                 Object o = dataList.get(i);
                 //获取对象的所有属性
@@ -286,41 +378,43 @@ public class ExcelExport {
                         if (null != fieldValue) {
                             //判断有没有转换器
                             Function function = finFieldConvert(fieldName);
-                            if(Objects.nonNull(function)){
+                            if (Objects.nonNull(function)) {
                                 //有转换器
                                 Object apply = function.apply(fieldValue);
                                 Cell cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(apply.toString());
-                                cell.setCellStyle(simpleCellStyle(workbook));
-                            }else {
+                                cell.setCellStyle(cellStyle);
+                            } else {
                                 Cell cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(fieldValue.toString());
-                                cell.setCellStyle(simpleCellStyle(workbook));
+                                cell.setCellStyle(cellStyle);
                             }
                         }
-
 
                     } catch (NoSuchFieldException e) {
                         //如果没有这个属性,那就是自定义的属性，需要单独处理
                         //判断有没有转换器,直接对传进来的对象进行转换操作
                         Function function = finFieldConvert(fieldName);
-                        if(Objects.nonNull(function)){
+                        if (Objects.nonNull(function)) {
                             //有转换器
                             Object apply = function.apply(o);
                             Cell cell = row.createCell(currentColumnIndex);
                             cell.setCellValue(apply.toString());
-                            cell.setCellStyle(simpleCellStyle(workbook));
-                        }else {
+                            cell.setCellStyle(cellStyle);
+                        } else {
                             Cell cell = row.createCell(currentColumnIndex);
                             cell.setCellValue("");
-                            cell.setCellStyle(simpleCellStyle(workbook));
+                            cell.setCellStyle(cellStyle);
                         }
                     }
 
                     currentColumnIndex++;
+
                 }
+
             }
         }
+
 
     }
 
@@ -333,6 +427,10 @@ public class ExcelExport {
     private Function finFieldConvert(String fieldName) {
 
         Function function = null;
+
+        if (this.getTransferMap().containsKey(fieldName)) {
+            return this.getTransferMap().get(fieldName);
+        }
 
         if (StringUtils.isNotEmpty(fieldName)) {
             //先判断有没有在 transferMap 定义转换器
@@ -359,6 +457,10 @@ public class ExcelExport {
             }
         }
 
+
+        if (Objects.nonNull(function) && !this.getTransferMap().containsKey(fieldName)) {
+            this.getTransferMap().put(fieldName, function);
+        }
         return function;
     }
 

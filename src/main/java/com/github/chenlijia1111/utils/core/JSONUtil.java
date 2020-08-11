@@ -19,6 +19,10 @@ import java.util.Objects;
  */
 public class JSONUtil {
 
+    /**
+     * 单例初始化
+     */
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 对象转json
@@ -28,7 +32,6 @@ public class JSONUtil {
      */
     public static String objToStr(Object obj) {
         if (Objects.nonNull(obj)) {
-            ObjectMapper objectMapper = new ObjectMapper();
             try {
                 String jsonStr = objectMapper.writeValueAsString(obj);
                 return jsonStr;
@@ -52,7 +55,6 @@ public class JSONUtil {
         AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
         AssertUtil.isTrue(Objects.nonNull(objClass), "对象class为空");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             T t = objectMapper.readValue(jsonStr, objClass);
             return t;
@@ -73,7 +75,6 @@ public class JSONUtil {
 
         AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode jsonNode = objectMapper.readTree(jsonStr);
             return jsonNode;
@@ -99,7 +100,6 @@ public class JSONUtil {
         AssertUtil.isTrue(Objects.nonNull(listClass), "集合class为空");
         AssertUtil.isTrue(Objects.nonNull(objClass), "对象class为空");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(listClass, objClass);
         try {
             List<T> list = objectMapper.readValue(jsonStr, javaType);
@@ -128,7 +128,6 @@ public class JSONUtil {
         AssertUtil.isTrue(Objects.nonNull(keyClass), "key class为空");
         AssertUtil.isTrue(Objects.nonNull(valueClass), "value class为空");
 
-        ObjectMapper objectMapper = new ObjectMapper();
         JavaType javaType = objectMapper.getTypeFactory().constructParametricType(mapClass, keyClass, valueClass);
         try {
             Map<K, V> map = objectMapper.readValue(jsonStr, javaType);
