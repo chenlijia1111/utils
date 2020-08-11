@@ -42,10 +42,9 @@ import java.util.function.Function;
  * <p>
  * 自定义导出暂时没有宽度的设置,后期可以加
  * <p>
- * <p>
- * <p>
- * TODO 参考 easyExcel 优化
  * 2020-08-10 修改表格样式为只生成一次
+ * 优化 row 对象 cell 对象 使用之后就将引用指向 null
+ * 方便 gc 回收空间
  *
  * @author chenlijia
  * @version 1.0
@@ -202,35 +201,6 @@ public class ExcelExport {
      **/
     public void exportData(HttpServletRequest request, HttpServletResponse response) {
 
-        if (this.exportFileName.toLowerCase().endsWith("xls")) {
-            workbook = new HSSFWorkbook();
-        } else {
-            //判断数据量，如果数据量大于500条，使用 SXSSFWorkbook 进行导出
-            if (this.dataList.size() >= 1000) {
-                workbook = new SXSSFWorkbook();
-            } else {
-                workbook = new XSSFWorkbook();
-            }
-        }
-
-        sheet = workbook.createSheet();
-
-        //可以导出空数据,但是对象导出对象以及集合不能为空 否则无法确定表头
-        AssertUtil.isTrue(null != dataList, "导出的数据集合为null");
-        AssertUtil.isTrue(null != exportClass, "导出的数据Class 对象为null");
-        AssertUtil.isTrue(null != response, "response对象为空");
-
-        //初始化表头数据
-        initHeadTitle();
-
-        //初始化表格数据
-        checkData();
-
-        //校验是否设置了导出文件名
-        if (StringUtils.isEmpty(this.exportFileName)) {
-            //设置默认名城
-            this.exportFileName = DateTimeConvertUtil.dateToStr(new Date(), TimeConstant.DATE_TIME);
-        }
 
         //导出
         try (ServletOutputStream outputStream = response.getOutputStream();) {
@@ -244,21 +214,10 @@ public class ExcelExport {
             }
             response.setHeader("Content-Disposition", "attachment; filename=" + this.exportFileName);
 
-            workbook.write(outputStream);
+            //执行 重载方法 导出
+            exportData(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-
-
-            if (workbook instanceof SXSSFWorkbook) {
-                ((SXSSFWorkbook) workbook).dispose();
-            }
-
-            try {
-                workbook.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
     }
@@ -373,6 +332,10 @@ public class ExcelExport {
                 //当前列下标
                 int currentColumnIndex = 1;
                 for (String fieldName : exportTitleHeadNameMap.keySet()) {
+
+                    //列表格 对象
+                    Cell cell = null;
+
                     try {
                         Object fieldValue = PropertyUtil.getFieldValue(o, exportClass, fieldName);
                         if (null != fieldValue) {
@@ -381,11 +344,11 @@ public class ExcelExport {
                             if (Objects.nonNull(function)) {
                                 //有转换器
                                 Object apply = function.apply(fieldValue);
-                                Cell cell = row.createCell(currentColumnIndex);
+                                cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(apply.toString());
                                 cell.setCellStyle(cellStyle);
                             } else {
-                                Cell cell = row.createCell(currentColumnIndex);
+                                cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(fieldValue.toString());
                                 cell.setCellStyle(cellStyle);
                             }
@@ -398,23 +361,28 @@ public class ExcelExport {
                         if (Objects.nonNull(function)) {
                             //有转换器
                             Object apply = function.apply(o);
-                            Cell cell = row.createCell(currentColumnIndex);
+                            cell = row.createCell(currentColumnIndex);
                             cell.setCellValue(apply.toString());
                             cell.setCellStyle(cellStyle);
                         } else {
-                            Cell cell = row.createCell(currentColumnIndex);
+                            cell = row.createCell(currentColumnIndex);
                             cell.setCellValue("");
                             cell.setCellStyle(cellStyle);
                         }
                     }
 
+                    //最后将 cell 置空，有利于 gc 回收空间
+
                     currentColumnIndex++;
 
                 }
 
+                serialCellValue = null;
+                //将 第一列 cell 置空，有利于 gc 回收空间
+                //将 行对象 置空 ，有利于 gc 回收空间
+                row = null;
             }
         }
-
 
     }
 
