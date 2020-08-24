@@ -134,6 +134,14 @@ public class CacheUtil {
         return Objects.nonNull(cacheMap.remove(key));
     }
 
+    /**
+     * 当前缓存数量
+     * @return
+     */
+    public int currentCacheCount(){
+        return cacheMap.size();
+    }
+
 
     /**
      * 缓存延时队列对象

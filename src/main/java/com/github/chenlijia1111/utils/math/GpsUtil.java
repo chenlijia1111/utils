@@ -28,7 +28,7 @@ public class GpsUtil {
      * @param lat2 第二点的纬度
      * @return 返回的距离，单位m
      */
-    public static double GetDistance(double lon1, double lat1, double lon2, double lat2) {
+    public static double getDistance(double lon1, double lat1, double lon2, double lat2) {
         double radLat1 = rad(lat1);
         double radLat2 = rad(lat2);
         double a = radLat1 - radLat2;
@@ -50,7 +50,7 @@ public class GpsUtil {
      * @author shaosen
      * @Date 2018年8月24日
      */
-    public static Point2D MillierConvertion(double lon, double lat) {
+    public static Point2D millierConvertion(double lon, double lat) {
         double L = 6381372 * Math.PI * 2;//地球周长
         double W = L;// 平面展开后，x轴等于周长
         double H = L / 2;// y轴约等于周长一半

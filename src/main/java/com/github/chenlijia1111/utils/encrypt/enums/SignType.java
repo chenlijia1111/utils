@@ -2,7 +2,7 @@ package com.github.chenlijia1111.utils.encrypt.enums;
 
 /**
  * 签名类型
- *
+ * RSA 进行签名所选择的签名类型
  * @author 陈礼佳
  * @since 2019/9/15 17:13
  */

@@ -40,7 +40,7 @@ import java.util.function.Function;
  * {@link #transferMap} 转换方法 {@link #exportTitleHeadNameMap}
  * 当属性不存在时，会默认以对象的数据来进行转换
  * <p>
- * 自定义导出暂时没有宽度的设置,后期可以加
+ * 可自定义导出暂时没有宽度的设置 {@link ExcelExportField#cellWidth()}
  * <p>
  * 2020-08-10 修改表格样式为只生成一次
  * 优化 row 对象 cell 对象 使用之后就将引用指向 null
@@ -205,6 +205,7 @@ public class ExcelExport {
         //导出
         try (ServletOutputStream outputStream = response.getOutputStream();) {
 
+            //设置响应头
             response.setContentType("application/vnd.ms-excel");
             this.exportFileName = URLDecoder.decode(this.exportFileName, "UTF-8");
             if (HttpUtils.isIE(request)) {

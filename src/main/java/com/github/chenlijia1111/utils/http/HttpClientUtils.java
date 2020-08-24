@@ -3,6 +3,9 @@ package com.github.chenlijia1111.utils.http;
 import com.github.chenlijia1111.utils.core.JSONUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
+import com.github.chenlijia1111.utils.http.po.FileUploadPo;
+import com.github.chenlijia1111.utils.http.po.FileUploadWithBytePo;
+import com.github.chenlijia1111.utils.http.po.FileUploadWithInputStreamPo;
 import com.github.chenlijia1111.utils.xml.XmlUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,6 +14,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -53,19 +57,26 @@ public class HttpClientUtils {
      * 文件参数
      * 只有post接口才支持
      */
-    private Map<String, File> fileParams;
+    private Map<String, FileUploadPo> fileParams;
 
     /**
      * 文件二进制参数
      * 只有post接口才支持
      */
-    private Map<String, byte[]> fileByteParams;
+    private Map<String, FileUploadWithBytePo> fileByteParams;
 
     /**
      * 文件二进制参数
      * 只有post接口才支持
      */
-    private Map<String, InputStream> fileInputStreamParams;
+    private Map<String, FileUploadWithInputStreamPo> fileInputStreamParams;
+
+    /**
+     * 上传文件接口
+     * 其他的参数可以设置 contentType
+     * 可参考说明 <a href = "https://shimo.im/docs/pqCkGpdPRVvhkgPY"></>
+     */
+    private Map<String, ContentType> fileParamsContentType;
 
 
     /**
@@ -152,6 +163,7 @@ public class HttpClientUtils {
         httpClientUtils.fileByteParams = new HashMap<>();
         httpClientUtils.fileInputStreamParams = new HashMap<>();
         httpClientUtils.headers = new HashMap<>();
+        httpClientUtils.fileParamsContentType = new HashMap<>();
         if (truestAll) {
             httpClientUtils.httpClient = createTruestAllHttpClient();
         } else {
@@ -197,6 +209,7 @@ public class HttpClientUtils {
         httpClientUtils.fileByteParams = new HashMap<>();
         httpClientUtils.fileInputStreamParams = new HashMap<>();
         httpClientUtils.headers = new HashMap<>();
+        httpClientUtils.fileParamsContentType = new HashMap<>();
         httpClientUtils.httpClient = HttpClients.createDefault();
 
         //构建带证书的SSL请求
@@ -268,7 +281,7 @@ public class HttpClientUtils {
     }
 
     /**
-     * 添加请求参数
+     * 添加请求参数--文件参数
      *
      * @param key   1
      * @param value 2
@@ -276,12 +289,28 @@ public class HttpClientUtils {
      * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putFileParams(String key, File value) {
-        this.fileParams.put(key, value);
+        FileUploadPo fileUploadPo = new FileUploadPo(key, value);
+        this.fileParams.put(key, fileUploadPo);
         return this;
     }
 
     /**
-     * 添加请求参数
+     * 添加请求参数--文件参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putFileParams(String key, File value, String fileName, ContentType contentType) {
+        FileUploadPo fileUploadPo = new FileUploadPo(fileName, key, value);
+        fileUploadPo.setContentType(contentType);
+        this.fileParams.put(key, fileUploadPo);
+        return this;
+    }
+
+    /**
+     * 添加请求参数--文件参数
      *
      * @param key   1
      * @param value 2
@@ -289,12 +318,28 @@ public class HttpClientUtils {
      * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putFileByteParams(String key, byte[] value) {
-        this.fileByteParams.put(key, value);
+        FileUploadWithBytePo fileUploadPo = new FileUploadWithBytePo(key, value);
+        this.fileByteParams.put(key, fileUploadPo);
         return this;
     }
 
     /**
-     * 添加请求参数
+     * 添加请求参数--文件参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putFileByteParams(String key, byte[] value, String fileName, ContentType contentType) {
+        FileUploadWithBytePo fileUploadPo = new FileUploadWithBytePo(fileName, key, value);
+        fileUploadPo.setContentType(contentType);
+        this.fileByteParams.put(key, fileUploadPo);
+        return this;
+    }
+
+    /**
+     * 添加请求参数--文件参数
      *
      * @param key   1
      * @param value 2
@@ -302,7 +347,23 @@ public class HttpClientUtils {
      * @since 上午 10:30 2019/8/20 0020
      **/
     public HttpClientUtils putInputStreamParams(String key, InputStream value) {
-        this.fileInputStreamParams.put(key, value);
+        FileUploadWithInputStreamPo fileUploadPo = new FileUploadWithInputStreamPo(key, value);
+        this.fileInputStreamParams.put(key, fileUploadPo);
+        return this;
+    }
+
+    /**
+     * 添加请求参数--文件参数
+     *
+     * @param key   1
+     * @param value 2
+     * @author chenlijia
+     * @since 上午 10:30 2019/8/20 0020
+     **/
+    public HttpClientUtils putInputStreamParams(String key, InputStream value, String fileName, ContentType contentType) {
+        FileUploadWithInputStreamPo fileUploadPo = new FileUploadWithInputStreamPo(fileName, key, value);
+        fileUploadPo.setContentType(contentType);
+        this.fileInputStreamParams.put(key, fileUploadPo);
         return this;
     }
 
@@ -354,6 +415,17 @@ public class HttpClientUtils {
 
     public HttpClientUtils setHttpEntity(HttpEntity httpEntity) {
         this.httpEntity = httpEntity;
+        return this;
+    }
+
+    /**
+     * 上传文件时设置 单个参数的 contentType
+     *
+     * @param paramsName
+     * @param contentType
+     */
+    public HttpClientUtils putFileParamsContentType(String paramsName, ContentType contentType) {
+        this.fileParamsContentType.put(paramsName, contentType);
         return this;
     }
 
@@ -432,24 +504,51 @@ public class HttpClientUtils {
                 MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
                 entityBuilder.setCharset(Charset.forName("UTF-8"));
                 if (fileParams.size() > 0) {
-                    for (Map.Entry<String, File> fileEntry : fileParams.entrySet()) {
-                        entityBuilder.addBinaryBody(fileEntry.getKey(), fileEntry.getValue());
+                    for (Map.Entry<String, FileUploadPo> fileEntry : fileParams.entrySet()) {
+                        String paramsName = fileEntry.getKey();
+                        FileUploadPo fileUploadPo = fileEntry.getValue();
+                        //查询这个参数有没有设置 contentType
+                        ContentType contentType = fileUploadPo.getContentType();
+                        if (Objects.isNull(contentType)) {
+                            contentType = ContentType.DEFAULT_BINARY;
+                        }
+                        entityBuilder.addBinaryBody(paramsName, fileUploadPo.getFile(), contentType, fileUploadPo.getFileName());
                     }
                 }
                 if (fileByteParams.size() > 0) {
-                    for (Map.Entry<String, byte[]> fileByteEntry : fileByteParams.entrySet()) {
-                        entityBuilder.addBinaryBody(fileByteEntry.getKey(), fileByteEntry.getValue());
+                    for (Map.Entry<String, FileUploadWithBytePo> fileByteEntry : fileByteParams.entrySet()) {
+                        String paramsName = fileByteEntry.getKey();
+                        FileUploadWithBytePo fileUploadPo = fileByteEntry.getValue();
+                        //查询这个参数有没有设置 contentType
+                        ContentType contentType = fileUploadPo.getContentType();
+                        if (Objects.isNull(contentType)) {
+                            contentType = ContentType.DEFAULT_BINARY;
+                        }
+                        entityBuilder.addBinaryBody(paramsName, fileUploadPo.getBytes(),contentType,fileUploadPo.getFileName());
                     }
                 }
                 if (fileInputStreamParams.size() > 0) {
-                    for (Map.Entry<String, InputStream> fileInputStreamEntry : fileInputStreamParams.entrySet()) {
-                        entityBuilder.addBinaryBody(fileInputStreamEntry.getKey(), fileInputStreamEntry.getValue());
+                    for (Map.Entry<String, FileUploadWithInputStreamPo> fileInputStreamEntry : fileInputStreamParams.entrySet()) {
+                        String paramsName = fileInputStreamEntry.getKey();
+                        FileUploadWithInputStreamPo fileUploadPo = fileInputStreamEntry.getValue();
+                        //查询这个参数有没有设置 contentType
+                        ContentType contentType = fileUploadPo.getContentType();
+                        if (Objects.isNull(contentType)) {
+                            contentType = ContentType.DEFAULT_BINARY;
+                        }
+                        entityBuilder.addBinaryBody(paramsName, fileUploadPo.getInputStream(),contentType,fileUploadPo.getFileName());
                     }
                 }
                 //添加参数
                 if (params.size() > 0) {
                     for (Map.Entry<String, Object> entry : params.entrySet()) {
-                        entityBuilder.addTextBody(entry.getKey(), entry.getValue().toString());
+                        String paramsName = entry.getKey();
+                        //查询这个参数有没有设置 contentType
+                        ContentType contentType = this.fileParamsContentType.get(paramsName);
+                        if (Objects.isNull(contentType)) {
+                            contentType = ContentType.DEFAULT_TEXT;
+                        }
+                        entityBuilder.addTextBody(entry.getKey(), entry.getValue().toString(), contentType);
                     }
                 }
 
