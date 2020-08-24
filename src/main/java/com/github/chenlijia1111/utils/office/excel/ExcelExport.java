@@ -297,6 +297,8 @@ public class ExcelExport {
 
         //表格样式
         CellStyle cellStyle = simpleCellStyle(workbook);
+        //表头样式
+        CellStyle headCellStyle = headCellStyle(workbook);
 
         //导出表头
         LinkedHashMap<String, String> exportTitleHeadNameMap = this.exportTitleHeadNameMap;
@@ -309,22 +311,32 @@ public class ExcelExport {
 
         Set<Map.Entry<String, String>> entries = exportTitleHeadNameMap.entrySet();
         Iterator<Map.Entry<String, String>> iterator = entries.iterator();
+        //列对象引用，不要放在循环内，防止对象引用太多，影响垃圾回收
+        Cell cell;
         while (iterator.hasNext()) {
             Map.Entry<String, String> next = iterator.next();
             String headName = next.getValue();
-            Cell cell = headRow.createCell(currentHeadIndex);
+            cell = headRow.createCell(currentHeadIndex);
             cell.setCellValue(headName);
-            cell.setCellStyle(cellStyle);
+            cell.setCellStyle(headCellStyle);
 
             currentHeadIndex++;
         }
 
         if (dataList.size() > 0) {
+
+            //行对象引用
+            Row row;
+            //第一列 序号 引用
+            Cell serialCellValue;
+            //转换器 引用
+            Function function;
+
             for (int i = 0; i < dataList.size(); i++) {
 
+                row = sheet.createRow(i + 1);
                 //第一列 序号
-                Row row = sheet.createRow(i + 1);
-                Cell serialCellValue = row.createCell(0);
+                serialCellValue = row.createCell(0);
                 serialCellValue.setCellValue(i + 1);
                 serialCellValue.setCellStyle(cellStyle);
 
@@ -334,14 +346,11 @@ public class ExcelExport {
                 int currentColumnIndex = 1;
                 for (String fieldName : exportTitleHeadNameMap.keySet()) {
 
-                    //列表格 对象
-                    Cell cell = null;
-
                     try {
                         Object fieldValue = PropertyUtil.getFieldValue(o, exportClass, fieldName);
                         if (null != fieldValue) {
                             //判断有没有转换器
-                            Function function = finFieldConvert(fieldName);
+                            function = finFieldConvert(fieldName);
                             if (Objects.nonNull(function)) {
                                 //有转换器
                                 Object apply = function.apply(fieldValue);
@@ -358,7 +367,7 @@ public class ExcelExport {
                     } catch (NoSuchFieldException e) {
                         //如果没有这个属性,那就是自定义的属性，需要单独处理
                         //判断有没有转换器,直接对传进来的对象进行转换操作
-                        Function function = finFieldConvert(fieldName);
+                        function = finFieldConvert(fieldName);
                         if (Objects.nonNull(function)) {
                             //有转换器
                             Object apply = function.apply(o);
@@ -372,19 +381,11 @@ public class ExcelExport {
                         }
                     }
 
-                    //最后将 cell 置空，有利于 gc 回收空间
-
                     currentColumnIndex++;
 
                 }
-
-                serialCellValue = null;
-                //将 第一列 cell 置空，有利于 gc 回收空间
-                //将 行对象 置空 ，有利于 gc 回收空间
-                row = null;
             }
         }
-
     }
 
     /**
@@ -518,6 +519,48 @@ public class ExcelExport {
         Font dataFont = workbook.createFont();
         dataFont.setFontName("Arial");
         dataFont.setFontHeightInPoints((short) 10);
+        style.setFont(dataFont);
+
+        //水平居中
+        style.setAlignment(HorizontalAlignment.CENTER);
+        //垂直居中
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        //第一个参数代表列id(从0开始),第2个参数代表宽度值  参考 ："2012-08-10"的宽度为2500
+        //设置自动换行:
+        style.setWrapText(true);//设置自动换行
+
+        return style;
+    }
+
+    /**
+     * 表头样式
+     * 粗体显示表头
+     *
+     * @param workbook 1
+     * @return void
+     * @since 上午 10:07 2019/9/4 0004
+     **/
+    private CellStyle headCellStyle(Workbook workbook) {
+
+        //初始样式
+        CellStyle style = workbook.createCellStyle();
+
+        //设置样式  上下左右边框 字体 居中 宽度
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+
+        Font dataFont = workbook.createFont();
+        dataFont.setFontName("Arial");
+        dataFont.setFontHeightInPoints((short) 10);
+        //粗体
+        dataFont.setBold(true);
         style.setFont(dataFont);
 
         //水平居中

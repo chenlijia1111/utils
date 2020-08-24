@@ -34,7 +34,9 @@ import java.util.List;
 /**
  * 创建新的MappedStatement,主要是Count返回值int
  *
- * @author liuzh
+ * 参考的是 pageHelper 的代码
+ *
+ * @author chen Lijia
  */
 public class MSUtils {
     public static final String COUNT = "_COUNT";

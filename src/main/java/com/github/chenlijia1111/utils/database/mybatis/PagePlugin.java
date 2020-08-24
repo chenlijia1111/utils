@@ -72,6 +72,8 @@ public class PagePlugin implements Interceptor {
      * page 参数和 limit 参数来进行自当分页
      * 也就是不用显示调用 Page.startPage(page,limit);
      * 只要在参数中传入 page 和 limit 参数即可
+     *
+     * 如果参数中存在 page limit 参数，但是又不想自动分页，只需要把 其中一个置为空即可
      */
     private boolean autoPage = false;
 
@@ -116,7 +118,7 @@ public class PagePlugin implements Interceptor {
             MappedStatement countMappedStatement = MSUtils.newCountMappedStatement(mappedStatement, countMsId);
             Long autoCount = ExecutorUtil.executeAutoCount(executor, countMappedStatement, parameterObject, boundSql, rowBounds, resultHandler);
             page.setCount(autoCount.intValue());
-            //重新赋值线程变量
+            //重新赋值线程变量，更新里面的 count 值
             PageThreadLocalParameter.setPageParameter(page);
 
             //设置新的MappedStatement 加上分页
@@ -150,7 +152,6 @@ public class PagePlugin implements Interceptor {
                     Object limitObject = parameterMap.get(LIMIT_FIELD_NAME);
                     if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
                         page = Page.startPage((Integer) pageObject, (Integer) limitObject);
-                        PageThreadLocalParameter.setPageParameter(page);
                     }
                 }
             } else {
@@ -160,7 +161,6 @@ public class PagePlugin implements Interceptor {
                     Object limitObject = PropertyUtil.getFieldValue(parameterObject, parameterObject.getClass(), LIMIT_FIELD_NAME);
                     if (Objects.nonNull(pageObject) && Objects.nonNull(limitObject) && pageObject instanceof Integer && limitObject instanceof Integer) {
                         page = Page.startPage((Integer) pageObject, (Integer) limitObject);
-                        PageThreadLocalParameter.setPageParameter(page);
                     }
                 } catch (NoSuchFieldException e) {
                     //没有这个属性,不用分页
