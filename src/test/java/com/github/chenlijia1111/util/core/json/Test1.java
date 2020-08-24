@@ -27,6 +27,7 @@ public class Test1 {
 
         List<UserInfo> list = JSONUtil.strToList(s, ArrayList.class, UserInfo.class);
         System.out.println(list);
+        System.out.println("this is test dev");
 
     }
 
