@@ -323,7 +323,8 @@ public class ExcelExport {
             currentHeadIndex++;
         }
 
-        if (dataList.size() > 0) {
+        int size = dataList.size();
+        if (size > 0) {
 
             //行对象引用
             Row row;
@@ -332,7 +333,7 @@ public class ExcelExport {
             //转换器 引用
             Function function;
 
-            for (int i = 0; i < dataList.size(); i++) {
+            for (int i = 0; i < size; i++) {
 
                 row = sheet.createRow(i + 1);
                 //第一列 序号
