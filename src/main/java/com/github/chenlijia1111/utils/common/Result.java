@@ -45,6 +45,14 @@ public class Result {
     public Result() {
     }
 
+    public static Result success() {
+        return success("操作成功", null);
+    }
+
+    public static Result success(Object data) {
+        return success("操作成功", data);
+    }
+
     public static Result success(String msg) {
         return success(msg, null);
     }

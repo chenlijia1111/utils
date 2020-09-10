@@ -43,7 +43,7 @@ jar包已上传至maven中央仓库
 <dependency>
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.9-RELEASE</version>
+    <version>1.2.0-RELEASE</version>
 </dependency>
 ~~~
 
@@ -52,7 +52,7 @@ jar包已上传至maven中央仓库
 <dependency>
     <groupId>com.github.chenlijia1111</groupId>
     <artifactId>utils</artifactId>
-    <version>1.1.9-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
 </dependency>
 ~~~
 如果要下载快照版jar报需要加上快照仓库
