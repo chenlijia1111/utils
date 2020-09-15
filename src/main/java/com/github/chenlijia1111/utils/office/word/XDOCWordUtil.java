@@ -158,35 +158,6 @@ public class XDOCWordUtil {
         }
     }
 
-
-    /**
-     * 合并行
-     *
-     * @param table
-     * @param col     需要合并的列
-     * @param fromRow 开始行
-     * @param toRow   结束行
-     */
-    public static void mergeCellVertically(XWPFTable table, int col, int fromRow, int toRow) {
-        for (int rowIndex = fromRow; rowIndex <= toRow; rowIndex++) {
-            CTVMerge vmerge = CTVMerge.Factory.newInstance();
-            if (rowIndex == fromRow) {
-                vmerge.setVal(STMerge.RESTART);
-            } else {
-                vmerge.setVal(STMerge.CONTINUE);
-            }
-            XWPFTableCell cell = table.getRow(rowIndex).getCell(col);
-            CTTcPr tcPr = cell.getCTTc().getTcPr();
-            if (tcPr != null) {
-                tcPr.setVMerge(vmerge);
-            } else {
-                tcPr = CTTcPr.Factory.newInstance();
-                tcPr.setVMerge(vmerge);
-                cell.getCTTc().setTcPr(tcPr);
-            }
-        }
-    }
-
     /**
      * 设置表格内容居中
      * 该方法应该在表格全部设置完内容之后再进行调用
@@ -320,6 +291,53 @@ public class XDOCWordUtil {
 
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * 水平方向合并单元格
+     *
+     * @param table          表格对象
+     * @param rowIndex       行下标
+     * @param startCellIndex 开始单元格下标
+     * @param endCellIndex   结束单元格下标
+     */
+    public static void mergeCellHorizontal(XWPFTable table, int rowIndex, int startCellIndex, int endCellIndex) {
+        if (Objects.nonNull(table) && startCellIndex < endCellIndex) {
+            XWPFTableRow row = table.getRow(rowIndex);
+            int currentCellIndex = startCellIndex;
+            //设置第一个cell 开始合并
+            XWPFTableCell cell = row.getCell(currentCellIndex);
+            cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.RESTART);
+            while (currentCellIndex < endCellIndex) {
+                currentCellIndex++;
+                //后面的cell 继续合并
+                cell = row.getCell(currentCellIndex);
+                cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.CONTINUE);
+            }
+        }
+    }
+
+    /**
+     * 竖直方向合并列单元格
+     *
+     * @param table
+     * @param columnIndex  需要合并的列
+     * @param fromRowIndex 开始行
+     * @param toRowIndex   结束行
+     */
+    public static void mergeCellVertically(XWPFTable table, int columnIndex, int fromRowIndex, int toRowIndex) {
+        if (Objects.nonNull(table) && fromRowIndex < toRowIndex) {
+            int currentRowIndex = fromRowIndex;
+            //第一个单元格开始合并
+            XWPFTableCell cell = table.getRow(currentRowIndex).getCell(columnIndex);
+            cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.RESTART);
+            while (currentRowIndex < toRowIndex) {
+                currentRowIndex++;
+                //其他的单元格继续合并
+                cell = table.getRow(currentRowIndex).getCell(columnIndex);
+                cell.getCTTc().addNewTcPr().addNewHMerge().setVal(STMerge.CONTINUE);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.github.chenlijia1111.util.word;
 
+import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.list.Maps;
 import com.github.chenlijia1111.utils.list.annos.MapType;
 import com.github.chenlijia1111.utils.office.word.WordUtils;
@@ -78,5 +79,60 @@ public class WordTest {
         }
     }
 
+    @Test
+    public void testMergeCell() {
+        //测试合并单元格
+
+        XWPFDocument document = new XWPFDocument();
+        try (FileOutputStream outputStream = new FileOutputStream(new File("D:\\文件\\测试输出文件\\测试poi-word 表格合并.docx"))) {
+
+            //添加标题
+            XWPFParagraph titleParagraph = document.createParagraph();
+            //添加一级标题
+            XDOCWordUtil.setLevelTitle1(document, titleParagraph, "数据字典");
+
+            //开始添加表格
+            //添加一级标题
+            XWPFParagraph tableParagraph = document.createParagraph();
+            XDOCWordUtil.setLevelTitle2(document, tableParagraph, "表格1");
+
+            XWPFParagraph tableParagraph1 = document.createParagraph();
+            XmlCursor cursor = tableParagraph1.getCTP().newCursor();
+            XWPFTable table = document.insertNewTbl(cursor);
+
+
+            //表格插入数据
+            //10 行
+            //第一行为 title
+            XWPFTableRow row = table.getRow(0);
+            row.getCell(0).setText("名字");
+            row.createCell().setText("性别");
+            row.createCell().setText("长度");
+            row.createCell().setText("大小");
+            for (int i = 1; i < 10; i++) {
+                row = table.createRow();
+
+                row.getCell(0).setText(RandomUtil.createRandomName());
+                row.getCell(1).setText(RandomUtil.createRandomName());
+                row.getCell(2).setText(RandomUtil.createRandomName());
+                row.getCell(3).setText(RandomUtil.createRandomName());
+            }
+
+
+            //合并table 第一行 第一列到第三列(指的下标)
+            XDOCWordUtil.mergeCellHorizontal(table,1,1,3);
+
+            XDOCWordUtil.setTableCenter(table, STJc.LEFT);
+
+            document.write(outputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
+
+
+
