@@ -1,12 +1,16 @@
 package com.github.chenlijia1111.utils.core;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.github.chenlijia1111.utils.common.AssertUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +37,7 @@ public class JSONUtil {
     public static String objToStr(Object obj) {
         if (Objects.nonNull(obj)) {
             try {
-                String jsonStr = objectMapper.writeValueAsString(obj);
+                String jsonStr = objectMapper.writer().writeValueAsString(obj);
                 return jsonStr;
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -55,8 +59,11 @@ public class JSONUtil {
         AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
         AssertUtil.isTrue(Objects.nonNull(objClass), "对象class为空");
 
+        ObjectReader objectReader = objectMapper.reader();
         try {
-            T t = objectMapper.readValue(jsonStr, objClass);
+            JsonFactory jsonFactory = new JsonFactory();
+            JsonParser jsonParser = jsonFactory.createParser(jsonStr);
+            T t = objectReader.readValue(jsonParser, objClass);
             return t;
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,8 +82,9 @@ public class JSONUtil {
 
         AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
 
+        ObjectReader objectReader = objectMapper.reader();
         try {
-            JsonNode jsonNode = objectMapper.readTree(jsonStr);
+            JsonNode jsonNode = objectReader.readTree(jsonStr);
             return jsonNode;
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,9 +108,12 @@ public class JSONUtil {
         AssertUtil.isTrue(Objects.nonNull(listClass), "集合class为空");
         AssertUtil.isTrue(Objects.nonNull(objClass), "对象class为空");
 
-        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(listClass, objClass);
+        ObjectReader objectReader = objectMapper.reader();
+        JavaType javaType = objectReader.getTypeFactory().constructParametricType(listClass, objClass);
         try {
-            List<T> list = objectMapper.readValue(jsonStr, javaType);
+            JsonFactory jsonFactory = new JsonFactory();
+            JsonParser jsonParser = jsonFactory.createParser(jsonStr);
+            List<T> list = objectReader.readValue(jsonParser, javaType);
             return list;
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,21 +132,46 @@ public class JSONUtil {
      * @return java.util.List<T>
      * @since 上午 9:10 2019/9/19 0019
      **/
-    public static <K, V> Map<K, V> strToMap(String jsonStr, Class<? extends Map<K, V>> mapClass, Class<K> keyClass, Class<V> valueClass) {
+    public static <K, V> Map<K, V> strToMap(String jsonStr, Class<? extends Map> mapClass, Class<K> keyClass, Class<V> valueClass) {
 
         AssertUtil.isTrue(StringUtils.isNotEmpty(jsonStr), "json字符串为空");
         AssertUtil.isTrue(Objects.nonNull(mapClass), "集合class为空");
         AssertUtil.isTrue(Objects.nonNull(keyClass), "key class为空");
         AssertUtil.isTrue(Objects.nonNull(valueClass), "value class为空");
 
-        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(mapClass, keyClass, valueClass);
+        ObjectReader objectReader = objectMapper.reader();
+        JavaType javaType = objectReader.getTypeFactory().constructParametricType(mapClass, keyClass, valueClass);
         try {
-            Map<K, V> map = objectMapper.readValue(jsonStr, javaType);
+            JsonFactory jsonFactory = new JsonFactory();
+            JsonParser jsonParser = jsonFactory.createParser(jsonStr);
+            Map<K, V> map = objectReader.readValue(jsonParser, javaType);
             return map;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 对象 转 map
+     * <p>
+     * 先将对象转为 json 之后，再将 json 转为 map
+     *
+     * @param object   1
+     * @param mapClass 2
+     * @return java.util.List<T>
+     * @since 上午 9:10 2019/9/19 0019
+     **/
+    public static Map objToMap(Object object, Class<? extends Map> mapClass) {
+
+        AssertUtil.isTrue(Objects.nonNull(object), "对象为空");
+        AssertUtil.isTrue(Objects.nonNull(mapClass), "集合class为空");
+
+        // 先将对象转为 json
+        String json = objToStr(object);
+        // 再将 json 转为 map
+        Map<Object, Object> map = strToMap(json, HashMap.class, Object.class, Object.class);
+        return map;
     }
 
 
