@@ -4,6 +4,7 @@ import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -221,6 +222,28 @@ public class IOUtil {
             e.printStackTrace();
         }
         return properties;
+    }
+
+    /**
+     * 读取输入流为字节数组
+     * @param inputStream
+     * @return
+     */
+    public static byte[] readToBytes(InputStream inputStream){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        if(Objects.nonNull(inputStream)){
+            byte[] bytes = new byte[1024];
+            int num;
+            try {
+                while ((num = inputStream.read(bytes)) != -1){
+                    byteArrayOutputStream.write(bytes,0,num);
+                }
+                byteArrayOutputStream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return byteArrayOutputStream.toByteArray();
     }
 
     /**
