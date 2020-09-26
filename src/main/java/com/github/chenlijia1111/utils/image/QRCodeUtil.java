@@ -5,6 +5,7 @@ import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,6 +39,14 @@ public class QRCodeUtil {
 
     //二维码高
     private Integer height = 300;
+
+    //前景色，也就是二维码显示的颜色
+    private static int onColor = 0xFF000000;
+    //背景色
+    private static int offColor = 0xFFFFFFFF;
+
+    //配置参数
+    private Map<EncodeHintType, Object> configParams = new HashMap<>();
 
     /**
      * 容错率
@@ -59,17 +69,24 @@ public class QRCodeUtil {
      * @param msg 信息
      */
     private void createQRCode(String msg) throws WriterException {
-        HashMap<EncodeHintType, Object> hashMap = new HashMap<>();
-        hashMap.put(EncodeHintType.CHARACTER_SET, "utf-8");
+
+        //配置信息
+        HashMap<EncodeHintType, Object> map = new HashMap<>();
+
+        map.put(EncodeHintType.CHARACTER_SET, "utf-8");
         //纠错等级
-        if(Objects.nonNull(errorCorrectionLevel)){
-            hashMap.put(EncodeHintType.ERROR_CORRECTION, errorCorrectionLevel);
-        }else {
-            hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+        if (Objects.nonNull(errorCorrectionLevel)) {
+            map.put(EncodeHintType.ERROR_CORRECTION, errorCorrectionLevel);
+        } else {
+            map.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
         }
         //图片边距
-        hashMap.put(EncodeHintType.MARGIN, 2);
-        bitMatrix = new MultiFormatWriter().encode(msg, BarcodeFormat.QR_CODE, width, height, hashMap);
+        map.put(EncodeHintType.MARGIN, 2);
+
+        //调用者自定义的配置信息
+        map.putAll(configParams);
+
+        bitMatrix = new MultiFormatWriter().encode(msg, BarcodeFormat.QR_CODE, width, height, map);
     }
 
     /**
@@ -82,7 +99,8 @@ public class QRCodeUtil {
     public boolean output(String content, File file) {
         try {
             createQRCode(content);
-            MatrixToImageWriter.writeToPath(bitMatrix, format, file.toPath());
+            MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(onColor, offColor);
+            MatrixToImageWriter.writeToPath(bitMatrix, format, file.toPath(), matrixToImageConfig);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,7 +119,8 @@ public class QRCodeUtil {
     public boolean outputWithLogo(String content, File file, File logoFile) {
         try {
             createQRCode(content);
-            MatrixToImageWriter.writeToPath(bitMatrix, format, file.toPath());
+            MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(onColor, offColor);
+            MatrixToImageWriter.writeToPath(bitMatrix, format, file.toPath(), matrixToImageConfig);
             //进行合并图片
             ImageMergeUtil.mergeImage(logoFile, file, file, 120, 120, 60, 60);
             return true;
@@ -121,7 +140,8 @@ public class QRCodeUtil {
     public void output(String content, OutputStream outputStream) {
         try {
             createQRCode(content);
-            MatrixToImageWriter.writeToStream(bitMatrix, format, outputStream);
+            MatrixToImageConfig matrixToImageConfig = new MatrixToImageConfig(onColor, offColor);
+            MatrixToImageWriter.writeToStream(bitMatrix, format, outputStream, matrixToImageConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -206,10 +226,28 @@ public class QRCodeUtil {
 
     /**
      * 设置容错率
+     *
      * @param errorCorrectionLevel
      */
     public QRCodeUtil setErrorCorrectionLevel(ErrorCorrectionLevel errorCorrectionLevel) {
         this.errorCorrectionLevel = errorCorrectionLevel;
         return this;
+    }
+
+    /**
+     * 获取配置参数
+     *
+     * @return
+     */
+    public Map<EncodeHintType, Object> getConfigParams() {
+        return configParams;
+    }
+
+    public void setOnColor(int onColor) {
+        this.onColor = onColor;
+    }
+
+    public void setOffColor(int offColor) {
+        this.offColor = offColor;
     }
 }

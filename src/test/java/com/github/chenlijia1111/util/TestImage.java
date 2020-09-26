@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.util;
 
 import com.github.chenlijia1111.utils.image.*;
+import com.google.zxing.EncodeHintType;
 import net.coobird.thumbnailator.Thumbnails;
 import org.junit.Test;
 
@@ -41,6 +42,16 @@ public class TestImage {
         File logo = new File("C:\\Users\\Administrator\\Pictures\\Saved Pictures\\index.jpg");
         FileOutputStream fileOutputStream = new FileOutputStream(file);
         qrCodeUtil.outputWithLogo("http://www.baidu.com", fileOutputStream, logo);
+    }
+
+    @Test
+    public void testCreateQrCode(){
+        File file = new File("D:\\公司资料\\贝占\\图片\\test.png");
+        QRCodeUtil qrCodeUtil = new QRCodeUtil();
+        qrCodeUtil.getConfigParams().put(EncodeHintType.MARGIN,4);
+        qrCodeUtil.setOnColor(0XFF926D42);
+        qrCodeUtil.setOffColor(0XFF333333);
+        qrCodeUtil.output("www", file);
     }
 
     @Test
