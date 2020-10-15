@@ -25,6 +25,19 @@ import java.util.Objects;
  * <p>
  * 如何防止查询方法被校验参数 ? 一般查询方法参数都是封装为对象来提供外界查询,如果不想要校验的字段就不要加校验注解即可
  * 如果没有封装,都是一个一个的基本类型,那就在方法上加上校验注解,标识要特殊对待,没有注解的参数就不会校验了
+ *
+ * 参数是基本类型，但是不想被拦截，示例代码如下：
+ * {@code
+ *      @PropertyCheck
+ *      public class TestController {
+ *
+ *          @PropertyCheck
+ *          public Integer test1(@PropertyCheck(ignoreNull = true) Integer p1,Integer p2){
+ *              return 0;
+ *          }
+ *
+ *      }
+ * }
  */
 @Aspect
 public class ParameterCheckProxy {
