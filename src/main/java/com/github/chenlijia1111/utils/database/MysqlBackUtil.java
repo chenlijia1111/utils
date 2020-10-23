@@ -18,6 +18,9 @@ import java.util.List;
 public class MysqlBackUtil {
 
 
+    //反斜杠 \
+    public static final String BACK_SLASH = "\\\\";
+
     /**
      * 导出sql
      * window里面 /表示是命令参数后缀,比如  format /q
@@ -81,15 +84,15 @@ public class MysqlBackUtil {
         if (property.startsWith("win")) {
             //处理mysqlBinPath
             //路径使用\\
-            mysqlBinPath = mysqlBinPath.replaceAll("/", "\\");
+            mysqlBinPath = mysqlBinPath.replaceAll("/", BACK_SLASH);
             //如果路径最后面有\,截掉,后面统一加路径符号
-            mysqlBinPath = mysqlBinPath.endsWith("\\") ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
+            mysqlBinPath = mysqlBinPath.endsWith(BACK_SLASH) ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
             //开始拼接命令
             cmd.append("cmd.exe /c ");
-            cmd.append("\"" + mysqlBinPath + "\\mysqldump.exe\" ");
+            cmd.append("\"" + mysqlBinPath + BACK_SLASH + "mysqldump.exe\" ");
         } else {
             //路径使用/
-            mysqlBinPath = mysqlBinPath.replaceAll("\\\\", "/");
+            mysqlBinPath = mysqlBinPath.replaceAll(BACK_SLASH, "/");
             //如果路径最后面有/,截掉,后面统一加路径符号
             mysqlBinPath = mysqlBinPath.endsWith("/") ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
             cmd.append(mysqlBinPath + "/mysqldump ");
@@ -154,15 +157,15 @@ public class MysqlBackUtil {
         if (property.startsWith("win")) {
             //处理mysqlBinPath
             //路径使用\\
-            mysqlBinPath = mysqlBinPath.replaceAll("/", "\\");
+            mysqlBinPath = mysqlBinPath.replaceAll("/", BACK_SLASH);
             //如果路径最后面有\,截掉,后面统一加路径符号
-            mysqlBinPath = mysqlBinPath.endsWith("\\") ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
+            mysqlBinPath = mysqlBinPath.endsWith(BACK_SLASH) ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
             //开始拼接命令
             cmd.append("cmd.exe /c ");
-            cmd.append("\"" + mysqlBinPath + "\\mysql.exe\" ");
+            cmd.append("\"" + mysqlBinPath + BACK_SLASH + "mysql.exe\" ");
         } else {
             //路径使用/
-            mysqlBinPath = mysqlBinPath.replaceAll("\\\\", "/");
+            mysqlBinPath = mysqlBinPath.replaceAll(BACK_SLASH, "/");
             //如果路径最后面有/,截掉,后面统一加路径符号
             mysqlBinPath = mysqlBinPath.endsWith("/") ? mysqlBinPath.substring(0, mysqlBinPath.length() - 1) : mysqlBinPath;
             cmd.append(mysqlBinPath + "/mysql ");
@@ -204,6 +207,5 @@ public class MysqlBackUtil {
 
         return Result.failure("导入失败");
     }
-
 
 }
