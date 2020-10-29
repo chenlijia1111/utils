@@ -1,8 +1,15 @@
 package com.github.chenlijia1111.util.encrypt;
 
 import com.github.chenlijia1111.utils.encrypt.*;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.RSA;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author chenlijia
@@ -69,6 +76,47 @@ public class Test1 {
         RSAUtils.RSAKey key = rsaUtils.createKey(512);
         System.out.println(key.getPrivateKey());
         System.out.println(key.getPublicKey());
+    }
+
+    @Test
+    public void testInputStreamTransferToHex(){
+        try {
+            FileInputStream inputStream = new FileInputStream(new File("D:/soft/android-studio-ide-191.6010548-windows.exe"));
+            String s = MD5EncryptUtil.MD5InputStreamToHexString(inputStream);
+            System.out.println(s);
+            s = MD5EncryptUtil.MD5InputStreamToHexString(inputStream);
+            System.out.println(s);
+            s = MD5EncryptUtil.MD5InputStreamToHexString(inputStream);
+            System.out.println(s);
+            s = MD5EncryptUtil.MD5InputStreamToHexString(inputStream);
+            System.out.println(s);
+            s = MD5EncryptUtil.MD5InputStreamToHexString(inputStream);
+            System.out.println(s);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testInputStreamTransferToHex2(){
+        try {
+            FileInputStream inputStream = new FileInputStream(new File("D:/soft/android-studio-ide-191.6010548-windows.exe"));
+
+            String s = DigestUtils.md5Hex(inputStream);
+            System.out.println(s);
+            String s1 = DigestUtils.md5Hex(inputStream);
+            System.out.println(s1);
+            s = DigestUtils.md5Hex(inputStream);
+            System.out.println(s);
+            s = DigestUtils.md5Hex(inputStream);
+            System.out.println(s);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 }

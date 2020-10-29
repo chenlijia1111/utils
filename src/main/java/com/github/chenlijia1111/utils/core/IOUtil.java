@@ -226,17 +226,19 @@ public class IOUtil {
 
     /**
      * 读取输入流为字节数组
+     * 该方法谨慎使用，如果输入流过大，频繁调用该方法，会造成堆内存过大，导致内存溢出
+     *
      * @param inputStream
      * @return
      */
-    public static byte[] readToBytes(InputStream inputStream){
+    public static byte[] readToBytes(InputStream inputStream) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        if(Objects.nonNull(inputStream)){
+        if (Objects.nonNull(inputStream)) {
             byte[] bytes = new byte[1024];
             int num;
             try {
-                while ((num = inputStream.read(bytes)) != -1){
-                    byteArrayOutputStream.write(bytes,0,num);
+                while ((num = inputStream.read(bytes)) != -1) {
+                    byteArrayOutputStream.write(bytes, 0, num);
                 }
                 byteArrayOutputStream.flush();
             } catch (IOException e) {
