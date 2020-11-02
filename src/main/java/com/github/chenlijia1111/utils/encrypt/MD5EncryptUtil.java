@@ -81,6 +81,8 @@ public class MD5EncryptUtil {
      *
      * 如果是文件输入流的话，就要另外构建一个输入流来计算 md5 值，不然输入流被读取了一次之后就没了
      *
+     * 建议：如果 web 服务需要校验文件唯一已节省服务器空间的话，md5 值最好让客户端去计算，毕竟服务器算力有限
+     *
      * @param inputStream
      * @return
      */
