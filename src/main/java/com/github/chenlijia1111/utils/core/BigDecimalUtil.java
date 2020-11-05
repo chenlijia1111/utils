@@ -37,7 +37,7 @@ public class BigDecimalUtil {
      * @return
      */
     public static BigDecimal add(BigDecimal v1, BigDecimal v2) {
-        return v1.add(v1);
+        return v1.add(v2);
     }
 
     /**
@@ -61,7 +61,7 @@ public class BigDecimalUtil {
      * @return
      */
     public static BigDecimal sub(BigDecimal v1, BigDecimal v2) {
-        return v1.subtract(v1);
+        return v1.subtract(v2);
     }
 
     /**
