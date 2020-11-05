@@ -109,7 +109,7 @@ public class ProcessUtil {
             command = "cmd.exe /c taskkill -pid " + processId + " -f";
         } else {
             //linux 系统
-            command = "klii -9 " + processId;
+            command = "kill -9 " + processId;
         }
 
         try {
