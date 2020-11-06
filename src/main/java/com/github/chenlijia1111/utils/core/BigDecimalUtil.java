@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * bigDecimal 工具类
@@ -118,6 +119,21 @@ public class BigDecimalUtil {
         BigDecimal multiply = v1.divide(v2, 2, ROUNDING_MODE);
         multiply = multiply.setScale(SCALE, ROUNDING_MODE);
         return multiply;
+    }
+
+    /**
+     * 判断 bigDecimal 是否是整数
+     * true 表示是整数
+     * false 表示不是整数
+     *
+     * @param bigDecimal
+     * @return
+     */
+    public static boolean intStatus(BigDecimal bigDecimal) {
+        if (Objects.nonNull(bigDecimal)) {
+            return new BigDecimal(bigDecimal.intValue()).compareTo(bigDecimal) == 0;
+        }
+        return false;
     }
 
 }
