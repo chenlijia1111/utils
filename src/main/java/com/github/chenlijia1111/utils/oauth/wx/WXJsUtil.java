@@ -46,8 +46,8 @@ public class WXJsUtil {
 
     public WXJsUtil(String appId, String secret) {
 
-        AssertUtil.hasText(appId,"appId不能为空");
-        AssertUtil.hasText(secret,"secret不能为空");
+        AssertUtil.hasText(appId, "appId不能为空");
+        AssertUtil.hasText(secret, "secret不能为空");
 
         this.appId = appId;
         this.secret = secret;
@@ -121,6 +121,12 @@ public class WXJsUtil {
         //判断是否之前有获取到
         if (StringUtils.isNotEmpty(accessToken) && Objects.nonNull(limitTime) &&
                 limitTime.getTime() > System.currentTimeMillis()) {
+            // 判断 accessToken 是否有效
+            if (!checkAccessToken(this.accessToken)) {
+                // 已经失效了，重新获取
+                this.accessToken = null;
+                return accessToken(appId, secret);
+            }
             return accessToken;
         }
 
@@ -149,7 +155,7 @@ public class WXJsUtil {
     public String getTicket() {
 
         //刷新accessToken
-        accessToken(this.appId,this.secret);
+        accessToken(this.appId, this.secret);
 
         if (StringUtils.isNotEmpty(accessToken)) {
 
@@ -212,6 +218,25 @@ public class WXJsUtil {
             return urlBuildUtil.getParams();
         }
         return null;
+    }
+
+    /**
+     * 校验 accessToken 是否是有效的 accessToken
+     *
+     * @param accessToken
+     * @return
+     */
+    public static boolean checkAccessToken(String accessToken) {
+        if (StringUtils.isNotEmpty(accessToken)) {
+            Map map = HttpClientUtils.getInstance().putParams("action", "ping").
+                    putParams("check_operator", "DEFAULT").
+                    doGet("https://api.weixin.qq.com/cgi-bin/callback/check?access_token=" + accessToken).
+                    toMap();
+            if (Objects.nonNull(map) && !map.containsKey("errcode")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
