@@ -224,7 +224,7 @@ public class FileUtils {
             BufferedImage read = ImageIO.read(file);
             return read != null;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("传入的文件不是图片");
         }
         return false;
     }
