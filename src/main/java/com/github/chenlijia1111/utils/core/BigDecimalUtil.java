@@ -1,5 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
+import com.github.chenlijia1111.utils.common.AssertUtil;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -12,114 +14,112 @@ import java.util.Objects;
  */
 public class BigDecimalUtil {
 
-    //精度
-    public static int SCALE = 2;
+    //最终结果精度
+    private Integer resultScale = 2;
     //取值方式 四舍五入
-    public static int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
+    private Integer roundingMode = BigDecimal.ROUND_HALF_UP;
 
-    /**
-     * 加法
-     *
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static BigDecimal add(double v1, double v2) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        return add(b1, b2);
+    // 当前结果
+    private BigDecimal currentResult;
+
+    public BigDecimalUtil(BigDecimal currentResult) {
+        AssertUtil.notNull(currentResult, "数据为空");
+        this.currentResult = currentResult;
     }
 
     /**
      * 加法
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal add(BigDecimal v1, BigDecimal v2) {
-        return v1.add(v2);
+    public BigDecimalUtil add(double v) {
+        BigDecimal b1 = new BigDecimal(Double.toString(v));
+        this.currentResult = this.currentResult.add(b1);
+        return this;
+    }
+
+    /**
+     * 加法
+     *
+     * @param v
+     * @return
+     */
+    public BigDecimalUtil add(BigDecimal v) {
+        this.currentResult = this.currentResult.add(v);
+        return this;
     }
 
     /**
      * 减法
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal sub(double v1, double v2) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        return sub(b1, b2);
+    public BigDecimalUtil sub(double v) {
+        BigDecimal b = new BigDecimal(Double.toString(v));
+        this.currentResult = this.currentResult.subtract(b);
+        return this;
     }
 
     /**
      * 减法
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal sub(BigDecimal v1, BigDecimal v2) {
-        return v1.subtract(v2);
+    public BigDecimalUtil sub(BigDecimal v) {
+        this.currentResult = this.currentResult.subtract(v);
+        return this;
     }
 
     /**
      * 乘法
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal mul(double v1, double v2) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        return mul(b1, b2);
+    public BigDecimalUtil mul(double v) {
+        BigDecimal b = new BigDecimal(Double.toString(v));
+        this.currentResult = this.currentResult.multiply(b);
+        return this;
     }
 
     /**
      * 乘法
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal mul(BigDecimal v1, BigDecimal v2) {
-        v1 = v1.setScale(SCALE, ROUNDING_MODE);
-        v2 = v2.setScale(SCALE, ROUNDING_MODE);
-        BigDecimal multiply = v1.multiply(v2);
-        multiply = multiply.setScale(SCALE, ROUNDING_MODE);
-        return multiply;
+    public BigDecimalUtil mul(BigDecimal v) {
+        this.currentResult = this.currentResult.multiply(v);
+        return this;
     }
 
     /**
      * 除法
+     * 除法必须要有舍入模式的，不然碰到除不尽的会报错
      *
-     * @param v1
-     * @param v2
+     * @param v
      * @return
      */
-    public static BigDecimal divide(double v1, double v2) {
-        BigDecimal b1 = new BigDecimal(Double.toString(v1));
-        BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        return divide(b1, b2);
+    public BigDecimalUtil divide(double v) {
+        BigDecimal b = new BigDecimal(Double.toString(v));
+        this.currentResult = this.currentResult.divide(b, 10, this.roundingMode);
+        return this;
     }
 
     /**
      * 除法
-     *
-     * @param v1
-     * @param v2
+     * 除法必须要有舍入模式的，不然碰到除不尽的会报错
+     * @param v
      * @return
      */
-    public static BigDecimal divide(BigDecimal v1, BigDecimal v2) {
-        v1 = v1.setScale(SCALE, ROUNDING_MODE);
-        v2 = v2.setScale(SCALE, ROUNDING_MODE);
-        BigDecimal multiply = v1.divide(v2, 2, ROUNDING_MODE);
-        multiply = multiply.setScale(SCALE, ROUNDING_MODE);
-        return multiply;
+    public BigDecimalUtil divide(BigDecimal v) {
+        this.currentResult = this.currentResult.divide(v, 10, this.roundingMode);
+        return this;
     }
+
 
     /**
      * 判断 bigDecimal 是否是整数
@@ -136,4 +136,34 @@ public class BigDecimalUtil {
         return false;
     }
 
+    /**
+     * 获取最终计算结果
+     *
+     * @return
+     */
+    public BigDecimal getCurrentResult() {
+        this.currentResult = this.currentResult.setScale(this.resultScale, this.roundingMode);
+        return this.currentResult;
+    }
+
+    /**
+     * 设置最终结果精度
+     *
+     * @param resultScale
+     */
+    public BigDecimalUtil setResultScale(Integer resultScale) {
+        this.resultScale = resultScale;
+        return this;
+    }
+
+    /**
+     * 设置获取最终结果的方式，默认是四舍五入
+     *
+     * @param roundingMode
+     * @return
+     */
+    public BigDecimalUtil setRoundingMode(Integer roundingMode) {
+        this.roundingMode = roundingMode;
+        return this;
+    }
 }
