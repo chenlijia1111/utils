@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 树形对象
@@ -48,6 +49,10 @@ public class TreeNodeVo {
     }
 
     public String getTreeParentId() {
+        if (Objects.equals(this.treeParentId, "null")) {
+            // 防止序列化是变为 null
+            this.treeParentId = null;
+        }
         return treeParentId;
     }
 
@@ -56,7 +61,7 @@ public class TreeNodeVo {
     }
 
     public List<TreeNodeVo> getChildTreeNodeList() {
-        if(null == childTreeNodeList){
+        if (null == childTreeNodeList) {
             childTreeNodeList = new ArrayList<>();
         }
         return childTreeNodeList;
