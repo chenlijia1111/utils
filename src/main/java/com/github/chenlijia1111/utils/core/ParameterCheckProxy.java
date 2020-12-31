@@ -71,6 +71,7 @@ public class ParameterCheckProxy {
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
                 if (!result.getSuccess()) {
+                    // 如果接口的返回类型是 void 的话，接口就直接不会返回信息了
                     return result;
                 }
 
@@ -84,6 +85,7 @@ public class ParameterCheckProxy {
                 //判断参数
                 Result result = specialCheckMethod(parameters, args);
                 if (!result.getSuccess()) {
+                    // 如果接口的返回类型是 void 的话，接口就直接不会返回信息了
                     return result;
                 }
             } else {
@@ -93,6 +95,7 @@ public class ParameterCheckProxy {
                     Object arg = args[i];
                     Result result = PropertyCheckUtil.checkProperty(arg);
                     if (!result.getSuccess()) {
+                        // 如果接口的返回类型是 void 的话，接口就直接不会返回信息了
                         return result;
                     }
                 }

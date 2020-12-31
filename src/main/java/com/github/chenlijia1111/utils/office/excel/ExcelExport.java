@@ -296,9 +296,9 @@ public class ExcelExport {
         AssertUtil.isTrue(null != exportClass, "导出的数据Class 对象为null");
 
         //表格样式
-        CellStyle cellStyle = simpleCellStyle(workbook);
+        CellStyle cellStyle = simpleCellStyle(workbook, true, false);
         //表头样式
-        CellStyle headCellStyle = headCellStyle(workbook);
+        CellStyle headCellStyle = simpleCellStyle(workbook, true, true);
 
         //导出表头
         LinkedHashMap<String, String> exportTitleHeadNameMap = this.exportTitleHeadNameMap;
@@ -497,71 +497,37 @@ public class ExcelExport {
     /**
      * 初始化样式
      *
-     * @param workbook 1
+     * @param workbook     1
+     * @param borderStatus 是否要边框
+     * @param boldStatus   是否加粗
      * @return void
      * @since 上午 10:07 2019/9/4 0004
      **/
-    private CellStyle simpleCellStyle(Workbook workbook) {
+    public static CellStyle simpleCellStyle(Workbook workbook, boolean borderStatus, boolean boldStatus) {
 
         //初始样式
         CellStyle style = workbook.createCellStyle();
 
         //设置样式  上下左右边框 字体 居中 宽度
         style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(BorderStyle.THIN);
-        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        if (borderStatus) {
+            style.setBorderRight(BorderStyle.THIN);
+            style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+            style.setBorderLeft(BorderStyle.THIN);
+            style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+            style.setBorderTop(BorderStyle.THIN);
+            style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+            style.setBorderBottom(BorderStyle.THIN);
+            style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        }
 
         Font dataFont = workbook.createFont();
-        dataFont.setFontName("Arial");
+        dataFont.setFontName("宋体");
         dataFont.setFontHeightInPoints((short) 10);
-        style.setFont(dataFont);
-
-        //水平居中
-        style.setAlignment(HorizontalAlignment.CENTER);
-        //垂直居中
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        //第一个参数代表列id(从0开始),第2个参数代表宽度值  参考 ："2012-08-10"的宽度为2500
-        //设置自动换行:
-        style.setWrapText(true);//设置自动换行
-
-        return style;
-    }
-
-    /**
-     * 表头样式
-     * 粗体显示表头
-     *
-     * @param workbook 1
-     * @return void
-     * @since 上午 10:07 2019/9/4 0004
-     **/
-    private CellStyle headCellStyle(Workbook workbook) {
-
-        //初始样式
-        CellStyle style = workbook.createCellStyle();
-
-        //设置样式  上下左右边框 字体 居中 宽度
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(BorderStyle.THIN);
-        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-
-        Font dataFont = workbook.createFont();
-        dataFont.setFontName("Arial");
-        dataFont.setFontHeightInPoints((short) 10);
-        //粗体
-        dataFont.setBold(true);
+        if (boldStatus) {
+            // 加粗
+            dataFont.setBold(true);
+        }
         style.setFont(dataFont);
 
         //水平居中
