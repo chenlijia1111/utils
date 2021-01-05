@@ -226,7 +226,7 @@
             <scope>provided</scope>
         </dependency>
         <!--java jpa 持久层规范 里面包含了jpa的注解
-        这里主要用于生成代码 调用者如果需要需要加上这个依赖,或者直接依赖 spring jpa-->
+        这里主要用于生成代码 调用者如果需要需要加上这个依赖,或者直接依赖 holdTarget jpa-->
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
@@ -261,7 +261,7 @@
             <version>${tk.mybatis.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- spring-web  不做显示引入,调用者有需要自行引入-->
+        <!-- holdTarget-web  不做显示引入,调用者有需要自行引入-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
