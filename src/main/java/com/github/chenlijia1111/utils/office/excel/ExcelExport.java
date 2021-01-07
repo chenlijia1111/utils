@@ -1,14 +1,20 @@
 package com.github.chenlijia1111.utils.office.excel;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.common.constant.BooleanConstant;
 import com.github.chenlijia1111.utils.common.constant.TimeConstant;
 import com.github.chenlijia1111.utils.core.FileUtils;
+import com.github.chenlijia1111.utils.core.IOUtil;
 import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.core.reflect.PropertyUtil;
 import com.github.chenlijia1111.utils.dateTime.DateTimeConvertUtil;
+import com.github.chenlijia1111.utils.http.HttpClientUtils;
 import com.github.chenlijia1111.utils.http.HttpUtils;
 import com.github.chenlijia1111.utils.list.Lists;
 import com.github.chenlijia1111.utils.office.excel.annos.ExcelExportField;
+import org.apache.http.HttpResponse;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -17,8 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -117,6 +122,28 @@ public class ExcelExport {
      * 默认以当前时间为文件名称
      **/
     private String exportFileName;
+
+    /**
+     * 属性->属性信息
+     * 减少反复反射查询带来的消耗
+     */
+    private Map<String, Optional<FieldInfoItem>> fieldInfoMap = new HashMap<>();
+
+    /**
+     * 字段信息
+     */
+    private class FieldInfoItem {
+
+        /**
+         * 字段类型
+         */
+        Class fieldType;
+
+        /**
+         * 字段注解
+         */
+        ExcelExportField excelExportField;
+    }
 
 
     public ExcelExport setDataList(List<? extends Object> dataList) {
@@ -284,7 +311,7 @@ public class ExcelExport {
     /**
      * 处理数据
      * <p>
-     * 把要到处的数据放到表格中
+     * 把要导出的数据放到表格中
      *
      * @return void
      * @since 上午 11:05 2019/9/4 0004
@@ -332,10 +359,13 @@ public class ExcelExport {
             Cell serialCellValue;
             //转换器 引用
             Function function;
+            // 插入图片对象
+            HSSFPatriarch drawingPatriarch = null;
 
             for (int i = 0; i < size; i++) {
 
-                row = sheet.createRow(i + 1);
+                int rowIndex = i + 1;
+                row = sheet.createRow(rowIndex);
                 //第一列 序号
                 serialCellValue = row.createCell(0);
                 serialCellValue.setCellValue(i + 1);
@@ -349,6 +379,8 @@ public class ExcelExport {
 
                     try {
                         Object fieldValue = PropertyUtil.getFieldValue(o, exportClass, fieldName);
+                        // 查询对应的注解
+                        ExcelExportField excelExportField = findFieldInfo(fieldName).map(e -> e.excelExportField).orElse(null);
                         if (null != fieldValue) {
                             //判断有没有转换器
                             function = finFieldConvert(fieldName);
@@ -358,6 +390,47 @@ public class ExcelExport {
                                 cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(apply.toString());
                                 cell.setCellStyle(cellStyle);
+                            } else if (Objects.nonNull(excelExportField) && Objects.equals(BooleanConstant.YES_INTEGER, excelExportField.imageStatus())) {
+                                // 该字段表示的是图片
+                                // 判断字段是否是字符串
+                                Class fileType = findFieldInfo(fieldName).map(e -> e.fieldType).orElse(null);
+                                if (Objects.equals(String.class, fileType)) {
+                                    // 是字符串
+                                    // 判断是否是网络图片--不推荐网络图片，因为如果有大量网络图片的话，
+                                    // 后台导出需要将所有网络图片都请求一遍，将会消耗很多时间，可以考虑让前端进行导出
+                                    String imagePath = fieldValue.toString();
+                                    byte[] bytes = null;
+                                    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+                                        // 是网络图片
+                                        HttpResponse response = HttpClientUtils.getInstance().doGet(imagePath).toResponse();
+                                        if (Objects.nonNull(response)) {
+                                            InputStream inputStream = response.getEntity().getContent();
+                                            if (Objects.nonNull(inputStream)) {
+                                                // 获取字节数组
+                                                bytes = IOUtil.readToBytes(inputStream);
+                                            }
+                                        }
+                                    } else {
+                                        // 是本地图片
+                                        File file = new File(imagePath);
+                                        if (file.exists() && !file.isDirectory()) {
+                                            FileInputStream inputStream = new FileInputStream(file);
+                                            // 读取图片文件内容
+                                            bytes = IOUtil.readToBytes(inputStream);
+                                        }
+                                    }
+                                    // 如果对应的图片数据存在的话，就放入图片数据，构建图片
+                                    if (Objects.nonNull(bytes) && bytes.length > 0) {
+                                        if (Objects.isNull(drawingPatriarch)) {
+                                            drawingPatriarch = (HSSFPatriarch) sheet.createDrawingPatriarch();
+                                        }
+
+                                        HSSFClientAnchor hssfClientAnchor = new HSSFClientAnchor(0, 0, 255, 255,
+                                                (short) currentColumnIndex, rowIndex, (short) currentColumnIndex, rowIndex);
+                                        int pictureIndex = workbook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+                                        drawingPatriarch.createPicture(hssfClientAnchor, pictureIndex);
+                                    }
+                                }
                             } else {
                                 cell = row.createCell(currentColumnIndex);
                                 cell.setCellValue(fieldValue.toString());
@@ -380,6 +453,8 @@ public class ExcelExport {
                             cell.setCellValue("");
                             cell.setCellStyle(cellStyle);
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
                     currentColumnIndex++;
@@ -411,17 +486,13 @@ public class ExcelExport {
             //如果没有，再去注解中寻找有没有定义转换器
             if (Objects.isNull(function)) {
                 try {
-                    Field field = this.exportClass.getDeclaredField(fieldName);
-                    if (Objects.nonNull(field)) {
-                        ExcelExportField excelExportField = field.getAnnotation(ExcelExportField.class);
-                        if (Objects.nonNull(excelExportField)) {
-                            Class<? extends Function> convert = excelExportField.convert();
-                            if (!Objects.equals(convert, ExcelExportField.NoConvert.class)) {
-                                function = convert.newInstance();
-                            }
+                    ExcelExportField excelExportField = findFieldInfo(fieldName).map(e -> e.excelExportField).orElse(null);
+                    if (Objects.nonNull(excelExportField)) {
+                        Class<? extends Function> convert = excelExportField.convert();
+                        if (!Objects.equals(convert, ExcelExportField.NoConvert.class)) {
+                            function = convert.newInstance();
                         }
                     }
-                } catch (NoSuchFieldException e) {
                 } catch (IllegalAccessException e) {
                 } catch (InstantiationException e) {
                 }
@@ -433,6 +504,40 @@ public class ExcelExport {
             this.getTransferMap().put(fieldName, function);
         }
         return function;
+    }
+
+    /**
+     * 获取字段的信息
+     *
+     * @param fieldName
+     * @return
+     */
+    private Optional<FieldInfoItem> findFieldInfo(String fieldName) {
+
+        Optional<FieldInfoItem> optional = null;
+        // 先查询在 fieldInfoMap 里有没有存过，有的话，就直接返回了
+        if (fieldInfoMap.containsKey(fieldName)) {
+            optional = fieldInfoMap.get(fieldName);
+        } else {
+            // 通过反射去获取
+            try {
+                Field field = this.exportClass.getDeclaredField(fieldName);
+                if (Objects.nonNull(field)) {
+                    FieldInfoItem fieldInfoItem = new FieldInfoItem();
+                    Class<?> type = field.getType();
+                    fieldInfoItem.fieldType = type;
+                    ExcelExportField excelExportField = field.getAnnotation(ExcelExportField.class);
+                    if (Objects.nonNull(excelExportField)) {
+                        fieldInfoItem.excelExportField = excelExportField;
+                    }
+                    optional = Optional.ofNullable(fieldInfoItem);
+                    fieldInfoMap.put(fieldName, optional);
+                }
+            } catch (NoSuchFieldException e) {
+            }
+        }
+
+        return optional;
     }
 
 
@@ -463,7 +568,7 @@ public class ExcelExport {
                     if (Lists.isNotEmpty(ignoreFieldList) && ignoreFieldList.contains(fieldName)) {
                         continue;
                     }
-                    ExcelExportField annotation = field.getAnnotation(ExcelExportField.class);
+                    ExcelExportField annotation = findFieldInfo(fieldName).map(e -> e.excelExportField).orElse(null);
                     if (null != annotation) {
                         String titleHeadName = annotation.titleHeadName();
                         ExcelExportHeadInfo headInfo = new ExcelExportHeadInfo(field.getName(), titleHeadName, annotation.sort(), annotation.cellWidth());

@@ -1,5 +1,7 @@
 package com.github.chenlijia1111.utils.office.excel.annos;
 
+import com.github.chenlijia1111.utils.common.constant.BooleanConstant;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -48,6 +50,15 @@ public @interface ExcelExportField {
      * @return
      */
     Class<? extends Function> convert() default NoConvert.class;
+
+    /**
+     * 是否是图片
+     * 如果为是的话
+     * 会进行判断，如果当前属性为 String 且 前缀以 http:// 或者 https:// 开头，就会进行请求网络图片进行放入
+     * 否则的话，就会当作是本地的文件路径，以本地文件的形式进行读取并放入
+     * @return
+     */
+    int imageStatus() default BooleanConstant.NO_INTEGER;
 
 
     /**

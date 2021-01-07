@@ -245,7 +245,10 @@ public class IOUtil {
                 e.printStackTrace();
             }
         }
-        return byteArrayOutputStream.toByteArray();
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        // 输入流已经用过一次了，后面也不能用了，直接关闭
+        IOUtil.close(byteArrayOutputStream, inputStream);
+        return bytes;
     }
 
     /**
