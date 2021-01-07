@@ -105,5 +105,11 @@ public class FileTest {
         System.out.println(stopWatch.getTotalTimeMillis());
     }
 
+    @Test
+    public void test4(){
+        // 测试压缩文件
+        FileUtils.fileToZip("D:\\公司资料\\项目评估","D:\\公司资料","测试压缩");
+    }
+
 
 }

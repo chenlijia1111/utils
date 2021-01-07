@@ -58,7 +58,7 @@ public @interface ExcelExportField {
      * 否则的话，就会当作是本地的文件路径，以本地文件的形式进行读取并放入
      * @return
      */
-    int imageStatus() default BooleanConstant.NO_INTEGER;
+    int imageStatus() default 0;
 
 
     /**

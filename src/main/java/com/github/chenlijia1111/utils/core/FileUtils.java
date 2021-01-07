@@ -234,6 +234,7 @@ public class FileUtils {
 
     /**
      * 压缩文件夹
+     * 里面的文件的名字其实是带上文件夹的，这样解压的时候就可以得到对应的文件夹了
      *
      * @param sourceFilePath  要压缩的文件夹
      * @param destZipFilePath 压缩包存放路径
@@ -241,39 +242,26 @@ public class FileUtils {
      * @return
      */
     public static Result fileToZip(String sourceFilePath, String destZipFilePath, String destFileName) {
-        File sourceFiles = new File(sourceFilePath);
-        if (!sourceFiles.exists()) {
+        // 要压缩的文件
+        File sourceFile = new File(sourceFilePath);
+        if (!sourceFile.exists()) {
             //文件夹不存在
-            return Result.failure("文件夹不存在");
+            return Result.failure("压缩文件不存在");
         }
-
-        File[] files = sourceFiles.listFiles();
-        if (files == null || files.length == 0) {
-            return Result.failure("文件夹为空");
+        // 目标文件夹，不存在则创建
+        File destFileDirectory = new File(destZipFilePath);
+        if (!destFileDirectory.exists()) {
+            destFileDirectory.mkdirs();
         }
-
-        File file1 = new File(destZipFilePath);
-        if (!file1.exists()) {
-            file1.mkdirs();
-        }
-
+        // 目标压缩文件
         File destFile = new File(destZipFilePath + "/" + destFileName + ".zip");
 
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(destFile)))) {
-
-            for (int i = 0; i < files.length; i++) {
-                File file = files[i];
-                //创建zip实体，并添加进压缩包
-                ZipEntry zipEntry = new ZipEntry(file.getName());
-                zipOutputStream.putNextEntry(zipEntry);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
-                byte[] bs = new byte[4096];
-                int read;
-                while ((read = bufferedInputStream.read(bs, 0, 4096)) != -1) {
-                    zipOutputStream.write(bs, 0, read);
-                }
-            }
+            // 递归写入压缩内容
+            recursionToZip(sourceFile, "", zipOutputStream);
+            zipOutputStream.finish();
             Result success = Result.success("压缩成功");
+            // 返回压缩文件路径
             success.setData(destZipFilePath + "/" + destFileName + ".zip");
             return success;
         } catch (FileNotFoundException e) {
@@ -283,6 +271,55 @@ public class FileUtils {
         }
 
         return Result.failure("压缩失败");
+    }
+
+    /**
+     * 递归压缩文件
+     *
+     * @param file            要压缩的文件或文件夹
+     * @param parentPath      上级目录相对于压缩根路径的地址 如压缩根路径是 D:\公司资料\企业办公信息化\批量导入票据资料
+     *                        当前要压缩的文件是 D:\公司资料\企业办公信息化\批量导入票据资料\a\b.png
+     *                        那么传入的参数应该是 批量导入票据资料\a
+     * @param zipOutputStream 压缩输出流
+     */
+    private static void recursionToZip(File file, String parentPath, ZipOutputStream zipOutputStream) {
+        // 判断是否是文件夹
+        if (file.isDirectory()) {
+            // 是文件夹
+            // 递归，将他的下级全部写入压缩输入流中
+            File[] files = file.listFiles();
+            if (Objects.nonNull(files) && files.length > 0) {
+                for (int i = 0; i < files.length; i++) {
+                    File childFile = files[i];
+                    recursionToZip(childFile, parentPath + "/" + file.getName(), zipOutputStream);
+                }
+            }
+        } else {
+            // 是文件
+            // 创建zip实体，并添加进压缩包
+            // zipEntry 的名字，如果上级是文件夹，需要带上上级的名字
+            // 比如压缩的根目录路径是 D:\公司资料\企业办公信息化\批量导入票据资料
+            // 然后当前文件路径是 D:\公司资料\企业办公信息化\批量导入票据资料\a.png
+            // 那么他的压缩名应该是 批量导入票据资料\a.png
+            String zipEntryName = parentPath + "/" + file.getName();
+            BufferedInputStream bufferedInputStream = null;
+            try {
+                ZipEntry zipEntry = new ZipEntry(zipEntryName);
+                zipOutputStream.putNextEntry(zipEntry);
+                // 将对应的文件写入压缩包输出流中
+                bufferedInputStream = new BufferedInputStream(new FileInputStream(file));
+                byte[] bs = new byte[4096];
+                int read;
+                while ((read = bufferedInputStream.read(bs, 0, 4096)) != -1) {
+                    zipOutputStream.write(bs, 0, read);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                // 关闭输入流
+                IOUtil.close(bufferedInputStream);
+            }
+        }
     }
 
     /**
