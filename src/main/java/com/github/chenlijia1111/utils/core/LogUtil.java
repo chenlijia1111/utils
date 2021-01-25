@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.core;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.common.constant.TimeConstant;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class LogUtil implements Logger {
         StackTraceElement stackTraceElement = stackTrace[2];
         StringBuilder stringBuilder = new StringBuilder();
         //时间
-        stringBuilder.append("时间：" + DateTime.now().toString());
+        stringBuilder.append("时间：" + DateTime.now().toString(TimeConstant.DATE_TIME));
         stringBuilder.append(" ");
         stringBuilder.append(stackTraceElement.getClassName());
         stringBuilder.append(".");

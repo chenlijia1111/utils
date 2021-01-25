@@ -514,7 +514,7 @@ public class ExcelExport {
      */
     private Optional<FieldInfoItem> findFieldInfo(String fieldName) {
 
-        Optional<FieldInfoItem> optional = null;
+        Optional<FieldInfoItem> optional = Optional.empty();
         // 先查询在 fieldInfoMap 里有没有存过，有的话，就直接返回了
         if (fieldInfoMap.containsKey(fieldName)) {
             optional = fieldInfoMap.get(fieldName);
