@@ -26,7 +26,7 @@ public class TestWeiBo {
 
     @Test
     public void testUserInfo() {
-        Map map = new WeiBoLoginUtil().userInfo("195395370", 12);
+        Map map = new WeiBoLoginUtil().userInfo("195395370", "12");
         System.out.println(JSONUtil.objToStr(map));
     }
 

@@ -1,6 +1,7 @@
 package com.github.chenlijia1111.utils.oauth.weibo;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
+import com.github.chenlijia1111.utils.core.StringUtils;
 import com.github.chenlijia1111.utils.http.HttpClientUtils;
 
 import java.util.Date;
@@ -21,7 +22,7 @@ public class WeiBoLoginUtil {
     /**
      * 微博用户id
      */
-    private Integer uid;
+    private String uid;
 
     private String accessToken;
 
@@ -33,7 +34,7 @@ public class WeiBoLoginUtil {
     public WeiBoLoginUtil() {
     }
 
-    public WeiBoLoginUtil(Integer uid, String accessToken, Date expireTime) {
+    public WeiBoLoginUtil(String uid, String accessToken, Date expireTime) {
         this.uid = uid;
         this.accessToken = accessToken;
         this.expireTime = expireTime;
@@ -90,10 +91,10 @@ public class WeiBoLoginUtil {
             Object access_token = map.get("access_token");
             Object expires_in = map.get("expires_in");
             Object uid = map.get("uid");
-            this.uid = Integer.valueOf(uid.toString());
+            this.uid = uid.toString();
             this.accessToken = access_token.toString();
             //判断过期时间
-            Integer expireSeconds = Integer.valueOf(expires_in.toString());
+            Long expireSeconds = Long.valueOf(expires_in.toString());
             this.expireTime = new Date(System.currentTimeMillis() + expireSeconds * 1000);
         }
         return map;
@@ -137,12 +138,12 @@ public class WeiBoLoginUtil {
                 toMap();
         if(Objects.nonNull(map) && !map.containsKey("error_code")){
             //没报错，进行赋值
-            Object expires_in = map.get("expires_in");
+            Object expires_in = map.get("expire_in");
             Object uid = map.get("uid");
-            this.uid = Integer.valueOf(uid.toString());
+            this.uid = uid.toString();
             this.accessToken = access_token;
             //判断过期时间
-            Integer expireSeconds = Integer.valueOf(expires_in.toString());
+            Long expireSeconds = Long.valueOf(expires_in.toString());
             this.expireTime = new Date(System.currentTimeMillis() + expireSeconds * 1000);
         }
         return map;
@@ -212,9 +213,9 @@ public class WeiBoLoginUtil {
      * @param uid
      * @return
      */
-    public Map userInfo(String access_token, Integer uid) {
+    public Map userInfo(String access_token, String uid) {
         AssertUtil.hasText(access_token,"access_token为空");
-        AssertUtil.isTrue(Objects.nonNull(uid),"uid为空");
+        AssertUtil.isTrue(StringUtils.isNotEmpty(uid),"uid为空");
 
         Map map = HttpClientUtils.getInstance().
                 putParams("access_token", access_token).
@@ -224,7 +225,7 @@ public class WeiBoLoginUtil {
         return map;
     }
 
-    public Integer getUid() {
+    public String getUid() {
         return uid;
     }
 

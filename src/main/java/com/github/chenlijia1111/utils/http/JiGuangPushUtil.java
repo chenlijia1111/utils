@@ -2,12 +2,10 @@ package com.github.chenlijia1111.utils.http;
 
 import com.github.chenlijia1111.utils.common.AssertUtil;
 import com.github.chenlijia1111.utils.common.constant.ContentTypeConstant;
-import com.github.chenlijia1111.utils.core.RandomUtil;
 import com.github.chenlijia1111.utils.core.enums.CharSetType;
 import com.github.chenlijia1111.utils.list.Lists;
 import org.apache.http.protocol.HTTP;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.List;
@@ -19,105 +17,105 @@ import java.util.Objects;
  * <p>
  * 请求参数
  * {@code {
- *      "cid": "8103a4c628a0b98974ec1949-711261d4-5f17-4d2f-a855-5e5a8909b26e",
- *      "platform": "all",
- *          "audience": {
- *              "tag": [
- *                  "深圳",
- *                  "北京"
- *              ]
- *          },
- *      "notification": {
- *          "android": {
- *              "alert": "Hi, JPush!",
- *              "title": "Send to Android",
- *              "builder_id": 1,
- *              "large_icon": "http://www.jiguang.cn/largeIcon.jpg",
- *              "intent": {
- *                  "url": "intent:#Intent;component=com.jiguang.push/com.example.jpushdemo.SettingActivity;end",
- *              },
- *              "extras": {
- *                  "newsid": 321
- *              }
- *         },
- *          "ios": {
- *              "alert": "Hi, JPush!",
- *              "sound": "default",
- *              "badge": "+1",
- *              "thread-id": "default"
- *              "extras": {
- *                  "newsid": 321
- *              }
- *          },
- *          "voip": {    // 此功能需要 JPush iOS SDK v3.3.2 及以上版本支持
- *              "key": "value" // 任意自定义key/value对，api透传下去
- *          }
- *      },
- *      "message": {
- *          "msg_content": "Hi,JPush",
- *          "content_type": "text",
- *          "title": "msg",
- *          "extras": {
- *              "key": "value"
- *          }
- *      },
- *      "sms_message":{
- *          "temp_id":1250,
- *          "temp_para":{
- *              "code":"123456"
- *          },
- *          "delay_time":3600,
- *          "active_filter":false
- *      },
- *      "options": {
- *          "time_to_live": 60,
- *          "apns_production": false,
- *          "apns_collapse_id":"jiguang_test_201706011100"
- *              },
- *          "callback": {
- *              "url":"http://www.bilibili.com",
- *              "params":{
- *              "name":"joe",
- *              "age":26
- *              },
- *          "type":3
- *          }
- *  }
+ * "cid": "8103a4c628a0b98974ec1949-711261d4-5f17-4d2f-a855-5e5a8909b26e",
+ * "platform": "all",
+ * "audience": {
+ * "tag": [
+ * "深圳",
+ * "北京"
+ * ]
+ * },
+ * "notification": {
+ * "android": {
+ * "alert": "Hi, JPush!",
+ * "title": "Send to Android",
+ * "builder_id": 1,
+ * "large_icon": "http://www.jiguang.cn/largeIcon.jpg",
+ * "intent": {
+ * "url": "intent:#Intent;component=com.jiguang.push/com.example.jpushdemo.SettingActivity;end",
+ * },
+ * "extras": {
+ * "newsid": 321
  * }
- *
- *
+ * },
+ * "ios": {
+ * "alert": "Hi, JPush!",
+ * "sound": "default",
+ * "badge": "+1",
+ * "thread-id": "default"
+ * "extras": {
+ * "newsid": 321
+ * }
+ * },
+ * "voip": {    // 此功能需要 JPush iOS SDK v3.3.2 及以上版本支持
+ * "key": "value" // 任意自定义key/value对，api透传下去
+ * }
+ * },
+ * "message": {
+ * "msg_content": "Hi,JPush",
+ * "content_type": "text",
+ * "title": "msg",
+ * "extras": {
+ * "key": "value"
+ * }
+ * },
+ * "sms_message":{
+ * "temp_id":1250,
+ * "temp_para":{
+ * "code":"123456"
+ * },
+ * "delay_time":3600,
+ * "active_filter":false
+ * },
+ * "options": {
+ * "time_to_live": 60,
+ * "apns_production": false,
+ * "apns_collapse_id":"jiguang_test_201706011100"
+ * },
+ * "callback": {
+ * "url":"http://www.bilibili.com",
+ * "params":{
+ * "name":"joe",
+ * "age":26
+ * },
+ * "type":3
+ * }
+ * }
+ * }
+ * <p>
+ * <p>
  * 测试代码如下：
  * {@code
- *                 //进行推送消息  逻小维：一会要一起出门玩么？  客户端注意 要截取第一个冒号之后的数据进行展示，
- *                 String messageContent = sendUserNickName + "：" + params.getMessageContent();
- *                 //推送目标对象构建
- *                 Map audience = Maps.mapBuilder(MapType.HASH_MAP).put("alias", aliasNameSet).build();
- *                 //通知内容 安卓发送通知时添加通知栏大图标 为应用图标
- *                 String requestPrefixUrl = HttpUtils.currentRequestUrlPrefix(SpringUtil.getCurrentRequest());
- *                 String bzPushIconUrl = requestPrefixUrl + "/images/icons/bz_push_icon.png";
- *                 Map androidNotification = Maps.mapBuilder(MapType.HASH_MAP).
- *                         put("alert", messageContent).
- *                         put("extras",params).
- *                         put("large_icon",bzPushIconUrl).
- *                         build();
- *                 Map iosNotification = Maps.mapBuilder(MapType.HASH_MAP).
- *                         put("alert", messageContent).
- *                         put("extras",params).
- *                         build();
- *                 Map notification = Maps.mapBuilder(MapType.HASH_MAP).
- *                         put("android", androidNotification).
- *                         put("ios", iosNotification).
- *                         build();
- *                 //True 表示推送生产环境，False 表示要推送开发环境
- *                 Map options = Maps.mapBuilder(MapType.HASH_MAP).
- *                         put("apns_production", false).
- *                         build();
- *                 Map map = new JiGuangPushUtil(Constants.PUSH_APP_KEY, Constants.PUSH_APP_SECRET).
- *                         platform("all").
- *                         audience(audience).
- *                         notification(notification).
- *                         options(options).
- *                         push();
+ * //进行推送消息  逻小维：一会要一起出门玩么？  客户端注意 要截取第一个冒号之后的数据进行展示，
+ * String messageContent = sendUserNickName + "：" + params.getMessageContent();
+ * //推送目标对象构建
+ * Map audience = Maps.mapBuilder(MapType.HASH_MAP).put("alias", aliasNameSet).build();
+ * //通知内容 安卓发送通知时添加通知栏大图标 为应用图标
+ * String requestPrefixUrl = HttpUtils.currentRequestUrlPrefix(SpringUtil.getCurrentRequest());
+ * String bzPushIconUrl = requestPrefixUrl + "/images/icons/bz_push_icon.png";
+ * Map androidNotification = Maps.mapBuilder(MapType.HASH_MAP).
+ * put("alert", messageContent).
+ * put("extras",params).
+ * put("large_icon",bzPushIconUrl).
+ * build();
+ * Map iosNotification = Maps.mapBuilder(MapType.HASH_MAP).
+ * put("alert", messageContent).
+ * put("extras",params).
+ * build();
+ * Map notification = Maps.mapBuilder(MapType.HASH_MAP).
+ * put("android", androidNotification).
+ * put("ios", iosNotification).
+ * build();
+ * //True 表示推送生产环境，False 表示要推送开发环境
+ * Map options = Maps.mapBuilder(MapType.HASH_MAP).
+ * put("apns_production", false).
+ * build();
+ * Map map = new JiGuangPushUtil(Constants.PUSH_APP_KEY, Constants.PUSH_APP_SECRET).
+ * platform("all").
+ * audience(audience).
+ * notification(notification).
+ * options(options).
+ * push();
  * }
  *
  * @author Chen LiJia
@@ -264,7 +262,7 @@ public class JiGuangPushUtil {
     public Map push() {
 
         //构建 token
-        String token = Base64.getEncoder().encodeToString((this.appKey + ":" +this.masterSecret).getBytes(Charset.forName(CharSetType.UTF8.name())));
+        String token = Base64.getEncoder().encodeToString((this.appKey + ":" + this.masterSecret).getBytes(Charset.forName(CharSetType.UTF8.name())));
         httpClientUtils.putHeader("Authorization", "Basic " + token);
         httpClientUtils.putHeader(HTTP.CONTENT_TYPE, ContentTypeConstant.APPLICATION_JSON);
 
@@ -278,5 +276,11 @@ public class JiGuangPushUtil {
         return map;
     }
 
-
+    /**
+     * 获取请求参数
+     * @return
+     */
+    public Map getQueryParams() {
+        return httpClientUtils.getParams();
+    }
 }
