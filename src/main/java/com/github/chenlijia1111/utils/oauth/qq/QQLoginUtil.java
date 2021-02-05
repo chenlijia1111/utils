@@ -75,7 +75,6 @@ public class QQLoginUtil {
         //判断是否成功
         //进行截取
         s = s.substring(s.indexOf("{"), s.lastIndexOf("}") + 1);
-        System.out.println(s);
         Map map = JSONUtil.strToObj(s, HashMap.class);
         Object errcode = map.get("error");
         if (Objects.isNull(errcode)) {
@@ -124,6 +123,40 @@ public class QQLoginUtil {
             Object openid = map1.get("openid");
             map.put("openid", openid.toString());
         }
+        return map;
+    }
+
+    /**
+     * 获取用户信息
+     * { "ret":1002, "msg":"请先登录" }
+     * {
+     * "ret":0,
+     * "msg":"",
+     * "nickname":"Peter",
+     * "figureurl":"http://qzapp.qlogo.cn/qzapp/111111/942FEA70050EEAFBD4DCE2C1FC775E56/30",
+     * "figureurl_1":"http://qzapp.qlogo.cn/qzapp/111111/942FEA70050EEAFBD4DCE2C1FC775E56/50",
+     * "figureurl_2":"http://qzapp.qlogo.cn/qzapp/111111/942FEA70050EEAFBD4DCE2C1FC775E56/100",
+     * "figureurl_qq_1":"http://q.qlogo.cn/qqapp/100312990/DE1931D5330620DBD07FB4A5422917B6/40",
+     * "figureurl_qq_2":"http://q.qlogo.cn/qqapp/100312990/DE1931D5330620DBD07FB4A5422917B6/100",
+     * "gender":"男",
+     * "is_yellow_vip":"1",
+     * "vip":"1",
+     * "yellow_vip_level":"7",
+     * "level":"7",
+     * "is_yellow_year_vip":"1"
+     * }
+     *
+     * @param accessToken
+     * @param appId
+     * @param openId
+     * @return
+     */
+    public Map findUserInfo(String accessToken, String appId, String openId) {
+        Map map = HttpClientUtils.getInstance().
+                putParams("access_token", accessToken).
+                putParams("oauth_consumer_key", appId).
+                putParams("openid", openId).
+                doGet("https://graph.qq.com/user/get_user_info").toMap();
         return map;
     }
 
