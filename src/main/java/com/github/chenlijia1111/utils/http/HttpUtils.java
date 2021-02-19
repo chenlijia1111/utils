@@ -4,7 +4,6 @@ import com.github.chenlijia1111.utils.core.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * @author chenlijia
@@ -77,9 +76,20 @@ public class HttpUtils {
      * @since 下午 6:01 2019/5/16 0016
      **/
     public static String currentRequestUrlPrefix(HttpServletRequest request) {
-        String requestUrl = request.getScheme() //当前链接使用的协议
+        // 如果是 nginx 转发过来的，需要nginx 配置 location proxy_set_header X-Forwarded-Scheme  $scheme;
+        // 不然获取不到真实的 scheme
+        String forwardedScheme = request.getHeader("X-Forwarded-Scheme");
+        int serverPort = request.getServerPort();
+        if (StringUtils.isEmpty(forwardedScheme)) {
+            forwardedScheme = request.getScheme();
+        }
+        // 如果是 nginx 转发过来的 获取到的端口可能不对，要进行判断
+        if (Objects.equals(forwardedScheme.toLowerCase(), "https")) {
+            serverPort = 443;
+        }
+        String requestUrl = forwardedScheme //当前链接使用的协议
                 + "://" + request.getServerName()//服务器地址
-                + ":" + request.getServerPort() //端口号
+                + ":" + serverPort //端口号
                 + request.getContextPath(); //应用名称，如果应用名称为
 
         return requestUrl;
