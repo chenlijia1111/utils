@@ -715,8 +715,10 @@ public class HttpClientUtils {
             if (null != response) {
                 HttpEntity entity = response.getEntity();
                 String s = EntityUtils.toString(entity, CharSetType.UTF8.getType());
-                Map map = JSONUtil.strToObj(s, HashMap.class);
-                return map;
+                if (StringUtils.isNotEmpty(s)){
+                    Map map = JSONUtil.strToObj(s, HashMap.class);
+                    return map;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
