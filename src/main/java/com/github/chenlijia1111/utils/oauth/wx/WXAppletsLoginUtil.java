@@ -57,6 +57,8 @@ public class WXAppletsLoginUtil {
 
     /**
      * 获取 accessToken
+     * 注意：这个 accessToken 是小程序后端调用接口的全局 accessToken
+     * 需要全局保存的
      *
      * @param appId
      * @param secret

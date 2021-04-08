@@ -40,6 +40,7 @@ public class FileUtils {
         commonDownLoadContentType.put(".img", "application/x-img");
         commonDownLoadContentType.put(".jpeg", "image/jpeg");
         commonDownLoadContentType.put(".jpg", "image/jpeg");
+        commonDownLoadContentType.put(".gif", "image/gif");
         commonDownLoadContentType.put(".jpe", "image/jpeg");
         commonDownLoadContentType.put(".mp4", "video/mp4");
         commonDownLoadContentType.put(".ppt", "application/x-ppt");
@@ -53,7 +54,6 @@ public class FileUtils {
         commonDownLoadContentType.put(".txt", "text/plain");
         commonDownLoadContentType.put(".xls", "application/vnd.ms-excel");
         commonDownLoadContentType.put(".doc", "application/msword");
-        commonDownLoadContentType.put(".pdf", "application/pdf");
         commonDownLoadContentType.put(".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         commonDownLoadContentType.put(".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
