@@ -46,7 +46,7 @@
         <pinyin4j.version>2.5.1</pinyin4j.version>
         <swagger-annotations.version>1.5.23</swagger-annotations.version>
         <mybatis-generator-core.version>1.4.0</mybatis-generator-core.version>
-        <mysql-connector-java.version>8.0.17</mysql-connector-java.version>
+        <mysql-connector-java.version>8.0.28</mysql-connector-java.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javax.persistence-api.version>2.2</javax.persistence-api.version>
         <thumbnailator.version>0.4.8</thumbnailator.version>
