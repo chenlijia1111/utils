@@ -31,7 +31,7 @@
         <jackson-databind.version>2.9.10.8</jackson-databind.version>
         <!--poi 的版本不要搞随便改，改了可能某个方法就没有了 poi 版本之间有时候变动会很大，
         导出数据字典的工具类用的就是这个版本-->
-        <poi.version>4.0.1</poi.version>
+        <poi.version>4.1.1</poi.version>
         <fr.opensagres.xdocreport.version>2.0.2</fr.opensagres.xdocreport.version>
         <joda-time.version>2.9.9</joda-time.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
